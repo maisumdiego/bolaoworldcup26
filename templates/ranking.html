@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Ranking - Bolão 2026{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold">Ranking Geral</h2>
+        <p class="text-muted">Acompanhe a classificação em tempo real.</p>
+    </div>
+
+    <div class="card shadow-sm mx-auto" style="max-width: 900px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-center">
+                <thead class="table-success text-white">
+                    <tr>
+                        <th style="width: 10%">Pos</th>
+                        <th class="text-start" style="width: 30%">Participante</th>
+                        <th style="width: 15%" title="Placar exato (5 pontos)">Exato</th>
+                        <th style="width: 15%" title="Acertou vencedor e gols de 1 time (3 pontos)">Parcial</th>
+                        <th style="width: 15%" title="Acertou apenas o vencedor (2 pontos)">Tendência</th>
+                        <th class="fw-bold fs-5" style="width: 15%">Pontos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jogador in ranking %}
+                    <tr class="{% if current_user.name == jogador.nome %}table-active fw-bold{% endif %}">
+                        <td class="fs-5">
+                            {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}º{% endif %}
+                        </td>
+                        <td class="text-start">
+                            {{ jogador.nome }}
+                            {% if current_user.name == jogador.nome %}
+                                <span class="badge bg-success ms-2">Você</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ jogador.exatos }}</td>
+                        <td class="text-muted">{{ jogador.parciais }}</td>
+                        <td class="text-muted">{{ jogador.tendencia }}</td>
+                        <td class="fw-bold fs-5 text-success">{{ jogador.pontos }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            Nenhum jogo foi encerrado ainda. Faça seus palpites!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

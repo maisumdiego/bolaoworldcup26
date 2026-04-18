@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Meus Palpites - Bolão 2026{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Palpites da Competição</h2>
+
+    <ul class="nav nav-pills mb-4 flex-nowrap overflow-auto pb-2" id="pills-tab" role="tablist" style="white-space: nowrap;">
+        {% for dia in datas_ordenadas %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if dia == dia_ativo %}active{% endif %}" 
+                        id="pills-{{ dia }}-tab" 
+                        data-bs-toggle="pill" 
+                        data-bs-target="#pills-{{ dia }}" 
+                        type="button" role="tab">
+                    {{ dia[-2:] }}/{{ dia[5:7] }}
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        {% for dia in datas_ordenadas %}
+            <div class="tab-pane fade {% if dia == dia_ativo %}show active{% endif %}" id="pills-{{ dia }}" role="tabpanel">
+                
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for jogo in jogos_por_dia[dia] %}
+                        
+                        {% set bloqueado = agora >= (jogo.datetime_game - timedelta(minutes=10)) %}
+                        {% set meu_palpite = palpites_usuario.get(jogo.id) %}
+                        
+                        <div class="col">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-white text-center text-muted small">
+                                    {{ jogo.datetime_game.strftime('%H:%M') }} | Fase: {{ jogo.phase }}
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <form class="form-palpite d-flex flex-column flex-grow-1">
+                                        <input type="hidden" name="game_id" value="{{ jogo.id }}">
+                                        
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            
+                                            <div class="text-center w-25">
+                                                {% if jogo.team_a %}
+                                                    <img src="{{ jogo.team_a.team_flag_url }}" alt="Bandeira" width="40" class="mb-1 border">
+                                                    <div class="fw-bold">{{ jogo.team_a.ab }}</div>
+                                                {% else %}
+                                                    <div class="fw-bold text-muted" style="font-size: 0.8rem;">{{ jogo.placeholder_a }}</div>
+                                                {% endif %}
+                                            </div>
+                                
+                                            <div class="d-flex flex-column align-items-center w-50 gap-1">
+                                                <span class="text-muted" style="font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Seu Palpite</span>
+                                                <div class="d-flex align-items-center justify-content-center gap-2 w-100">
+                                                    <input type="number" name="result_a" class="form-control text-center fs-5 px-1" style="width: 50px;" min="0" max="20" required {% if bloqueado %}disabled{% endif %} value="{{ meu_palpite.a if meu_palpite else '' }}">
+                                                    <span class="fw-bold fs-5">X</span>
+                                                    <input type="number" name="result_b" class="form-control text-center fs-5 px-1" style="width: 50px;" min="0" max="20" required {% if bloqueado %}disabled{% endif %} value="{{ meu_palpite.b if meu_palpite else '' }}">
+                                                </div>
+                                            </div>
+                                
+                                            <div class="text-center w-25">
+                                                {% if jogo.team_b %}
+                                                    <img src="{{ jogo.team_b.team_flag_url }}" alt="Bandeira" width="40" class="mb-1 border">
+                                                    <div class="fw-bold">{{ jogo.team_b.ab }}</div>
+                                                {% else %}
+                                                    <div class="fw-bold text-muted" style="font-size: 0.8rem;">{{ jogo.placeholder_b }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        {% if jogo.status == 'encerrado' %}
+                                            <div class="bg-light border rounded text-center py-2 mb-3 mt-auto">
+                                                <span class="text-muted small fw-bold d-block" style="font-size: 0.7rem; text-transform: uppercase;">Resultado Oficial</span>
+                                                <span class="fs-5 fw-bold text-dark">{{ jogo.team_a_result }} <span class="text-muted mx-1">x</span> {{ jogo.team_b_result }}</span>
+                                                
+                                                {% if meu_palpite %}
+                                                    {% set p_a = meu_palpite.a %}
+                                                    {% set p_b = meu_palpite.b %}
+                                                    {% set r_a = jogo.team_a_result %}
+                                                    {% set r_b = jogo.team_b_result %}
+                                                    
+                                                    {% set pontos = 0 %}
+                                                    {% set badge_class = "bg-secondary" %}
+                                                    {% set texto_ponto = "" %}
+                                                    
+                                                    {% if p_a == r_a and p_b == r_b %}
+                                                        {% set pontos = 5 %}
+                                                        {% set badge_class = "bg-success" %}
+                                                        {% set texto_ponto = "Na Mosca!" %}
+                                                    {% elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b) %}
+                                                        {% if p_a == r_a or p_b == r_b %}
+                                                            {% set pontos = 3 %}
+                                                            {% set badge_class = "bg-primary" %}
+                                                            {% set texto_ponto = "Parcial" %}
+                                                        {% else %}
+                                                            {% set pontos = 2 %}
+                                                            {% set badge_class = "bg-info text-dark" %}
+                                                            {% set texto_ponto = "Tendência" %}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% set pontos = 0 %}
+                                                        {% set badge_class = "bg-danger" %}
+                                                        {% set texto_ponto = "Errou" %}
+                                                    {% endif %}
+                                                    
+                                                    <div class="mt-2 pt-2 border-top mx-3">
+                                                        <span class="badge {{ badge_class }} px-3 py-1" style="font-size: 0.85rem;">
+                                                            +{{ pontos }} pts ({{ texto_ponto }})
+                                                        </span>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="mt-2 pt-2 border-top mx-3">
+                                                        <span class="badge bg-secondary px-3 py-1" style="font-size: 0.85rem;">
+                                                            0 pts (Não palpitou)
+                                                        </span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <div class="mt-auto"></div>
+                                        {% endif %}
+                                
+                                        <button type="submit" class="btn btn-sm w-100 btn-submit-palpite {% if jogo.status == 'encerrado' %}btn-secondary{% elif meu_palpite %}btn-primary{% else %}btn-success{% endif %}" {% if bloqueado or jogo.status == 'encerrado' %}disabled{% endif %}>
+                                            {% if jogo.status == 'encerrado' %}
+                                                Jogo Finalizado
+                                            {% elif bloqueado %}
+                                                Encerrado (Em andamento)
+                                            {% elif meu_palpite %}
+                                                Atualizar Palpite
+                                            {% else %}
+                                                Salvar Palpite
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    
+    const forms = document.querySelectorAll('.form-palpite');
+
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            
+            if (!btn) {
+                console.error("Erro crítico: Nenhum botão de submit encontrado.");
+                return;
+            }
+
+            const originalText = btn.innerHTML;
+            const originalClasses = btn.className;
+
+            btn.disabled = true;
+            btn.innerHTML = 'Salvando...';
+
+            const formData = new FormData(e.target);
+
+            fetch('/salvar_palpite', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin' 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro HTTP: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    btn.className = 'btn btn-sm w-100 btn-secondary';
+                    btn.innerHTML = 'Salvo ✓';
+
+                    setTimeout(() => {
+                        btn.className = 'btn btn-sm w-100 btn-primary';
+                        btn.innerHTML = 'Atualizar Palpite';
+                        btn.disabled = false;
+                    }, 3000);
+                } else {
+                    alert("Aviso: " + data.message);
+                    btn.className = originalClasses;
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Falha de conexão:', error);
+                alert("Falha de comunicação com o servidor.");
+                btn.className = originalClasses;
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Resultados Oficiais{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Painel do Administrador - Resultados Oficiais</h2>
+
+    <ul class="nav nav-pills mb-4 flex-nowrap overflow-auto pb-2" id="pills-tab-fases" role="tablist" style="white-space: nowrap;">
+        {% for fase in fases_ordenadas %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if fase == fase_ativa %}active{% endif %}" 
+                        id="pills-fase-{{ loop.index }}-tab" 
+                        data-bs-toggle="pill" 
+                        data-bs-target="#pills-fase-{{ loop.index }}" 
+                        type="button" role="tab">
+                    {{ fase }}
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent-fases">
+        {% for fase in fases_ordenadas %}
+            <div class="tab-pane fade {% if fase == fase_ativa %}show active{% endif %}" id="pills-fase-{{ loop.index }}" role="tabpanel">
+                
+                <div class="card mb-5 shadow-sm">
+                    <div class="card-header bg-dark text-white fw-bold">
+                        Jogos - {{ fase }}
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 15%">Data/Hora</th>
+                                    <th class="text-end" style="width: 25%">Time A</th>
+                                    <th class="text-center" style="width: 20%">Placar Real</th>
+                                    <th class="text-start" style="width: 25%">Time B</th>
+                                    <th class="text-center" style="width: 15%">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for jogo in jogos_por_fase[fase] %}
+                                <tr>
+                                    <td class="small text-muted">
+                                        {{ jogo.datetime_game.strftime('%d/%m %H:%M') }}
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="me-2 fw-bold">{{ jogo.team_a.team_name if jogo.team_a else jogo.placeholder_a }}</span>
+                                        {% if jogo.team_a %}
+                                            <img src="{{ jogo.team_a.team_flag_url }}" width="30" class="border">
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form class="form-admin-resultado d-flex justify-content-center gap-2">
+                                            <input type="hidden" name="game_id" value="{{ jogo.id }}">
+                                            <input type="number" name="result_a" class="form-control form-control-sm text-center fw-bold" 
+                                                   style="width: 60px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required>
+                                            <span class="align-self-center">X</span>
+                                            <input type="number" name="result_b" class="form-control form-control-sm text-center fw-bold" 
+                                                   style="width: 60px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required>
+                                        </form>
+                                    </td>
+                                    <td class="text-start">
+                                        {% if jogo.team_b %}
+                                            <img src="{{ jogo.team_b.team_flag_url }}" width="30" class="border me-2">
+                                        {% endif %}
+                                        <span class="fw-bold">{{ jogo.team_b.team_name if jogo.team_b else jogo.placeholder_b }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm w-100 btn-submit-admin {% if jogo.status == 'encerrado' %}btn-primary{% else %}btn-success{% endif %}" 
+                                                onclick="enviarResultado(this)">
+                                            {{ 'Atualizar' if jogo.status == 'encerrado' else 'Salvar' }}
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function enviarResultado(btn) {
+    const row = btn.closest('tr');
+    const form = row.querySelector('.form-admin-resultado');
+    const formData = new FormData(form);
+    
+    const originalText = btn.innerHTML;
+    const originalClasses = btn.className;
+    
+    btn.disabled = true;
+    btn.innerHTML = 'Salvando...';
+
+    fetch('/admin/salvar_resultado', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            btn.className = 'btn btn-sm w-100 btn-secondary';
+            btn.innerHTML = 'Salvo ✓';
+            setTimeout(() => {
+                btn.className = 'btn btn-sm w-100 btn-primary';
+                btn.innerHTML = 'Atualizar';
+                btn.disabled = false;
+            }, 2000);
+        } else {
+            alert("Erro: " + data.message);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            btn.className = originalClasses;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        btn.disabled = false;
+        btn.innerHTML = 'Erro';
+        btn.className = originalClasses;
+    });
+}
+</script>
+{% endblock %}
