@@ -17,6 +17,7 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(12))
     password_hash = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_approved = db.Column(db.Boolean, default=False)
 
 class Team(db.Model):
     __tablename__ = 'dim_teams'

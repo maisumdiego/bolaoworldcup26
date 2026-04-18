@@ -1,50 +1,46 @@
--- 1. Tabela de Usuários
+-- 1. Tabela de Usuários (dim_users)
 CREATE TABLE dim_users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(120) UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    password_hash VARCHAR(200) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_approved BOOLEAN DEFAULT FALSE
 );
 
--- 2. Tabela de Seleções/Times (IDs manuais via CSV)
+-- 2. Tabela de Seleções/Times (dim_teams)
 CREATE TABLE dim_teams (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     team_name VARCHAR(100) NOT NULL,
     ab VARCHAR(3) NOT NULL,
-    team_flag_url TEXT
+    continent VARCHAR(50),
+    group_team VARCHAR(1),
+    team_flag_url VARCHAR(255),
+    fifa_ranking INTEGER,
+    world_cups_won INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE
 );
 
--- 3. Tabela de Jogos (IDs manuais via CSV)
+-- 3. Tabela de Jogos (dim_games)
 CREATE TABLE dim_games (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    team_a_id INTEGER REFERENCES dim_teams(id),
+    team_a_result INTEGER,
+    team_b_id INTEGER REFERENCES dim_teams(id),
+    team_b_result INTEGER,
     datetime_game TIMESTAMP NOT NULL,
     phase VARCHAR(50) NOT NULL,
-    team_a_result INTEGER,
-    team_b_result INTEGER,
-    placeholder_a VARCHAR(50),
-    placeholder_b VARCHAR(50),
-    status VARCHAR(20) DEFAULT 'pendente',
-    
-    -- Chaves estrangeiras para os times (podem ser nulas antes do chaveamento)
-    team_a_id INTEGER REFERENCES dim_teams(id),
-    team_b_id INTEGER REFERENCES dim_teams(id)
+    status VARCHAR(20) DEFAULT 'agendado',
+    placeholder_a VARCHAR(50), 
+    placeholder_b VARCHAR(50) 
 );
 
--- 4. Tabela Fato de Palpites
-CREATE TABLE fact_predictions (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES dim_users(id),
-    game_id INTEGER NOT NULL REFERENCES dim_games(id),
-    result_a INTEGER NOT NULL,
-    result_b INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 5. Tabela de Classificação da Fase de Grupos
+-- 4. Tabela de Classificação da Fase de Grupos (fact_group_standings)
 CREATE TABLE fact_group_standings (
     id SERIAL PRIMARY KEY,
+    team_id INTEGER REFERENCES dim_teams(id) NOT NULL,
     group_name VARCHAR(1) NOT NULL,
-    team_id INTEGER NOT NULL REFERENCES dim_teams(id),
     matches_played INTEGER DEFAULT 0,
     wins INTEGER DEFAULT 0,
     draws INTEGER DEFAULT 0,
@@ -52,8 +48,15 @@ CREATE TABLE fact_group_standings (
     goals_for INTEGER DEFAULT 0,
     goals_against INTEGER DEFAULT 0,
     goal_difference INTEGER DEFAULT 0,
-    points INTEGER DEFAULT 0,
-    
-    -- Garante que um time não seja duplicado dentro do mesmo grupo
-    CONSTRAINT fact_group_standings_group_team_key UNIQUE (group_name, team_id)
+    points INTEGER DEFAULT 0
+);
+
+-- 5. Tabela de Palpites dos Usuários (fact_predictions)
+CREATE TABLE fact_predictions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES dim_users(id) NOT NULL,
+    game_id INTEGER REFERENCES dim_games(id) NOT NULL,
+    result_a INTEGER NOT NULL,
+    result_b INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

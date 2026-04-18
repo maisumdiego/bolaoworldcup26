@@ -1,1 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 .env
+
+# Ambientes virtuais (muito importante ignorar também!)
+venv/
+env/
+.venv/
+
+# Distribuição / Pacotes
+build/
+dist/
+*.egg-info/

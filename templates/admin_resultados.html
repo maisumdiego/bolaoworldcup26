@@ -3,20 +3,32 @@
 {% block title %}Admin - Resultados Oficiais{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Painel do Administrador - Resultados Oficiais</h2>
-
-    <ul class="nav nav-pills mb-4 flex-nowrap overflow-auto pb-2" id="pills-tab-fases" role="tablist" style="white-space: nowrap;">
+<div class="container mt-4 mb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Painel de Controle</h2>
+        
+        <div class="btn-group shadow-sm" role="group">
+            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-dark active">
+                <i class="bi bi-trophy"></i> Resultados
+            </a>
+            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-dark">
+                <i class="bi bi-people"></i> Usuários
+            </a>
+        </div>
+    </div>
+    
+    <ul class="nav nav-pills mb-4 justify-content-center shadow-sm p-2 bg-white rounded" id="pills-tab-fases" role="tablist">
         {% for fase in fases_ordenadas %}
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {% if fase == fase_ativa %}active{% endif %}" 
-                        id="pills-fase-{{ loop.index }}-tab" 
-                        data-bs-toggle="pill" 
-                        data-bs-target="#pills-fase-{{ loop.index }}" 
-                        type="button" role="tab">
-                    {{ fase }}
-                </button>
-            </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold {% if fase == fase_ativa %}active{% endif %}" 
+                    id="tab-fase-{{ loop.index }}" 
+                    data-bs-toggle="pill" 
+                    data-bs-target="#pills-fase-{{ loop.index }}" 
+                    type="button" role="tab">
+                {{ fase }}
+            </button>
+        </li>
         {% endfor %}
     </ul>
 
@@ -24,24 +36,28 @@
         {% for fase in fases_ordenadas %}
             <div class="tab-pane fade {% if fase == fase_ativa %}show active{% endif %}" id="pills-fase-{{ loop.index }}" role="tabpanel">
                 
-                <div class="card mb-5 shadow-sm">
+                <div class="card mb-5 shadow-sm border-0">
                     <div class="card-header bg-dark text-white fw-bold">
-                        Jogos - {{ fase }}
+                        <i class="bi bi-calendar-event"></i> Jogos - {{ fase }}
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
+                                    <th class="text-center" style="width: 5%">#</th>
                                     <th style="width: 15%">Data/Hora</th>
-                                    <th class="text-end" style="width: 25%">Time A</th>
-                                    <th class="text-center" style="width: 20%">Placar Real</th>
-                                    <th class="text-start" style="width: 25%">Time B</th>
-                                    <th class="text-center" style="width: 15%">Ação</th>
+                                    <th class="text-end" style="width: 22%">Time A</th>
+                                    <th class="text-center" style="width: 18%">Placar Real</th>
+                                    <th class="text-start" style="width: 22%">Time B</th>
+                                    <th class="text-center" style="width: 18%">Ação</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for jogo in jogos_por_fase[fase] %}
                                 <tr>
+                                    <td class="text-center fw-bold text-muted">
+                                        {{ jogo.id }}
+                                    </td>
                                     <td class="small text-muted">
                                         {{ jogo.datetime_game.strftime('%d/%m %H:%M') }}
                                     </td>
@@ -55,10 +71,10 @@
                                         <form class="form-admin-resultado d-flex justify-content-center gap-2">
                                             <input type="hidden" name="game_id" value="{{ jogo.id }}">
                                             <input type="number" name="result_a" class="form-control form-control-sm text-center fw-bold" 
-                                                   style="width: 60px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required>
-                                            <span class="align-self-center">X</span>
+                                                style="width: 60px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required>
+                                            <span class="align-self-center text-muted fw-bold">X</span>
                                             <input type="number" name="result_b" class="form-control form-control-sm text-center fw-bold" 
-                                                   style="width: 60px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required>
+                                                style="width: 60px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required>
                                         </form>
                                     </td>
                                     <td class="text-start">
@@ -68,7 +84,7 @@
                                         <span class="fw-bold">{{ jogo.team_b.team_name if jogo.team_b else jogo.placeholder_b }}</span>
                                     </td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm w-100 btn-submit-admin {% if jogo.status == 'encerrado' %}btn-primary{% else %}btn-success{% endif %}" 
+                                        <button type="button" class="btn btn-sm w-100 btn-submit-admin {% if jogo.status == 'encerrado' %}btn-primary{% else %}btn-success{% endif %} fw-bold" 
                                                 onclick="enviarResultado(this)">
                                             {{ 'Atualizar' if jogo.status == 'encerrado' else 'Salvar' }}
                                         </button>
@@ -83,11 +99,81 @@
             </div>
         {% endfor %}
     </div>
+
+    {% if jogos_pendentes %}
+    <div class="card shadow-sm mt-5 border-warning">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <i class="bi bi-exclamation-triangle-fill"></i> Ajuste de Confrontos (Times a Definir)
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Jogo</th>
+                            <th>Fase</th>
+                            <th>Lado A</th>
+                            <th>Lado B</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jogo in jogos_pendentes %}
+                        <tr>
+                            <form class="form-pendente">
+                                <input type="hidden" name="game_id" value="{{ jogo.id }}">
+                                <td class="fw-bold text-muted">#{{ jogo.id }}</td>
+                                <td><span class="badge bg-secondary">{{ jogo.phase }}</span></td>
+                                
+                                <td>
+                                {% if jogo.team_a %}
+                                    <span class="fw-bold">{{ jogo.team_a.ab }}</span>
+                                {% elif 'definir' in jogo.placeholder_a|lower %}
+                                    <select name="team_a_id" class="form-select form-select-sm border-warning">
+                                        <option value="">{{ jogo.placeholder_a }}</option>
+                                        {% for time in todos_times %}
+                                            <option value="{{ time.id }}">{{ time.team_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    <span class="text-muted fst-italic">{{ jogo.placeholder_a }} (Automático)</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if jogo.team_b %}
+                                    <span class="fw-bold">{{ jogo.team_b.ab }}</span>
+                                {% elif 'definir' in jogo.placeholder_b|lower %}
+                                    <select name="team_b_id" class="form-select form-select-sm border-warning">
+                                        <option value="">{{ jogo.placeholder_b }}</option>
+                                        {% for time in todos_times %}
+                                            <option value="{{ time.id }}">{{ time.team_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    <span class="text-muted fst-italic">{{ jogo.placeholder_b }} (Automático)</span>
+                                {% endif %}
+                            </td>
+                                
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-primary fw-bold btn-salvar-pendente">Injetar Time</button>
+                                </td>
+                            </form>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+// Função para Salvar Placar do Jogo
 function enviarResultado(btn) {
     const row = btn.closest('tr');
     const form = row.querySelector('.form-admin-resultado');
@@ -99,7 +185,7 @@ function enviarResultado(btn) {
     btn.disabled = true;
     btn.innerHTML = 'Salvando...';
 
-    fetch('/admin/salvar_resultado', {
+    fetch('{{ url_for("admin.salvar_resultado") }}', {
         method: 'POST',
         body: formData,
         credentials: 'same-origin'
@@ -107,10 +193,10 @@ function enviarResultado(btn) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            btn.className = 'btn btn-sm w-100 btn-secondary';
+            btn.className = 'btn btn-sm w-100 btn-secondary fw-bold';
             btn.innerHTML = 'Salvo ✓';
             setTimeout(() => {
-                btn.className = 'btn btn-sm w-100 btn-primary';
+                btn.className = 'btn btn-sm w-100 btn-primary fw-bold';
                 btn.innerHTML = 'Atualizar';
                 btn.disabled = false;
             }, 2000);
@@ -128,5 +214,34 @@ function enviarResultado(btn) {
         btn.className = originalClasses;
     });
 }
+
+// Função Nova para Salvar Times Pendentes (Mata-Mata)
+document.querySelectorAll('.btn-salvar-pendente').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const form = this.closest('form');
+        const formData = new FormData(form);
+        const originalText = this.innerHTML;
+        
+        this.innerHTML = "Salvando...";
+        this.disabled = true;
+
+        fetch('{{ url_for("admin.salvar_pendente") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                this.classList.replace('btn-primary', 'btn-success');
+                this.innerHTML = "✓ Salvo";
+                setTimeout(() => location.reload(), 1500); 
+            } else {
+                alert("Erro: " + data.message);
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        });
+    });
+});
 </script>
 {% endblock %}

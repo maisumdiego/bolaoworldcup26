@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Gestão de Usuários - Bolão{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Gestão de Usuários</h2>
+    <div class="btn-group shadow-sm" role="group">
+        <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-outline-dark">
+            Resultados
+        </a>
+        <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-dark active">
+            Usuários
+        </a>
+    </div>
+</div>
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4 text-center fw-bold">Controle de Acesso</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Telefone</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td class="text-muted fw-bold">#{{ u.id }}</td>
+                            <td class="fw-bold">{{ u.name }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ u.phone }}</td>
+                            <td>
+                                {% if u.is_approved %}
+                                    <span class="badge bg-success">Aprovado</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Aguardando</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form class="form-acao d-inline" onsubmit="event.preventDefault(); executarAcao(this);">
+                                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                                    
+                                    {% if not u.is_approved %}
+                                    <button type="submit" name="acao" value="aprovar" class="btn btn-sm btn-success" onclick="this.form.acao_selecionada.value='aprovar'">Aprovar</button>
+                                    {% endif %}
+                                    
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ u.id }}">Editar</button>
+                                    
+                                    <button type="submit" name="acao" value="excluir" class="btn btn-sm btn-danger" onclick="if(confirm('Tem certeza que deseja excluir {{ u.name }}?')) this.form.acao_selecionada.value='excluir'; else return false;">Excluir</button>
+                                    
+                                    <input type="hidden" name="acao" id="acao_selecionada">
+                                </form>
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="editModal{{ u.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Editar Usuário</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form class="form-acao" onsubmit="event.preventDefault(); executarAcao(this);">
+                                            <input type="hidden" name="user_id" value="{{ u.id }}">
+                                            <input type="hidden" name="acao" value="editar">
+                                            
+                                            <div class="mb-3 text-start">
+                                                <label class="form-label">Nome</label>
+                                                <input type="text" name="name" class="form-control" value="{{ u.name }}">
+                                            </div>
+                                            <div class="mb-3 text-start">
+                                                <label class="form-label">E-mail</label>
+                                                <input type="text" name="email" class="form-control" value="{{ u.email }}">
+                                            </div>
+                                            <div class="mb-3 text-start">
+                                                <label class="form-label">Telefone</label>
+                                                <input type="text" name="phone" class="form-control" value="{{ u.phone }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary w-100">Salvar Alterações</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function executarAcao(form) {
+    const formData = new FormData(form);
+    
+    // Pega o botão clicado se for aprovar/excluir fora do modal
+    if(form.acao_selecionada && form.acao_selecionada.value) {
+        formData.set('acao', form.acao_selecionada.value);
+    }
+
+    fetch('{{ url_for("admin.acao_usuario") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            location.reload(); // Recarrega para mostrar as mudanças
+        } else {
+            alert("Erro: " + data.message);
+        }
+    });
+}
+</script>
+{% endblock %}
