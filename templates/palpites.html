@@ -1,12 +1,36 @@
 {% extends 'base.html' %}
 
+{% block title %}Meus Palpites - Bolão 2026{% endblock %}
+
 {% block content %}
+<style>
+    .pulp-popover { --bs-popover-bg: #022c22; --bs-popover-border-color: var(--pulp-gold); --bs-popover-header-bg: #064e3b; --bs-popover-header-color: var(--pulp-gold); --bs-popover-body-color: #fff; box-shadow: 6px 6px 0px rgba(0,0,0,0.6); border: 2px solid var(--pulp-gold); }
+    .pulp-popover .popover-header { font-family: 'Bungee', cursive; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .pulp-popover .popover-body { font-size: 0.8rem; font-weight: 600; line-height: 1.6; }
+    .time-info-trigger { cursor: help; transition: transform 0.2s ease; }
+    .time-info-trigger:hover { transform: scale(1.05); }
+    .dias-nav-container { background-color: rgba(0, 0, 0, 0.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 5px; }
+    .dia-btn { border-radius: 50px !important; color: #fff !important; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+    .dia-btn.active { background-color: var(--pulp-gold) !important; color: #000 !important; }
+</style>
+
 <div class="container mt-4 mb-5">
     
-    <div class="mb-4">
-        <h2 class="text-uppercase" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 2px 2px 0px var(--church-red);">
+    <div class="mb-4 text-center text-lg-start d-lg-flex justify-content-between align-items-center">
+        <h2 class="text-uppercase mb-3 mb-lg-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 2px 2px 0px var(--church-red);">
             Meus Palpites
         </h2>
+        
+        <div class="btn-group shadow-sm" role="group">
+            <input type="radio" class="btn-check" name="viewMode" id="viewDate" autocomplete="off" checked>
+            <label class="btn btn-outline-warning fw-bold" for="viewDate"><i class="far fa-calendar-alt me-1"></i> Data</label>
+
+            <input type="radio" class="btn-check" name="viewMode" id="viewGroup" autocomplete="off">
+            <label class="btn btn-outline-warning fw-bold" for="viewGroup"><i class="fas fa-layer-group me-1"></i> Grupo</label>
+
+            <input type="radio" class="btn-check" name="viewMode" id="viewPhase" autocomplete="off">
+            <label class="btn btn-outline-warning fw-bold" for="viewPhase"><i class="fas fa-sitemap me-1"></i> Fase</label>
+        </div>
     </div>
 
     {% if not datas_ordenadas %}
@@ -15,109 +39,119 @@
             <strong>Atenção:</strong> Nenhum jogo encontrado no banco de dados.
         </div>
     {% else %}
-        <div class="dias-nav-container mb-4">
-            <ul class="nav nav-pills dias-nav d-flex flex-nowrap overflow-auto" id="dias-tab" role="tablist">
+        
+        <div class="dias-nav-container mb-4 filter-nav" id="nav-dates">
+            <ul class="nav nav-pills dias-nav d-flex flex-nowrap overflow-auto" role="tablist">
                 {% for dia_str in datas_ordenadas %}
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link dia-btn {% if dia_str == dia_ativo %}active{% endif %}" 
-                            id="tab-{{ dia_str }}" 
-                            data-bs-toggle="pill" 
-                            data-bs-target="#content-{{ dia_str }}" 
-                            type="button" role="tab">
-                        <span class="dia-data">{{ dia_str[8:10] }}/{{ dia_str[5:7] }}</span>
-                    </button>
+                <li class="nav-item">
+                    <button class="nav-link dia-btn filter-btn {% if dia_str == dia_ativo %}active{% endif %}" data-filter-type="date" data-filter-val="{{ dia_str }}">{{ dia_str[8:10] }}/{{ dia_str[5:7] }}</button>
                 </li>
                 {% endfor %}
             </ul>
         </div>
 
-        <div class="tab-content" id="dias-tabContent">
-            {% for dia_str in datas_ordenadas %}
-            <div class="tab-pane fade {% if dia_str == dia_ativo %}show active{% endif %}" id="content-{{ dia_str }}" role="tabpanel">
-                
-                <div class="row g-4">
-                    {% for jogo in jogos_por_dia[dia_str] %}
-                    
-                    {% set limite_palpite = jogo.datetime_game - timedelta(minutes=10) %}
-                    {% set pode_palpitar = agora < limite_palpite and jogo.status != 'encerrado' %}
-                    
-                    {% set palpite_a = palpites_usuario[jogo.id]['a'] if jogo.id in palpites_usuario else '' %}
-                    {% set palpite_b = palpites_usuario[jogo.id]['b'] if jogo.id in palpites_usuario else '' %}
+        <div class="dias-nav-container mb-4 filter-nav" id="nav-groups" style="display: none;">
+            <ul class="nav nav-pills dias-nav d-flex flex-nowrap overflow-auto" role="tablist">
+                {% for grupo in grupos_ordenados %}
+                <li class="nav-item">
+                    <button class="nav-link dia-btn filter-btn {% if grupo == grupo_ativo %}active{% endif %}" data-filter-type="group" data-filter-val="{{ grupo }}">Grupo {{ grupo }}</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
 
-                    <div class="col-12 col-lg-6">
-                        <form class="form-palpite">
-                            <input type="hidden" name="game_id" value="{{ jogo.id }}">
-                            
-                            <div class="card jogo-card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span><i class="far fa-clock"></i> {{ jogo.datetime_game.strftime('%H:%M') }} | {{ jogo.phase }}</span>
-                                    <button type="button" 
-                                            class="btn btn-sm btn-outline-warning mt-2" 
-                                            onclick="abrirModalPalpites('{{ jogo.id }}')">
-                                        <i class="fas fa-eye"></i> Espiar palpites
-                                    </button>
-                                </div>
-                                
-                                <div class="card-body p-4">
-                                    <div class="confronto-container d-flex justify-content-between align-items-center">
-                                        <div class="time text-center">
-                                            {% if jogo.team_a %}
-                                                <img src="{{ jogo.team_a.team_flag_url }}" class="bandeira">
-                                                <div class="time-sigla mt-2">{{ jogo.team_a.ab }}</div>
-                                            {% else %}
-                                                <div class="time-sigla mt-2 text-placeholder">{{ jogo.placeholder_a }}</div>
-                                            {% endif %}
-                                        </div>
+        <div class="dias-nav-container mb-4 filter-nav" id="nav-phases" style="display: none;">
+            <ul class="nav nav-pills dias-nav d-flex flex-nowrap overflow-auto" role="tablist">
+                {% for fase in fases_ordenadas %}
+                <li class="nav-item">
+                    <button class="nav-link dia-btn filter-btn {% if fase == fase_ativa %}active{% endif %}" data-filter-type="phase" data-filter-val="{{ fase }}">{{ fase }}</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
 
-                                        <div class="placar-area d-flex align-items-center justify-content-center mx-1">
-                                            <input type="number" class="form-control palpite-input" name="result_a" value="{{ palpite_a }}" {% if not pode_palpitar %}disabled{% endif %} min="0">
-                                            <span class="placar-x mx-2">X</span>
-                                            <input type="number" class="form-control palpite-input" name="result_b" value="{{ palpite_b }}" {% if not pode_palpitar %}disabled{% endif %} min="0">
-                                        </div>
+        <div class="row g-4" id="games-grid">
+            {% for jogo in jogos %}
+            {% set limite_palpite = jogo.datetime_game - timedelta(minutes=10) %}
+            {% set pode_palpitar = agora < limite_palpite and jogo.status != 'encerrado' %}
+            {% set palpite_a = palpites_usuario[jogo.id]['a'] if jogo.id in palpites_usuario else '' %}
+            {% set palpite_b = palpites_usuario[jogo.id]['b'] if jogo.id in palpites_usuario else '' %}
 
-                                        <div class="time text-center">
-                                            {% if jogo.team_b %}
-                                                <img src="{{ jogo.team_b.team_flag_url }}" class="bandeira">
-                                                <div class="time-sigla mt-2">{{ jogo.team_b.ab }}</div>
-                                            {% else %}
-                                                <div class="time-sigla mt-2 text-placeholder">{{ jogo.placeholder_b }}</div>
-                                            {% endif %}
+            <div class="col-12 col-lg-6 game-wrapper" data-date="{{ jogo.dia_str }}" data-group="{{ jogo.grupo_str }}" data-phase="{{ jogo.fase_str }}">
+                <form class="form-palpite">
+                    <input type="hidden" name="game_id" value="{{ jogo.id }}">
+                    <div class="card jogo-card h-100 shadow-sm">
+                        
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.85);">
+                                <i class="far fa-clock"></i> 
+                                <span class="game-time-display" 
+                                      data-time="{{ jogo.datetime_game.strftime('%H:%M') }}" 
+                                      data-full="{{ jogo.datetime_game.strftime('%d/%m às %H:%M') }}">
+                                    {{ jogo.datetime_game.strftime('%H:%M') }}
+                                </span> 
+                                | {{ jogo.phase }}
+                            </span>
+                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="abrirModalPalpites('{{ jogo.id }}')">
+                                <i class="fas fa-users"></i> Mesa de Palpites
+                            </button>
+                        </div>
+                        
+                        <div class="card-body p-3 p-md-4">
+                            <div class="confronto-container d-flex justify-content-between align-items-center">
+                                <div class="time text-center" style="width: 30%;">
+                                    {% if jogo.team_a %}
+                                        <div class="time-info-trigger" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-html="true" data-bs-custom-class="pulp-popover" title="⭐ {{ jogo.team_a.team_name }}" data-bs-content="<strong>Ranking FIFA:</strong> {{ jogo.team_a.fifa_ranking }}º<br><strong>Continente:</strong> {{ jogo.team_a.continent }}<br><strong>Títulos:</strong> {% if jogo.team_a.world_cups_won > 0 %}{% for i in range(jogo.team_a.world_cups_won) %}<i class='fas fa-star' style='color: #F59E0B;'></i>{% endfor %}{% else %}<span class='text-white-50'>Nenhum</span>{% endif %}">
+                                            <img src="{{ jogo.team_a.team_flag_url }}" class="bandeira">
+                                            <div class="time-sigla mt-2 text-decoration-underline" style="text-underline-offset: 4px; text-decoration-color: rgba(255,255,255,0.2);">{{ jogo.team_a.ab }}</div>
                                         </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="card-footer d-flex justify-content-between align-items-center">
-                                    <div class="resultado-info">
-                                        {% if jogo.status == 'encerrado' %}
-                                            <small class="text-uppercase fw-bold" style="color: #fff;">Resultado Oficial</small>
-                                            <div class="resultado-numero">{{ jogo.team_a_result }} x {{ jogo.team_b_result }}</div>
-                                            
-                                            {% if palpite_a != '' %}
-                                                {% set p_a, p_b = palpite_a|int, palpite_b|int %}
-                                                {% set r_a, r_b = jogo.team_a_result, jogo.team_b_result %}
-                                                {% if p_a == r_a and p_b == r_b %}
-                                                    <span class="badge bg-success">+5 pts</span>
-                                                {% elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b) %}
-                                                    {% if p_a == r_a or p_b == r_b %}<span class="badge bg-info text-dark">+3 pts</span>
-                                                    {% else %}<span class="badge bg-warning text-dark">+2 pts</span>{% endif %}
-                                                {% else %}<span class="badge bg-danger">0 pts</span>{% endif %}
-                                            {% endif %}
-                                        {% else %}
-                                            <small class="text-uppercase" style="color: rgba(255, 255, 255, 0.7); font-weight: 600;">Aguardando Jogo</small>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    {% if pode_palpitar %}
-                                        <button type="submit" class="btn btn-salvar-pulp"><i class="fas fa-check"></i> Salvar</button>
                                     {% else %}
-                                        <span class="badge bg-secondary">Encerrado</span>
+                                        <div class="time-sigla mt-2 text-placeholder" style="font-size: 0.8rem; opacity: 0.6;">{{ jogo.placeholder_a }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="placar-area d-flex align-items-center justify-content-center mx-1" style="width: 40%;">
+                                    <input type="number" class="form-control palpite-input text-center fs-4" name="result_a" value="{{ palpite_a }}" {% if not pode_palpitar %}disabled{% endif %} min="0">
+                                    <span class="placar-x mx-2 fw-bold text-white-50 fs-5">X</span>
+                                    <input type="number" class="form-control palpite-input text-center fs-4" name="result_b" value="{{ palpite_b }}" {% if not pode_palpitar %}disabled{% endif %} min="0">
+                                </div>
+
+                                <div class="time text-center" style="width: 30%;">
+                                    {% if jogo.team_b %}
+                                        <div class="time-info-trigger" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-html="true" data-bs-custom-class="pulp-popover" title="⭐ {{ jogo.team_b.team_name }}" data-bs-content="<strong>Ranking FIFA:</strong> {{ jogo.team_b.fifa_ranking }}º<br><strong>Continente:</strong> {{ jogo.team_b.continent }}<br><strong>Títulos:</strong> {% if jogo.team_b.world_cups_won > 0 %}{% for i in range(jogo.team_b.world_cups_won) %}<i class='fas fa-star' style='color: #F59E0B;'></i>{% endfor %}{% else %}<span class='text-white-50'>Nenhum</span>{% endif %}">
+                                            <img src="{{ jogo.team_b.team_flag_url }}" class="bandeira">
+                                            <div class="time-sigla mt-2 text-decoration-underline" style="text-underline-offset: 4px; text-decoration-color: rgba(255,255,255,0.2);">{{ jogo.team_b.ab }}</div>
+                                        </div>
+                                    {% else %}
+                                        <div class="time-sigla mt-2 text-placeholder" style="font-size: 0.8rem; opacity: 0.6;">{{ jogo.placeholder_b }}</div>
                                     {% endif %}
                                 </div>
                             </div>
-                        </form>
+                        </div>
+                        
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div class="resultado-info">
+                                {% if jogo.status == 'encerrado' %}
+                                    <small class="text-uppercase fw-bold" style="color: #fff; font-size: 0.7rem;">Resultado Oficial</small>
+                                    <div class="resultado-numero fs-5 fw-bold text-warning">{{ jogo.team_a_result }} x {{ jogo.team_b_result }}</div>
+                                    {% if palpite_a != '' %}
+                                        {% set p_a, p_b = palpite_a|int, palpite_b|int %}
+                                        {% set r_a, r_b = jogo.team_a_result, jogo.team_b_result %}
+                                        {% if p_a == r_a and p_b == r_b %}<span class="badge bg-success shadow-sm">+5 pts</span>
+                                        {% elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b) %}
+                                            {% if p_a == r_a or p_b == r_b %}<span class="badge bg-info text-dark shadow-sm">+3 pts</span>
+                                            {% else %}<span class="badge bg-warning text-dark shadow-sm">+2 pts</span>{% endif %}
+                                        {% else %}<span class="badge bg-danger shadow-sm">0 pts</span>{% endif %}
+                                    {% endif %}
+                                {% else %}<small class="text-uppercase" style="color: rgba(255, 255, 255, 0.7); font-weight: 600; font-size: 0.8rem;">Aguardando Jogo</small>{% endif %}
+                            </div>
+                            
+                            {% if pode_palpitar %}
+                                <button type="submit" class="btn btn-salvar-pulp px-4 fw-bold"><i class="fas fa-check me-1"></i> Salvar Palpite</button>
+                            {% else %}<span class="badge bg-secondary fs-6">Encerrado</span>{% endif %}
+                        </div>
                     </div>
-                    {% endfor %}
-                </div>
+                </form>
             </div>
             {% endfor %}
         </div>
@@ -126,13 +160,130 @@
 
 <div class="modal fade" id="modalPalpites" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content pulp-modal">
-            <div class="modal-header pulp-header">
-                <h5 class="modal-title">Mesa de Apostas</h5>
+        <div class="modal-content pulp-modal" style="background-color: #064e3b; border: 2px solid var(--pulp-gold);">
+            <div class="modal-header pulp-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h5 class="modal-title fw-bold text-warning" style="font-family: 'Bungee', cursive;">Mesa de Palpites</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body"><div id="lista-palpites-outros"></div></div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+
+    const radioDate = document.getElementById('viewDate');
+    const radioGroup = document.getElementById('viewGroup');
+    const radioPhase = document.getElementById('viewPhase');
+    
+    const navDates = document.getElementById('nav-dates');
+    const navGroups = document.getElementById('nav-groups');
+    const navPhases = document.getElementById('nav-phases');
+    
+    const gameWrappers = document.querySelectorAll('.game-wrapper');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+
+    function applyFilter(type, val) {
+        // Atualiza botões
+        document.querySelectorAll(`.filter-btn[data-filter-type="${type}"]`).forEach(b => b.classList.remove('active'));
+        const activeBtn = document.querySelector(`.filter-btn[data-filter-type="${type}"][data-filter-val="${val}"]`);
+        if(activeBtn) activeBtn.classList.add('active');
+
+        // Lógica de Data/Horário
+        const timeDisplays = document.querySelectorAll('.game-time-display');
+        timeDisplays.forEach(el => {
+            if (type === 'date') {
+                el.textContent = el.getAttribute('data-time'); // Só mostra 15:00
+            } else {
+                el.textContent = el.getAttribute('data-full'); // Mostra 12/06 às 15:00
+            }
+        });
+
+        // Filtro de exibição
+        gameWrappers.forEach(wrapper => {
+            if (wrapper.getAttribute(`data-${type}`) === val) {
+                wrapper.classList.remove('d-none');
+            } else {
+                wrapper.classList.add('d-none');
+            }
+        });
+    }
+
+    radioDate.addEventListener('change', () => {
+        navDates.style.display = 'block'; navGroups.style.display = 'none'; navPhases.style.display = 'none';
+        let activeBtn = document.querySelector('#nav-dates .active') || document.querySelector('#nav-dates .filter-btn');
+        if (activeBtn) applyFilter('date', activeBtn.getAttribute('data-filter-val'));
+    });
+
+    radioGroup.addEventListener('change', () => {
+        navDates.style.display = 'none'; navGroups.style.display = 'block'; navPhases.style.display = 'none';
+        let activeBtn = document.querySelector('#nav-groups .active') || document.querySelector('#nav-groups .filter-btn');
+        if (activeBtn) {
+            applyFilter('group', activeBtn.getAttribute('data-filter-val'));
+        } else {
+            // Trava de segurança: Se os botões de grupo ainda não existirem, mostra todos da fase de grupos
+            applyFilter('group', 'none'); 
+            gameWrappers.forEach(w => {
+                if (w.getAttribute('data-phase') === 'Fase de Grupos') w.classList.remove('d-none');
+            });
+        }
+    });
+
+    radioPhase.addEventListener('change', () => {
+        navDates.style.display = 'none'; navGroups.style.display = 'none'; navPhases.style.display = 'block';
+        let activeBtn = document.querySelector('#nav-phases .active') || document.querySelector('#nav-phases .filter-btn');
+        if (activeBtn) applyFilter('phase', activeBtn.getAttribute('data-filter-val'));
+    });
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            applyFilter(this.getAttribute('data-filter-type'), this.getAttribute('data-filter-val'));
+        });
+    });
+
+    applyFilter('date', '{{ dia_ativo }}');
+
+    document.querySelectorAll('.form-palpite').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            const btn = this.querySelector('.btn-salvar-pulp');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
+            btn.disabled = true;
+
+            fetch("{{ url_for('main.salvar_palpite') }}", { method: 'POST', body: new FormData(this) })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    btn.innerHTML = '<i class="fas fa-check-double me-1"></i> Salvo';
+                    btn.classList.add('bg-success', 'text-white');
+                    btn.classList.remove('btn-salvar-pulp');
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.classList.remove('bg-success', 'text-white');
+                        btn.classList.add('btn-salvar-pulp');
+                        btn.disabled = false;
+                    }, 2000);
+                } else {
+                    alert('Aviso: ' + data.message);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error("Erro Fetch:", error);
+                alert('Erro na conexão com o servidor.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

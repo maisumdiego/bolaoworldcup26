@@ -1,70 +1,152 @@
 {% extends "base.html" %}
 
-{% block title %}Acompanhe o Torneio - Bolão 2026{% endblock %}
+{% block title %}O Torneio - Bolão 2026{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-bracket/0.11.1/jquery.bracket.min.css" />
-
 <style>
-    .bracket-container {
-        overflow-x: auto;
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    /* Estilo para comprimir as linhas da tabela */
+    .table-pulp td, .table-pulp th {
+        padding: 6px 8px !important;
+        vertical-align: middle;
+        line-height: 1.2 !important;
     }
-    .jQBracket { font-family: inherit; }
+
+    /* Brilho dourado sutil para os classificados (G-2) */
+    .table-pulp tbody tr.linha-classificado td {
+        background-color: rgba(245, 158, 11, 0.12) !important;
+        color: #fff !important;
+        border-bottom: 1px solid rgba(245, 158, 11, 0.3) !important;
+    }
+
+    .table-pulp tbody tr.linha-classificado td:first-child {
+        box-shadow: inset 4px 0px 0px var(--pulp-gold) !important;
+    }
+
+    /* Estilização do Popover para o tema Pulp Noir */
+    .pulp-popover {
+        --bs-popover-bg: #022c22;
+        --bs-popover-border-color: var(--pulp-gold);
+        --bs-popover-header-bg: #064e3b;
+        --bs-popover-header-color: var(--pulp-gold);
+        --bs-popover-body-color: #fff;
+        box-shadow: 6px 6px 0px rgba(0,0,0,0.6);
+        border: 2px solid var(--pulp-gold);
+    }
+
+    .pulp-popover .popover-header {
+        font-family: 'Bungee', cursive;
+        font-size: 0.85rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .pulp-popover .popover-body {
+        font-size: 0.8rem;
+        font-weight: 600;
+        line-height: 1.6; /* Melhor respiro entre as linhas */
+    }
+
+    .dias-nav-container {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 50px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dia-btn {
+        border-radius: 50px !important;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        color: #fff !important;
+    }
+
+    .dia-btn.active {
+        background-color: var(--pulp-gold) !important;
+        color: #000 !important;
+    }
 </style>
 
 <div class="container mt-4 mb-5">
-    <h2 class="mb-4 text-center fw-bold">Acompanhe a Competição</h2>
+    <div class="text-center mb-5">
+        <h2 class="text-uppercase" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 3rem;">
+            O Torneio
+        </h2>
+        <p class="text-uppercase fw-bold" style="letter-spacing: 3px; color: #fff; opacity: 0.8;">
+            Acompanhe a classificação e os pitacos da fase final
+        </p>
+    </div>
 
-    <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active px-4" id="pills-grupos-tab" data-bs-toggle="pill" data-bs-target="#pills-grupos" type="button" role="tab">Fase de Grupos</button>
+    <ul class="nav nav-pills mb-5 justify-content-center dias-nav-container p-2" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link dia-btn active px-4" id="pills-grupos-tab" data-bs-toggle="pill" data-bs-target="#pills-grupos" type="button" role="tab">
+                <i class="fas fa-layer-group me-2"></i> Fase de Grupos
+            </button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link px-4 mx-2" id="pills-matamata-tab" data-bs-toggle="pill" data-bs-target="#pills-matamata" type="button" role="tab">Mata-Mata</button>
+        <li class="nav-item">
+            <button class="nav-link dia-btn px-4 mx-2" id="pills-matamata-tab" data-bs-toggle="pill" data-bs-target="#pills-matamata" type="button" role="tab">
+                <i class="fas fa-trophy me-2"></i> Mata-Mata
+            </button>
         </li>
     </ul>
 
     <div class="tab-content" id="pills-tabContent">
-        
         <div class="tab-pane fade show active" id="pills-grupos" role="tabpanel">
             <div class="row row-cols-1 row-cols-lg-2 g-4">
                 {% for nome_grupo, times in grupos.items() %}
                 <div class="col">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-dark text-white fw-bold">
-                            Grupo {{ nome_grupo }}
+                    <div class="ranking-card h-100">
+                        <div class="p-2 text-center" style="background-color: #022c22; border-bottom: 2px solid rgba(255,255,255,0.1);">
+                            <h5 class="mb-0 fw-bold text-uppercase" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); font-size: 1rem;">
+                                Grupo {{ nome_grupo }}
+                            </h5>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle mb-0 text-center" style="font-size: 0.9rem;">
-                                <thead class="table-light text-muted">
-                                    <tr>
-                                        <th style="width: 5%">#</th>
-                                        <th class="text-start" style="width: 35%">Seleção</th>
-                                        <th class="fw-bold">P</th>
-                                        <th>J</th><th>V</th><th>E</th><th>D</th>
-                                        <th>GP</th><th>GC</th><th>SG</th>
+                            <table class="table table-pulp align-middle mb-0 text-center" style="font-size: 0.78rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);">
+                                        <th>#</th>
+                                        <th class="text-start">Seleção</th>
+                                        <th title="Pontos">P</th><th title="Jogos">J</th><th title="Vitórias">V</th>
+                                        <th title="Empates">E</th><th title="Derrotas">D</th><th title="Gols Pró">GP</th>
+                                        <th title="Gols Contra">GC</th><th title="Saldo de Gols">SG</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for linha in times %}
-                                    <tr class="{% if loop.index <= 2 %}table-success{% endif %}">
-                                        <td class="fw-bold text-muted">{{ loop.index }}</td>
-                                        <td class="text-start fw-bold">
-                                            <img src="{{ linha.team.team_flag_url }}" width="20" class="border me-2">
-                                            {{ linha.team.ab }}
+                                    <tr class="{% if loop.index <= 2 %}linha-classificado{% endif %}">
+                                        <td class="fw-bold" style="opacity: 0.5;">{{ loop.index }}º</td>
+                                        <td class="text-start">
+                                            <div class="d-flex align-items-center"
+                                                 style="cursor: help;"
+                                                 data-bs-toggle="popover"
+                                                 data-bs-trigger="hover focus"
+                                                 data-bs-placement="right"
+                                                 data-bs-html="true"
+                                                 data-bs-custom-class="pulp-popover"
+                                                 title="⭐ {{ linha.team.team_name }}"
+                                                 data-bs-content="<strong>Ranking FIFA:</strong> {{ linha.team.fifa_ranking }}º<br>
+                                                                 <strong>Continente:</strong> {{ linha.team.continent }}<br>
+                                                                 <strong>Títulos:</strong> 
+                                                                 {% if linha.team.world_cups_won > 0 %}
+                                                                    {% for i in range(linha.team.world_cups_won) %}<i class='fas fa-star' style='color: #F59E0B;'></i>{% endfor %}
+                                                                 {% else %}
+                                                                    <span class='text-white-50'>Nenhum</span>
+                                                                 {% endif %}">
+                                                
+                                                <img src="{{ linha.team.team_flag_url }}" width="18" class="me-2 shadow-sm" alt="{{ linha.team.ab }}">
+                                                <span class="fw-bold text-decoration-underline" style="text-underline-offset: 3px; decoration-thickness: 1px; text-decoration-color: rgba(255,255,255,0.3);">
+                                                    {{ linha.team.ab }}
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td class="fw-bold fs-6">{{ linha.points }}</td>
+                                        <td class="fw-bold" style="color: var(--pulp-gold);">{{ linha.points }}</td>
                                         <td>{{ linha.matches_played }}</td>
-                                        <td>{{ linha.wins }}</td>
-                                        <td>{{ linha.draws }}</td>
-                                        <td>{{ linha.losses }}</td>
-                                        <td>{{ linha.goals_for }}</td>
-                                        <td>{{ linha.goals_against }}</td>
-                                        <td>{{ linha.goal_difference }}</td>
+                                        <td>{{ linha.wins }}</td><td>{{ linha.draws }}</td><td>{{ linha.losses }}</td>
+                                        <td>{{ linha.goals_for }}</td><td>{{ linha.goals_against }}</td>
+                                        <td class="fw-bold {% if linha.goal_difference > 0 %}text-success{% elif linha.goal_difference < 0 %}text-danger{% endif %}">
+                                            {{ linha.goal_difference }}
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -77,10 +159,10 @@
         </div>
 
         <div class="tab-pane fade" id="pills-matamata" role="tabpanel">
-            <div class="bracket-container" id="bracket-mata-mata">
-                </div>
+            <div class="ranking-card p-4 overflow-auto" style="min-height: 500px; background-color: #022c22 !important;">
+                <div id="bracket-mata-mata"></div>
+            </div>
         </div>
-
     </div>
 </div>
 {% endblock %}
@@ -91,66 +173,57 @@
 
 <script>
 $(document).ready(function() {
-    const jogos = {{ jogos_mata_mata | tojson }};
-    const primeira_rodada = jogos.filter(j => j.phase === 'Segunda Rodada');
+    const todosJogos = {{ jogos_mata_mata | tojson }};
     
-    let bracket_teams = [];
-    let resultados_rodada_1 = [];
-    
-    primeira_rodada.forEach(jogo => {
-        let objA = { name: jogo.team_a_name, flag: jogo.team_a_flag };
-        let objB = { name: jogo.team_b_name, flag: jogo.team_b_flag };
-        
-        bracket_teams.push([objA, objB]);
-        
-        if (jogo.score_a !== null && jogo.score_b !== null) {
-            resultados_rodada_1.push([jogo.score_a, jogo.score_b]);
-        } else {
-            resultados_rodada_1.push([null, null]);
-        }
-    });
+    const oitavas = todosJogos.filter(j => j.phase === 'Segunda Rodada'); 
+    const quartas = todosJogos.filter(j => j.phase === 'Quartas de Final');
+    const semis = todosJogos.filter(j => j.phase === 'Semifinais');
+    const final = todosJogos.filter(j => j.phase === 'Final');
+
+    let teams = oitavas.map(j => [
+        { name: j.team_a_name, flag: j.team_a_flag },
+        { name: j.team_b_name, flag: j.team_b_flag }
+    ]);
+
+    const montarScores = (fase) => fase.map(j => [j.score_a, j.score_b]);
 
     const bracketData = {
-        teams: bracket_teams,
-        results: [ resultados_rodada_1 ]
+        teams: teams,
+        results: [
+            montarScores(oitavas),
+            montarScores(quartas),
+            montarScores(semis),
+            montarScores(final)
+        ]
     };
 
     function renderBandeiras(container, data, score, state) {
-        switch(state) {
-            case "empty-bye":
-            case "empty-tbd":
-                container.append('<span style="color: #999; font-size: 0.85em;">A definir</span>');
-                return;
-            case "entry-no-score":
-            case "entry-default-win":
-            case "entry-complete":
-                if (!data) return;
-                let html = `<div style="display: flex; align-items: center; gap: 6px; height: 100%; padding-left: 5px;">`;
-                if (data.flag) {
-                    html += `<img src="${data.flag}" width="18" height="12" style="border: 1px solid #ccc; object-fit: cover;">`;
-                }
-                html += `<span style="font-weight: bold; font-family: inherit;">${data.name}</span></div>`;
-                container.append(html);
-                return;
+        if (!data || !data.name) {
+            container.append('<span style="opacity: 0.3; font-size: 0.7rem;">A DEFINIR</span>');
+            return;
         }
+
+        let html = `<div class="d-flex align-items-center p-1" style="overflow: hidden;">`;
+        if (data.flag && data.flag.trim() !== "" && data.flag !== "None") {
+            html += `<img src="${data.flag}" width="18" class="me-2 border" style="flex-shrink: 0;">`;
+        }
+        html += `<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${data.name}</span></div>`;
+        container.append(html);
     }
 
-    // Variável para controlar se a árvore já foi desenhada
-    let bracketDesenhado = false;
-
-    // EVENTO MÁGICO: Escuta o clique na aba do Mata-Mata
-    $('button[data-bs-target="#pills-matamata"]').on('shown.bs.tab', function (e) {
-        if (!bracketDesenhado) {
+    let drawn = false;
+    $('button[data-bs-target="#pills-matamata"]').on('shown.bs.tab', function() {
+        if (!drawn) {
             $('#bracket-mata-mata').bracket({
                 init: bracketData,
                 skipConsolationRound: true,
                 decorator: { edit: function(){}, render: renderBandeiras },
-                teamWidth: 120,
+                teamWidth: 140,
                 scoreWidth: 30,
-                matchMargin: 40,
+                matchMargin: 45,
                 roundMargin: 50
             });
-            bracketDesenhado = true; // Garante que só desenha uma vez
+            drawn = true;
         }
     });
 });

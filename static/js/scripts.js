@@ -1,55 +1,62 @@
 function abrirModalPalpites(jogoId) {
-    // Debug para você ver no console (F12) se o ID está chegando
-    console.log("Iniciando busca para o Jogo ID:", jogoId);
-
     const modalElement = document.getElementById('modalPalpites');
     const listaContainer = document.getElementById('lista-palpites-outros');
 
-    if (!modalElement || !listaContainer) {
-        console.error("Elementos do modal não encontrados!");
-        return;
-    }
+    if (!modalElement || !listaContainer) return;
 
-    // Limpa o conteúdo anterior e mostra carregamento
+    // Loading com cor de destaque
     listaContainer.innerHTML = '<div class="text-center p-3"><div class="spinner-border text-warning"></div></div>';
-    
-    // Abre o modal
     const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
     modalInstance.show();
 
-    // Chamada para a rota do Flask
     fetch('/get_palpites_jogo/' + jogoId)
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'blocked') {
-                listaContainer.innerHTML = `<div class="alert alert-dark text-center border-warning">${data.message}</div>`;
-                return;
-            }
-
             if (!data.palpites || data.palpites.length === 0) {
-                listaContainer.innerHTML = '<p class="text-center text-muted">Nenhum palpite registrado.</p>';
+                // Corrigido: Usando text-white para melhor legibilidade no fundo verde escuro
+                listaContainer.innerHTML = '<p class="text-center text-white opacity-75 p-3">Ninguém palpitou ainda. Seja o primeiro!</p>';
                 return;
             }
 
             let html = '<table class="table-espios w-100"><tbody>';
+            
             data.palpites.forEach(p => {
-                // Definimos uma cor para o badge de pontos
-                let badgeClass = 'bg-secondary';
-                if (p.pontos === 5) badgeClass = 'bg-success';
-                else if (p.pontos === 3) badgeClass = 'bg-info text-dark';
-                else if (p.pontos === 2) badgeClass = 'bg-warning text-dark';
+                html += `<tr><td class="fw-bold py-2">${p.nome}</td>`;
+                
+                if (p.liberado) {
+                    let badgeClass = 'bg-secondary';
+                    if (p.pontos === 5) badgeClass = 'bg-success';
+                    else if (p.pontos === 3) badgeClass = 'bg-info text-dark';
+                    else if (p.pontos === 2) badgeClass = 'bg-warning text-dark';
 
-                html += `
-                <tr>
-                    <td class="fw-bold">${p.nome}</td>
-                    <td class="text-center"><span class="placar-espiao">${p.result_a} x ${p.result_b}</span></td>
-                    <td class="text-end">
-                        ${p.pontos !== undefined ? `<span class="badge ${badgeClass}">${p.pontos} pts</span>` : ''}
-                    </td>
-                </tr>`;
+                    html += `
+                        <td class="text-center"><span class="placar-espiao">${p.result_a} x ${p.result_b}</span></td>
+                        <td class="text-end"><span class="badge ${badgeClass}">${p.pontos} pts</span></td>`;
+                // Dentro da função abrirModalPalpites, no else da visibilidade:
+                } else {
+                    // Usamos 'fas' para garantir que o ícone sólido carregue
+                    html += `
+                        <td colspan="2" class="text-end" style="color: rgba(255,255,255,0.4); padding-right: 15px !important;">
+                            <i class="fas fa-eye-slash" title="Palpite Oculto" style="font-size: 1rem;"></i>
+                        </td>`;
+                }
+                html += `</tr>`;
             });
+            
             html += '</tbody></table>';
+            
+            if (!data.visibilidade_liberada) {
+                html += `
+                <div class="alert mt-3 mb-0 text-center" style="background-color: rgba(0,0,0,0.2); color: #fff; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1);">
+                    <i class="fas fa-info-circle me-2"></i>Placares revelados 10 min antes do jogo.
+                </div>`;
+            }
+
             listaContainer.innerHTML = html;
+        })
+        .catch(err => {
+            console.error(err);
+            listaContainer.innerHTML = '<p class="text-danger text-center p-3">Erro ao carregar dados.</p>';
         });
 }
 

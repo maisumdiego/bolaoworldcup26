@@ -19,26 +19,57 @@ def index():
 def palpites():
     jogos = Game.query.order_by(Game.datetime_game).all()
     
-    jogos_por_dia = defaultdict(list)
+    datas_existentes = set()
+    grupos_existentes = set()
+    fases_existentes = set()
+    
+    ordem_fases = ['Fase de Grupos', 'Segunda Rodada', 'Oitavas de Final', 'Quartas de Final', 'Semifinais', 'Final']
+
     for jogo in jogos:
         dia_str = jogo.datetime_game.strftime('%Y-%m-%d')
-        jogos_por_dia[dia_str].append(jogo)
+        datas_existentes.add(dia_str)
         
-    datas_ordenadas = sorted(jogos_por_dia.keys())
+        # Busca robusta da letra do grupo (Tenta no Jogo e depois no Time)
+        grupo = ""
+        if jogo.phase == 'Fase de Grupos':
+            if getattr(jogo, 'grupo', None): grupo = jogo.grupo
+            elif getattr(jogo, 'group', None): grupo = jogo.group
+            elif jogo.team_a:
+                if getattr(jogo.team_a, 'grupo', None): grupo = jogo.team_a.grupo
+                elif getattr(jogo.team_a, 'group', None): grupo = jogo.team_a.group
+                elif getattr(jogo.team_a, 'group_team', None): grupo = jogo.team_a.group_team
+        
+        fase = jogo.phase
+        if fase:
+            fases_existentes.add(fase)
+
+        jogo.dia_str = dia_str
+        jogo.grupo_str = grupo
+        jogo.fase_str = fase
+        
+        if grupo:
+            grupos_existentes.add(grupo)
+            
+    datas_ordenadas = sorted(list(datas_existentes))
+    grupos_ordenados = sorted(list(grupos_existentes))
+    fases_ordenadas = [f for f in ordem_fases if f in fases_existentes]
+    
     hoje = datetime.now().strftime('%Y-%m-%d')
     dia_ativo = hoje if hoje in datas_ordenadas else (datas_ordenadas[0] if datas_ordenadas else None)
+    grupo_ativo = grupos_ordenados[0] if grupos_ordenados else None
+    fase_ativa = fases_ordenadas[0] if fases_ordenadas else None
 
-    palpites_raw = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.created_at.desc()).all()
-
-    palpites_usuario = {}
-    for p in palpites_raw:
-        if p.game_id not in palpites_usuario:
-            palpites_usuario[p.game_id] = {'a': p.result_a, 'b':p.result_b}
+    palpites_raw = Prediction.query.filter_by(user_id=current_user.id).all()
+    palpites_usuario = {p.game_id: {'a': p.result_a, 'b': p.result_b} for p in palpites_raw}
 
     return render_template('palpites.html', 
-                           jogos_por_dia=jogos_por_dia, 
+                           jogos=jogos, 
                            datas_ordenadas=datas_ordenadas, 
+                           grupos_ordenados=grupos_ordenados,
+                           fases_ordenadas=fases_ordenadas,
                            dia_ativo=dia_ativo,
+                           grupo_ativo=grupo_ativo,
+                           fase_ativa=fase_ativa,
                            agora=datetime.now(),
                            timedelta=timedelta,
                            palpites_usuario=palpites_usuario)
@@ -211,14 +242,9 @@ def get_palpites_jogo(jogo_id):
     
     agora = datetime.now()
     limite_palpite = jogo.datetime_game - timedelta(minutes=10)
-
-    if jogo.status != 'encerrado' and agora < limite_palpite:
-        return jsonify({
-            "status": "blocked", 
-            "message": "Os palpites dos adversários só ficam visíveis após o bloqueio de alterações ou novos palpites."
-        })
     
-    # Busca todos os palpites do jogo (mais recentes primeiro)
+    visibilidade_liberada = (jogo.status == 'encerrado') or (agora >= limite_palpite)
+    
     palpites_all = Prediction.query.filter_by(game_id=jogo_id).order_by(Prediction.created_at.desc()).all()
     
     ultimos_palpites = {}
@@ -228,24 +254,32 @@ def get_palpites_jogo(jogo_id):
     for p in palpites_all:
         if p.user_id not in ultimos_palpites:
             user = User.query.get(p.user_id)
+            nome_usuario = user.name if user else "Anônimo"
             
-            # Cálculo de pontos para este palpite específico
-            pontos_obtidos = 0
-            if jogo.status == 'encerrado':
-                p_a, p_b = p.result_a, p.result_b
-                if p_a == r_a and p_b == r_b:
-                    pontos_obtidos = 5
-                elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b):
-                    pontos_obtidos = 3 if (p_a == r_a or p_b == r_b) else 2
-
-            ultimos_palpites[p.user_id] = {
-                "nome": user.name if user else "Anônimo",
-                "result_a": p.result_a,
-                "result_b": p.result_b,
-                "pontos": pontos_obtidos
-            }
+            if visibilidade_liberada:
+                pontos_obtidos = 0
+                if jogo.status == 'encerrado':
+                    p_a, p_b = p.result_a, p.result_b
+                    if p_a == r_a and p_b == r_b:
+                        pontos_obtidos = 5
+                    elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b):
+                        pontos_obtidos = 3 if (p_a == r_a or p_b == r_b) else 2
+                
+                ultimos_palpites[p.user_id] = {
+                    "nome": nome_usuario,
+                    "result_a": p.result_a,
+                    "result_b": p.result_b,
+                    "pontos": pontos_obtidos,
+                    "liberado": True
+                }
+            else:
+                ultimos_palpites[p.user_id] = {
+                    "nome": nome_usuario,
+                    "liberado": False
+                }
         
     return jsonify({
         "status": "success",
+        "visibilidade_liberada": visibilidade_liberada,
         "palpites": list(ultimos_palpites.values())
     })

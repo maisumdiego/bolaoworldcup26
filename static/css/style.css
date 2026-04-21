@@ -404,10 +404,20 @@ body {
 }
 
 /* Reset de Tabela do Bootstrap */
-.table-pulp {
-    margin-bottom: 0 !important;
-    --bs-table-bg: transparent !important; /* Mata o fundo branco do Bootstrap */
-    background-color: transparent !important;
+.table-pulp td, .table-pulp th {
+    padding: 6px 4px !important; /* Bem compacta */
+    line-height: 1.2 !important;
+}
+
+/* Brilho dourado para os classificados (G-2) */
+.linha-classificado {
+    background-color: rgba(245, 158, 11, 0.08) !important; /* Fundo dourado sutil */
+    box-shadow: inset 4px 0px 0px var(--pulp-gold); /* Barra lateral dourada */
+    transition: all 0.3s ease;
+}
+
+.linha-classificado:hover {
+    background-color: rgba(245, 158, 11, 0.15) !important;
 }
 
 /* Cabeçalho Escuro */
@@ -428,6 +438,17 @@ body {
     color: #ffffff !important;
     padding: 18px 15px !important;
     border: none !important;
+}
+
+/* Brilho dourado para os classificados (G-2) */
+.table-pulp tbody tr.linha-classificado td {
+    background-color: rgba(245, 158, 11, 0.12) !important; /* Dourado sutil */
+    color: #fff !important;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.table-pulp tbody tr.linha-classificado td:first-child {
+    box-shadow: inset 4px 0px 0px var(--pulp-gold) !important;
 }
 
 /* Zebra: Linhas Pares mais Escuras */
@@ -460,4 +481,92 @@ body {
 .pontos-total {
     font-family: 'Bungee', cursive;
     color: var(--pulp-gold) !important;
+}
+
+/* ==========================================================================
+   PÁGINA TORNEIO
+   ========================================================================== *
+
+/* 1. ESTILO DAS TABELAS (CLEAN) */
+.table-pulp td, .table-pulp th {
+    padding: 6px 8px !important;
+    vertical-align: middle;
+    line-height: 1.2 !important;
+}
+
+.table-pulp tbody tr.linha-classificado td {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    color: #fff !important;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.table-pulp tbody tr.linha-classificado td:first-child {
+    box-shadow: inset 4px 0px 0px var(--pulp-gold) !important;
+}
+
+/* 2. ESTILO DO BRACKET (MATA-MATA) */
+.ranking-card {
+    background-color: #064e3b !important;
+    border: 3px solid #022c22 !important;
+    border-radius: 12px;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.6);
+}
+
+/* Customização das cores do JQuery Bracket para o tema Noir */
+.jQBracket .team { background-color: #022c22 !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+.jQBracket .team.win { color: var(--pulp-gold) !important; font-weight: bold !important; }
+.jQBracket .score { background-color: rgba(0,0,0,0.3) !important; color: var(--pulp-gold) !important; font-family: 'Bungee', cursive; }
+.jQBracket .connector { border-color: rgba(255,255,255,0.2) !important; }
+.jQBracket .label { color: rgba(255,255,255,0.5) !important; text-transform: uppercase; font-size: 0.7rem; }
+
+/* Navegação */
+.dias-nav-container { background-color: rgba(0, 0, 0, 0.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.1); }
+.dia-btn { border-radius: 50px !important; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; color: #fff !important; }
+.dia-btn.active { background-color: var(--pulp-gold) !important; color: #000 !important; }
+
+/* Personalização da barra de rolagem do Bracket */
+.ranking-card.overflow-auto::-webkit-scrollbar {
+    height: 8px; /* Altura da barra horizontal */
+}
+
+.ranking-card.overflow-auto::-webkit-scrollbar-track {
+    background: #022c22; /* Fundo da trilha (Verde mais escuro) */
+    border-radius: 10px;
+}
+
+.ranking-card.overflow-auto::-webkit-scrollbar-thumb {
+    background: var(--pulp-gold); /* Cor do marcador (Dourado) */
+    border-radius: 10px;
+    border: 2px solid #022c22; /* Cria um respiro ao redor do marcador */
+}
+
+.ranking-card.overflow-auto::-webkit-scrollbar-thumb:hover {
+    background: #ffca2c; /* Dourado mais brilhante ao passar o mouse */
+}
+
+/* Suporte para Firefox */
+.ranking-card.overflow-auto {
+    scrollbar-width: thin;
+    scrollbar-color: var(--pulp-gold) #022c22;
+}
+
+/* Estilização do Popover para o tema Pulp Noir */
+.pulp-popover {
+    --bs-popover-bg: #022c22;
+    --bs-popover-border-color: var(--pulp-gold);
+    --bs-popover-header-bg: #064e3b;
+    --bs-popover-header-color: var(--pulp-gold);
+    --bs-popover-body-color: #fff;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+}
+
+.pulp-popover .popover-header {
+    font-family: 'Bungee', cursive;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.pulp-popover .popover-body {
+    font-size: 0.8rem;
+    font-weight: 600;
 }
