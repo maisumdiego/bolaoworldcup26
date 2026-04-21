@@ -208,5 +208,44 @@ def torneio():
 @login_required
 def get_palpites_jogo(jogo_id):
     jogo = Game.query.get_or_404(jogo_id)
-    # Lógica de bloqueio por horário e busca de Prediction/User...
-    # return jsonify({"status": "success", "palpites": lista_de_objetos})
+    
+    agora = datetime.now()
+    limite_palpite = jogo.datetime_game - timedelta(minutes=10)
+
+    if jogo.status != 'encerrado' and agora < limite_palpite:
+        return jsonify({
+            "status": "blocked", 
+            "message": "Os palpites dos adversários só ficam visíveis após o bloqueio de alterações ou novos palpites."
+        })
+    
+    # Busca todos os palpites do jogo (mais recentes primeiro)
+    palpites_all = Prediction.query.filter_by(game_id=jogo_id).order_by(Prediction.created_at.desc()).all()
+    
+    ultimos_palpites = {}
+    r_a = jogo.team_a_result
+    r_b = jogo.team_b_result
+
+    for p in palpites_all:
+        if p.user_id not in ultimos_palpites:
+            user = User.query.get(p.user_id)
+            
+            # Cálculo de pontos para este palpite específico
+            pontos_obtidos = 0
+            if jogo.status == 'encerrado':
+                p_a, p_b = p.result_a, p.result_b
+                if p_a == r_a and p_b == r_b:
+                    pontos_obtidos = 5
+                elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b):
+                    pontos_obtidos = 3 if (p_a == r_a or p_b == r_b) else 2
+
+            ultimos_palpites[p.user_id] = {
+                "nome": user.name if user else "Anônimo",
+                "result_a": p.result_a,
+                "result_b": p.result_b,
+                "pontos": pontos_obtidos
+            }
+        
+    return jsonify({
+        "status": "success",
+        "palpites": list(ultimos_palpites.values())
+    })

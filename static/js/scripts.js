@@ -33,18 +33,23 @@ function abrirModalPalpites(jogoId) {
 
             let html = '<table class="table-espios w-100"><tbody>';
             data.palpites.forEach(p => {
+                // Definimos uma cor para o badge de pontos
+                let badgeClass = 'bg-secondary';
+                if (p.pontos === 5) badgeClass = 'bg-success';
+                else if (p.pontos === 3) badgeClass = 'bg-info text-dark';
+                else if (p.pontos === 2) badgeClass = 'bg-warning text-dark';
+
                 html += `
                 <tr>
                     <td class="fw-bold">${p.nome}</td>
-                    <td class="text-end"><span class="placar-espiao">${p.result_a} x ${p.result_b}</span></td>
+                    <td class="text-center"><span class="placar-espiao">${p.result_a} x ${p.result_b}</span></td>
+                    <td class="text-end">
+                        ${p.pontos !== undefined ? `<span class="badge ${badgeClass}">${p.pontos} pts</span>` : ''}
+                    </td>
                 </tr>`;
             });
             html += '</tbody></table>';
             listaContainer.innerHTML = html;
-        })
-        .catch(err => {
-            console.error("Erro no fetch:", err);
-            listaContainer.innerHTML = '<p class="text-danger text-center">Erro ao carregar dados.</p>';
         });
 }
 
