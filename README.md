@@ -76,6 +76,6 @@ O motor de cálculo do ranking segue regras rigorosas para premiar o conheciment
 
 ---
 
-### 👤 Autor
+## 👤 Autor
 
 Desenvolvido por **Diego Gonçalves Ferreira** – Analista de Dados focado em soluções escaláveis e visualização de dados.
