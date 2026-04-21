@@ -1,0 +1,290 @@
+/* ==========================================================================
+   BOLÃO DA CABEÇA 2026 - ESTILO PULP NOIR (COMPLETO)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Bungee&display=swap');
+
+:root {
+    /* Paleta Principal */
+    --bg-void: #0a0a0c;          
+    --surface-dark: #16161a;     
+    --church-red: #E11D48;       
+    --pulp-gold: #F59E0B;        
+    
+    /* Cor da Marca (Logo + Título) */
+    --brand-color: #f4f4f5;      
+    
+    /* Textos Base */
+    --text-main: #f4f4f5;        
+    --text-muted: #a1a1aa;       
+}
+
+/* ==========================================================================
+   FUNDO E CORPO DA PÁGINA
+   ========================================================================== */
+body {
+    background-color: var(--bg-void);
+    background-image: radial-gradient(circle at 50% 40%, rgba(245, 158, 11, 0.05) 0%, transparent 60%);
+    color: var(--text-main);
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   BARRA DE NAVEGAÇÃO E MARCA
+   ========================================================================== */
+.terminal-nav {
+    background-color: #0b2e1f !important; 
+    border-bottom: 3px solid var(--pulp-gold) !important; 
+    padding: 8px 0 !important;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1); 
+}
+
+.navbar-brand {
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    text-decoration: none !important;
+    transition: transform 0.3s ease;
+}
+
+.navbar-logo {
+    height: 70px; 
+    width: 70px;
+    margin-right: 12px;
+    -webkit-mask-image: url('../img/bolao_logo.svg');
+    mask-image: url('../img/bolao_logo.svg');
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    background-color: var(--brand-color);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.brand-text {
+    font-family: 'Bungee', cursive;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 0.8; 
+    color: var(--brand-color); 
+    transition: color 0.3s ease;
+}
+
+.brand-line-1 { font-size: 1rem; text-transform: uppercase; }
+.brand-line-2 { font-size: 1.5rem; text-transform: uppercase; }
+
+.navbar-brand:hover .navbar-logo {
+    background-color: var(--pulp-gold);
+    transform: scale(1.05) rotate(-3deg);
+}
+.navbar-brand:hover .brand-text { color: var(--pulp-gold); }
+
+.custom-nav-links .nav-link {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75) !important;
+    letter-spacing: 1px;
+    margin: 0 10px;
+    transition: all 0.2s ease;
+}
+
+.custom-nav-links .nav-link:hover {
+    color: var(--pulp-gold) !important;
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   TELA DE PALPITES: CARROSSEL DE DIAS
+   ========================================================================== */
+.dias-nav-container {
+    background-color: var(--surface-dark);
+    border: 2px solid #27272a;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.5); 
+}
+
+.dias-nav {
+    border-bottom: none;
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+.dias-nav::-webkit-scrollbar { display: none; }
+
+.dia-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent !important;
+    color: var(--text-muted) !important;
+    border: 2px solid transparent !important;
+    border-radius: 6px !important;
+    padding: 8px 15px !important;
+    min-width: 80px;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.dia-btn:hover {
+    color: var(--text-main) !important;
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+.dia-btn.active {
+    color: var(--bg-void) !important;
+    background-color: var(--pulp-gold) !important;
+    border-color: var(--pulp-gold) !important;
+    box-shadow: 2px 2px 0px var(--church-red); 
+    transform: translateY(-2px);
+}
+
+.dia-data { font-size: 1.1rem; font-weight: 800; }
+.dia-semana { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+
+/* ==========================================================================
+   TELA DE PALPITES: CARDS DE JOGOS (HQ)
+   ========================================================================== */
+.jogo-card {
+    background-color: var(--surface-dark) !important;
+    border: 2px solid #27272a !important; 
+    border-radius: 8px !important;
+    box-shadow: 6px 6px 0px rgba(225, 29, 72, 0.15); 
+    color: var(--text-main);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.jogo-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0px rgba(245, 158, 11, 0.4); 
+}
+
+.jogo-card .card-header {
+    background-color: transparent !important;
+    border-bottom: 2px solid #27272a !important;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-muted) !important;
+    padding: 15px 20px !important;
+}
+
+.jogo-card .card-footer {
+    background-color: rgba(0,0,0,0.2) !important;
+    border-top: 1px dashed #3f3f46 !important;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 15px 20px !important;
+}
+
+/* Bandeiras e Siglas */
+.bandeira {
+    width: 60px; 
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.time-sigla {
+    font-family: 'Bungee', cursive;
+    font-size: 1.2rem;
+    color: var(--text-main);
+    letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   PLACARES
+   ========================================================================== */
+.palpite-input {
+    background-color: #000 !important;
+    border: 2px solid #3f3f46 !important;
+    border-radius: 6px !important;
+    color: var(--pulp-gold) !important;
+    font-family: 'Bungee', cursive;
+    font-size: 2rem !important;
+    width: 80px !important;
+    height: 70px !important;
+    text-align: center;
+    padding: 0 !important;
+    appearance: textfield; 
+    box-shadow: inset 0 2px 10px rgba(0,0,0,1);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.palpite-input::-webkit-inner-spin-button,
+.palpite-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.palpite-input:focus {
+    border-color: var(--church-red) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.3), inset 0 2px 10px rgba(0,0,0,1);
+}
+
+.placar-x {
+    font-family: 'Bungee', cursive;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   RODAPÉ DO CARD E BOTÃO SALVAR
+   ========================================================================== */
+.text-destaque-resultado {
+    color: var(--text-main) !important; 
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.resultado-numero {
+    color: var(--pulp-gold) !important; 
+    font-family: 'Bungee', cursive;
+    font-size: 1.4rem;
+}
+
+.btn-salvar-pulp {
+    background-color: var(--pulp-gold) !important;
+    border: 2px solid #000 !important;
+    color: #000 !important;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 8px 15px;
+    box-shadow: 3px 3px 0px #000;
+    transition: all 0.1s ease;
+}
+
+.btn-salvar-pulp:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0px #000;
+    background-color: #ffca2c !important;
+}
+
+.btn-salvar-pulp:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #000;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE (MOBILE)
+   ========================================================================== */
+@media (max-width: 576px) {
+    .palpite-input {
+        width: 65px !important; 
+        height: 60px !important;
+        font-size: 1.5rem !important;
+    }
+    .placar-x { margin: 0 5px !important; }
+    .bandeira { width: 50px; }
+}
