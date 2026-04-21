@@ -1,56 +1,66 @@
 {% extends "base.html" %}
 
-{% block title %}Ranking - Bolão 2026{% endblock %}
-
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
+    
     <div class="text-center mb-5">
-        <h2 class="display-5 fw-bold">Ranking Geral</h2>
-        <p class="text-muted">Acompanhe a classificação em tempo real.</p>
+        <h2 class="text-uppercase" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 3rem;">
+            Ranking Geral
+        </h2>
+        <p class="text-uppercase fw-bold" style="letter-spacing: 3px; color: #fff;">
+            Classificação dos Apostadores
+        </p>
     </div>
 
-    <div class="card shadow-sm mx-auto" style="max-width: 900px;">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 text-center">
-                <thead class="table-success text-white">
-                    <tr>
-                        <th style="width: 10%">Pos</th>
-                        <th class="text-start" style="width: 30%">Participante</th>
-                        <th style="width: 15%" title="Placar exato (5 pontos)">Exato</th>
-                        <th style="width: 15%" title="Acertou vencedor e gols de 1 time (3 pontos)">Parcial</th>
-                        <th style="width: 15%" title="Acertou apenas o vencedor (2 pontos)">Tendência</th>
-                        <th class="fw-bold fs-5" style="width: 15%">Pontos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for jogador in ranking %}
-                    <tr class="{% if current_user.name == jogador.nome %}table-active fw-bold{% endif %}">
-                        <td class="fs-5">
-                            {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}º{% endif %}
-                        </td>
-                        <td class="text-start">
-                            {{ jogador.nome }}
-                            {% if current_user.name == jogador.nome %}
-                                <span class="badge bg-success ms-2">Você</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-muted">{{ jogador.exatos }}</td>
-                        <td class="text-muted">{{ jogador.parciais }}</td>
-                        <td class="text-muted">{{ jogador.tendencia }}</td>
-                        <td class="fw-bold fs-5 text-success">{{ jogador.pontos }}</td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="6" class="text-center py-4 text-muted">
-                            Nenhum jogo foi encerrado ainda. Faça seus palpites!
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    {% if ranking %}
+        <div class="podium-container mb-5">
+            {% for jogador in ranking[:3] %}
+                <div class="podium-card podium-{{ loop.index }}">
+                    <span class="podium-medal">
+                        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+                    </span>
+                    <div class="podium-name text-truncate px-2" style="color: #fff !important;">{{ jogador.nome }}</div>
+                    <div class="podium-points" style="color: var(--pulp-gold) !important;">{{ jogador.pontos }}</div>
+                    <small class="text-uppercase fw-bold" style="font-size: 0.7rem; color: #fff !important;">Pontos</small>
+                </div>
+            {% endfor %}
         </div>
-    </div>
-</div>
+
+        <div class="ranking-card mx-auto" style="max-width: 950px;">
+            <div class="table-responsive">
+                <table class="table table-pulp align-middle text-center">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th class="text-start">Participante</th>
+                            <th>Exato (5)</th>
+                            <th>Parcial (3)</th>
+                            <th>Tendência (2)</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jogador in ranking %}
+                        <tr class="{% if current_user.name == jogador.nome %}user-row-highlight{% endif %}">
+                            <td><span class="pos-numero">{{ loop.index }}º</span></td>
+                            <td class="text-start">
+                                <span class="user-name-text">{{ jogador.nome }}</span>
+                                {% if current_user.name == jogador.nome %}
+                                    <span class="badge bg-danger ms-2" style="font-size: 0.6rem; border: 1px solid #fff;">VOCÊ</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ jogador.exatos }}</td>
+                            <td>{{ jogador.parciais }}</td>
+                            <td>{{ jogador.tendencia }}</td>
+                            <td class="pontos-total" style="font-size: 1.2rem;">
+                                {{ jogador.pontos }} pts
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

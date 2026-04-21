@@ -113,10 +113,21 @@ body {
 
 .dias-nav {
     border-bottom: none;
-    -ms-overflow-style: none;  
-    scrollbar-width: none;  
+    overflow-x: auto; /* Garante o scroll */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--pulp-gold) transparent; /* Firefox */
+    padding-bottom: 5px;
 }
-.dias-nav::-webkit-scrollbar { display: none; }
+.dias-nav::-webkit-scrollbar {
+    height: 6px;
+}
+.dias-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+.dias-nav::-webkit-scrollbar-thumb {
+    background-color: var(--pulp-gold);
+    border-radius: 10px;
+}
 
 .dia-btn {
     display: flex;
@@ -128,7 +139,7 @@ body {
     border: 2px solid transparent !important;
     border-radius: 6px !important;
     padding: 8px 15px !important;
-    min-width: 80px;
+    min-width: 90px; /* Um pouco maior para facilitar o clique */
     font-family: 'Montserrat', sans-serif;
     transition: all 0.2s ease;
 }
@@ -287,4 +298,166 @@ body {
     }
     .placar-x { margin: 0 5px !important; }
     .bandeira { width: 50px; }
+}
+
+.text-placeholder {
+    color: #d1d1d6 !important; /* Cinza claro sugerido */
+    font-size: 0.9rem;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* ==========================================================================
+   MODAL DE PALPITES: ESTILO VERDE PROFUNDO
+   ========================================================================== */
+.modal-content.pulp-modal {
+    background-color: #064e3b !important; /* Verde da Nav */
+    border: 2px solid var(--pulp-gold) !important;
+    color: #fff !important;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+.modal-header.pulp-header {
+    background-color: #022c22 !important; /* Verde mais escuro */
+    border-bottom: 2px solid #ffffff !important; /* Linha branca divisória */
+}
+
+.modal-title {
+    font-family: 'Bungee', cursive;
+    color: var(--pulp-gold) !important;
+}
+
+/* Tabela de Apostas dentro do Modal */
+.table-espios {
+    background-color: transparent !important;
+    width: 100%;
+}
+
+.table-espios tr:nth-child(even) {
+    background-color: rgba(2, 44, 34, 0.4) !important;
+}
+
+.table-espios td {
+    padding: 12px !important;
+    color: #fff !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.placar-espiao {
+    font-family: 'Bungee', cursive;
+    color: var(--pulp-gold) !important;
+    font-size: 1.1rem;
+}
+
+
+/* ==========================================================================
+   RANKING: O PÓDIO DE HONRA (TOP 3)
+   ========================================================================== */
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 15px;
+    margin-bottom: 50px;
+    padding-top: 20px;
+}
+
+.podium-card {
+    background-color: var(--surface-dark);
+    border: 2px solid #27272a;
+    border-radius: 8px;
+    text-align: center;
+    padding: 20px 10px;
+    width: 100%;
+    max-width: 180px;
+    transition: transform 0.3s ease;
+}
+
+.podium-card:hover { transform: translateY(-5px); }
+
+/* Medalhas Individuais */
+.podium-1 { 
+    height: 220px; 
+    border-color: var(--pulp-gold) !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    order: 2; /* O 1º fica no centro */
+}
+.podium-2 { height: 180px; order: 1; border-color: #cbd5e1 !important; } /* Prata */
+.podium-3 { height: 160px; order: 3; border-color: #d97706 !important; } /* Bronze */
+
+.podium-medal { font-size: 2.5rem; margin-bottom: 10px; display: block; }
+.podium-name { font-family: 'Bungee', cursive; font-size: 0.9rem; color: #fff; margin-bottom: 5px; }
+.podium-points { font-family: 'Bungee', cursive; color: var(--pulp-gold); font-size: 1.5rem; }
+
+/* ==========================================================================
+   RANKING: VERDE PROFUNDO (SEM FUNDO BRANCO)
+   ========================================================================== */
+
+/* Container da Tabela */
+.ranking-card {
+    background-color: #064e3b !important;
+    border: 3px solid #022c22 !important;
+    border-radius: 12px;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.6);
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+/* Reset de Tabela do Bootstrap */
+.table-pulp {
+    margin-bottom: 0 !important;
+    --bs-table-bg: transparent !important; /* Mata o fundo branco do Bootstrap */
+    background-color: transparent !important;
+}
+
+/* Cabeçalho Escuro */
+.table-pulp thead tr th {
+    background-color: #022c22 !important; /* Verde mais escuro no topo */
+    color: var(--pulp-gold) !important;
+    font-family: 'Bungee', cursive;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding: 20px 15px !important;
+    border-bottom: 2px solid #ffffff !important; /* Linha divisória branca pedida */
+    border-top: none !important;
+}
+
+/* Linhas do Corpo */
+.table-pulp tbody tr td {
+    background-color: #064e3b !important; /* Verde da Nav nas células */
+    color: #ffffff !important;
+    padding: 18px 15px !important;
+    border: none !important;
+}
+
+/* Zebra: Linhas Pares mais Escuras */
+.table-pulp tbody tr:nth-child(even) td {
+    background-color: #043d2e !important; 
+}
+
+/* Destaque do Usuário (Vermelho da Igreja) */
+.user-row-highlight td {
+    background-color: rgba(225, 29, 72, 0.35) !important; /* Vermelho Igreja com transparência */
+    color: #ffffff !important;
+    border-top: 1px solid var(--church-red) !important;
+    border-bottom: 1px solid var(--church-red) !important;
+}
+
+/* Indicador visual na primeira coluna */
+.user-row-highlight td:first-child {
+    border-left: 4px solid var(--pulp-gold) !important; /* "Seta" dourada indicando o usuário */
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+/* Nome do usuário em destaque */
+.user-row-highlight .user-name-text {
+    color: var(--brand-color) !important;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.pontos-total {
+    font-family: 'Bungee', cursive;
+    color: var(--pulp-gold) !important;
 }

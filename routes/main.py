@@ -201,3 +201,12 @@ def torneio():
         
     # Enviamos TUDO para uma única tela
     return render_template('torneio.html', grupos=grupos_ordenados, jogos_mata_mata=jogos_json)
+
+# =====================================================================
+
+@main_bp.route('/get_palpites_jogo/<int:jogo_id>')
+@login_required
+def get_palpites_jogo(jogo_id):
+    jogo = Game.query.get_or_404(jogo_id)
+    # Lógica de bloqueio por horário e busca de Prediction/User...
+    # return jsonify({"status": "success", "palpites": lista_de_objetos})

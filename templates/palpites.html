@@ -17,7 +17,6 @@
     {% else %}
         <div class="dias-nav-container mb-4">
             <ul class="nav nav-pills dias-nav d-flex flex-nowrap overflow-auto" id="dias-tab" role="tablist">
-                
                 {% for dia_str in datas_ordenadas %}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link dia-btn {% if dia_str == dia_ativo %}active{% endif %}" 
@@ -29,12 +28,10 @@
                     </button>
                 </li>
                 {% endfor %}
-                
             </ul>
         </div>
 
         <div class="tab-content" id="dias-tabContent">
-            
             {% for dia_str in datas_ordenadas %}
             <div class="tab-pane fade {% if dia_str == dia_ativo %}show active{% endif %}" id="content-{{ dia_str }}" role="tabpanel">
                 
@@ -48,22 +45,28 @@
                     {% set palpite_b = palpites_usuario[jogo.id]['b'] if jogo.id in palpites_usuario else '' %}
 
                     <div class="col-12 col-lg-6">
-                        
                         <form class="form-palpite">
                             <input type="hidden" name="game_id" value="{{ jogo.id }}">
                             
                             <div class="card jogo-card h-100">
-                                
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span class="jogo-hora"><i class="far fa-clock"></i> {{ jogo.datetime_game.strftime('%H:%M') }}</span>
-                                    <span class="jogo-fase">Fase de Grupos</span> </div>
+                                    <span><i class="far fa-clock"></i> {{ jogo.datetime_game.strftime('%H:%M') }} | {{ jogo.phase }}</span>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-warning mt-2" 
+                                            onclick="abrirModalPalpites('{{ jogo.id }}')">
+                                        <i class="fas fa-eye"></i> Ver Apostas
+                                    </button>
+                                </div>
                                 
                                 <div class="card-body p-4">
                                     <div class="confronto-container d-flex justify-content-between align-items-center">
-                                        
                                         <div class="time text-center">
-                                            <img src="{{ jogo.team_a.flag if jogo.team_a else '' }}" class="bandeira" alt="A">
-                                            <div class="time-sigla mt-2">{{ jogo.team_a.sigla if jogo.team_a else 'TMA' }}</div>
+                                            {% if jogo.team_a %}
+                                                <img src="{{ jogo.team_a.team_flag_url }}" class="bandeira">
+                                                <div class="time-sigla mt-2">{{ jogo.team_a.ab }}</div>
+                                            {% else %}
+                                                <div class="time-sigla mt-2 text-placeholder">{{ jogo.placeholder_a }}</div>
+                                            {% endif %}
                                         </div>
 
                                         <div class="placar-area d-flex align-items-center justify-content-center mx-1">
@@ -73,94 +76,63 @@
                                         </div>
 
                                         <div class="time text-center">
-                                            <img src="{{ jogo.team_b.flag if jogo.team_b else '' }}" class="bandeira" alt="B">
-                                            <div class="time-sigla mt-2">{{ jogo.team_b.sigla if jogo.team_b else 'TMB' }}</div>
+                                            {% if jogo.team_b %}
+                                                <img src="{{ jogo.team_b.team_flag_url }}" class="bandeira">
+                                                <div class="time-sigla mt-2">{{ jogo.team_b.ab }}</div>
+                                            {% else %}
+                                                <div class="time-sigla mt-2 text-placeholder">{{ jogo.placeholder_b }}</div>
+                                            {% endif %}
                                         </div>
-
                                     </div>
                                 </div>
                                 
                                 <div class="card-footer d-flex justify-content-between align-items-center">
                                     <div class="resultado-info">
                                         {% if jogo.status == 'encerrado' %}
-                                            <small class="text-uppercase text-destaque-resultado">Resultado Oficial</small>
-                                            <div class="resultado-numero">{{ jogo.score_a }} x {{ jogo.score_b }}</div>
+                                            <small class="text-uppercase fw-bold" style="color: #fff;">Resultado Oficial</small>
+                                            <div class="resultado-numero">{{ jogo.team_a_result }} x {{ jogo.team_b_result }}</div>
+                                            
+                                            {% if palpite_a != '' %}
+                                                {% set p_a, p_b = palpite_a|int, palpite_b|int %}
+                                                {% set r_a, r_b = jogo.team_a_result, jogo.team_b_result %}
+                                                {% if p_a == r_a and p_b == r_b %}
+                                                    <span class="badge bg-success">+5 pts</span>
+                                                {% elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b) %}
+                                                    {% if p_a == r_a or p_b == r_b %}<span class="badge bg-info text-dark">+3 pts</span>
+                                                    {% else %}<span class="badge bg-warning text-dark">+2 pts</span>{% endif %}
+                                                {% else %}<span class="badge bg-danger">0 pts</span>{% endif %}
+                                            {% endif %}
                                         {% else %}
-                                            <small class="text-uppercase text-muted">Aguardando Jogo</small>
+                                            <small class="text-uppercase" style="color: rgba(255, 255, 255, 0.7); font-weight: 600;">Aguardando Jogo</small>
                                         {% endif %}
                                     </div>
                                     
                                     {% if pode_palpitar %}
-                                        <button type="submit" class="btn btn-salvar-pulp">
-                                            <i class="fas fa-check"></i> Salvar
-                                        </button>
+                                        <button type="submit" class="btn btn-salvar-pulp"><i class="fas fa-check"></i> Salvar</button>
                                     {% else %}
                                         <span class="badge bg-secondary">Encerrado</span>
                                     {% endif %}
                                 </div>
-                                
                             </div>
                         </form>
-                        
                     </div>
                     {% endfor %}
                 </div>
-                
             </div>
             {% endfor %}
-            
         </div>
     {% endif %}
 </div>
-{% endblock %}
 
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.form-palpite').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); // Impede que a tela recarregue/fique branca
-            
-            const btn = this.querySelector('.btn-salvar-pulp');
-            const originalText = btn.innerHTML;
-            
-            // Efeito visual de carregamento (Spinner)
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btn.disabled = true;
-
-            const formData = new FormData(this);
-            
-            fetch("{{ url_for('main.salvar_palpite') }}", {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    // Efeito de Sucesso
-                    btn.innerHTML = '<i class="fas fa-check-double"></i> Salvo';
-                    btn.classList.add('bg-success', 'text-white', 'border-success');
-                    
-                    // Retorna ao estado original após 2 segundos
-                    setTimeout(() => {
-                        btn.innerHTML = originalText;
-                        btn.classList.remove('bg-success', 'text-white', 'border-success');
-                        btn.disabled = false;
-                    }, 2000);
-                } else {
-                    // Mostra o erro exato enviado pelo seu Python (ex: Tempo esgotado)
-                    alert('Aviso: ' + data.message);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }
-            })
-            .catch(error => {
-                alert('Erro na conexão com o servidor.');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            });
-        });
-    });
-});
-</script>
+<div class="modal fade" id="modalPalpites" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pulp-modal">
+            <div class="modal-header pulp-header">
+                <h5 class="modal-title">Mesa de Apostas</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body"><div id="lista-palpites-outros"></div></div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,3 +1,53 @@
+function abrirModalPalpites(jogoId) {
+    // Debug para você ver no console (F12) se o ID está chegando
+    console.log("Iniciando busca para o Jogo ID:", jogoId);
+
+    const modalElement = document.getElementById('modalPalpites');
+    const listaContainer = document.getElementById('lista-palpites-outros');
+
+    if (!modalElement || !listaContainer) {
+        console.error("Elementos do modal não encontrados!");
+        return;
+    }
+
+    // Limpa o conteúdo anterior e mostra carregamento
+    listaContainer.innerHTML = '<div class="text-center p-3"><div class="spinner-border text-warning"></div></div>';
+    
+    // Abre o modal
+    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modalInstance.show();
+
+    // Chamada para a rota do Flask
+    fetch('/get_palpites_jogo/' + jogoId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'blocked') {
+                listaContainer.innerHTML = `<div class="alert alert-dark text-center border-warning">${data.message}</div>`;
+                return;
+            }
+
+            if (!data.palpites || data.palpites.length === 0) {
+                listaContainer.innerHTML = '<p class="text-center text-muted">Nenhum palpite registrado.</p>';
+                return;
+            }
+
+            let html = '<table class="table-espios w-100"><tbody>';
+            data.palpites.forEach(p => {
+                html += `
+                <tr>
+                    <td class="fw-bold">${p.nome}</td>
+                    <td class="text-end"><span class="placar-espiao">${p.result_a} x ${p.result_b}</span></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            listaContainer.innerHTML = html;
+        })
+        .catch(err => {
+            console.error("Erro no fetch:", err);
+            listaContainer.innerHTML = '<p class="text-danger text-center">Erro ao carregar dados.</p>';
+        });
+}
+
 // Espera o HTML carregar completamente antes de rodar os scripts
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -44,3 +94,4 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 });
+
