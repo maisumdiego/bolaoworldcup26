@@ -18,7 +18,6 @@ def register():
             return f"<h1>Erro: O email {email} já está cadastrado!</h1>"
         
         hashed_password = generate_password_hash(password)
-        # Usando password_hash exatamente como no seu banco
         new_user = User(name=name, email=email, phone=phone, password_hash=hashed_password)
         db.session.add(new_user)
         db.session.commit()
@@ -35,7 +34,6 @@ def login():
     password = request.form.get('password')
     user = User.query.filter_by(email=email).first()
 
-    # Verificando contra password_hash
     if user and check_password_hash(user.password_hash, password):
         if not user.is_approved:
             return "Erro: Cadastro aguardando aprovação."

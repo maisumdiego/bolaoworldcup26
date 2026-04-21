@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
 from models import db, Game, Team, GroupStanding, User
 from .auth_utils import admin_required
@@ -24,7 +25,6 @@ def admin_resultados():
     
     todos_times = Team.query.order_by(Team.team_name).all()
     
-    # ATUALIZADO: Busca apenas jogos vazios ONDE o placeholder contém a palavra "definir"
     jogos_pendentes = Game.query.filter(
         (Game.phase != 'Grupos') & 
         ((Game.team_a_id == None) | (Game.team_b_id == None)) &
@@ -81,7 +81,6 @@ def salvar_pendente():
         return jsonify({"status": "error", "message": "Jogo não encontrado."}), 404
         
     try:
-        # Se o admin selecionou um time, atualizamos o ID no banco
         if team_a_id:
             jogo.team_a_id = team_a_id
         if team_b_id:
@@ -107,7 +106,7 @@ def gerenciar_usuarios():
 @admin_required
 def acao_usuario():
     user_id = request.form.get('user_id')
-    acao = request.form.get('acao') # Aprovar, editar ou excluir
+    acao = request.form.get('acao')
 
     usuario = User.query.get(user_id)
     if not usuario:
@@ -117,19 +116,25 @@ def acao_usuario():
         if acao == 'aprovar':
             usuario.is_approved = True
             db.session.commit()
-            return jsonify({"status": "success", "message": "Usuário aprovado com sucesso!"})
+            return jsonify({"status": "success", "message": "Usuário ativado!"})
         
-        if acao == 'excluir':
-            db.session.delete(usuario)
+        if acao == 'desativar':
+            usuario.is_approved = False
             db.session.commit()
-            return jsonify({"status": "success", "message": "Usuário excluído definitivamente."})
+            return jsonify({"status": "success", "message": "Usuário desativado com sucesso."})
         
         if acao == 'editar':
             usuario.name = request.form.get('name')
             usuario.email = request.form.get('email')
             usuario.phone = request.form.get('phone')
             db.session.commit()
-            return jsonify({"status": "success", "message": "Dados do usuário atualizados!"})
+            return jsonify({"status": "success", "message": "Dados atualizados!"})
+            
+        if acao == 'resetar_senha':
+            nova_senha = 'bolao2026'
+            usuario.password_hash = generate_password_hash(nova_senha)
+            db.session.commit()
+            return jsonify({"status": "success", "message": f"Senha resetada para: {nova_senha}"})
         
     except Exception as e:
         db.session.rollback()

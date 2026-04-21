@@ -1,100 +1,174 @@
 {% extends "base.html" %}
-{% block title %}Gestão de Usuários - Bolão{% endblock %}
+
+{% block title %}Admin - Gerenciar Usuários{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold mb-0">Gestão de Usuários</h2>
-    <div class="btn-group shadow-sm" role="group">
-        <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-outline-dark">
-            Resultados
-        </a>
-        <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-dark active">
-            Usuários
-        </a>
+<style>
+    /* Estilos baseados no Pulp Noir */
+    .admin-card { background-color: #064e3b !important; border: 2px solid #022c22 !important; border-radius: 8px; box-shadow: 6px 6px 0px rgba(0,0,0,0.5); }
+    .admin-card-header { background-color: #022c22 !important; border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--pulp-gold) !important; font-family: 'Bungee', cursive; font-size: 1.1rem; }
+    
+    .table-pulp { color: #fff; }
+    .table-pulp thead { background-color: rgba(0,0,0,0.3); color: rgba(255,255,255,0.7); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+    .table-pulp td, .table-pulp th { border-bottom: 1px solid rgba(255,255,255,0.1) !important; vertical-align: middle; }
+    .table-pulp tbody tr:hover { background-color: rgba(255,255,255,0.05); }
+
+    /* Status Badges */
+    .badge-pulp-aprovado { background-color: #059669; color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .badge-pulp-pendente { background-color: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+
+    .admin-input { background-color: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.2) !important; color: #fff !important; }
+    .admin-input:focus { border-color: var(--pulp-gold) !important; box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.2) !important; }
+</style>
+
+<div class="container mt-4 mb-5">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 2px 2px 0px var(--church-red);">
+            Controle de Acesso
+        </h2>
+        
+        <div class="btn-group shadow-sm" role="group">
+            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-outline-warning fw-bold">
+                <i class="fas fa-trophy me-1"></i> Resultados
+            </a>
+            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-warning fw-bold text-dark">
+                <i class="fas fa-users me-1"></i> Usuários
+            </a>
+        </div>
+    </div>
+
+    <div class="card admin-card shadow-sm">
+        <div class="card-header admin-card-header p-3">
+            <i class="fas fa-user-shield me-2"></i> Participantes Cadastrados
+        </div>
+        <div class="table-responsive">
+            <table class="table table-pulp align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 5%">ID</th>
+                        <th style="width: 20%">Nome</th>
+                        <th style="width: 25%">E-mail</th>
+                        <th class="text-center" style="width: 15%">Cadastro</th>
+                        <th class="text-center" style="width: 10%">Status</th>
+                        <th class="text-center" style="width: 25%">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td class="text-center fw-bold" style="color: rgba(255,255,255,0.5);">#{{ usuario.id }}</td>
+                        <td class="fw-bold" style="{% if not usuario.is_approved %}opacity: 0.5;{% endif %}">{{ usuario.name }}</td>
+                        <td class="text-muted small">{{ usuario.email }}</td>
+                        <td class="text-center small">{{ usuario.created_at.strftime('%d/%m/%Y') if usuario.created_at else '--/--/----' }}</td>
+                        <td class="text-center">
+                            {% if usuario.is_approved %}
+                                <span class="badge badge-pulp-aprovado px-2 py-1" style="font-size: 0.7rem;"><i class="fas fa-check-circle me-1"></i> Ativo</span>
+                            {% else %}
+                                <span class="badge badge-pulp-pendente px-2 py-1" style="font-size: 0.7rem;"><i class="fas fa-lock me-1"></i> Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                
+                                {% if not usuario.is_approved %}
+                                    <button type="button" class="btn btn-sm btn-success fw-bold text-white text-uppercase btn-acao" data-id="{{ usuario.id }}" data-acao="aprovar" style="font-size: 0.65rem;">
+                                        Ativar
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger fw-bold text-uppercase" style="font-size: 0.65rem;" onclick="confirmarDesativacao('{{ usuario.id }}', '{{ usuario.name }}')">
+                                        Desativar
+                                    </button>
+                                {% endif %}
+                                
+                                <button type="button" class="btn btn-sm btn-outline-warning fw-bold text-uppercase" style="font-size: 0.65rem;" onclick="abrirModalEditar('{{ usuario.id }}', '{{ usuario.name }}', '{{ usuario.email }}', '{{ usuario.phone }}')">
+                                    Editar
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-outline-info fw-bold text-uppercase" style="font-size: 0.65rem;" onclick="confirmarResetSenha('{{ usuario.id }}', '{{ usuario.name }}')">
+                                    Senha
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pulp-modal" style="background-color: #064e3b; border: 2px solid var(--pulp-gold);">
+            <div class="modal-header pulp-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h5 class="modal-title fw-bold text-warning" style="font-family: 'Bungee', cursive;">Editar Participante</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarUsuario">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="user_id" id="editUserId">
+                    <input type="hidden" name="acao" value="editar">
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small fw-bold text-uppercase">Nome Completo</label>
+                        <input type="text" class="form-control admin-input" name="name" id="editUserName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small fw-bold text-uppercase">E-mail</label>
+                        <input type="email" class="form-control admin-input" name="email" id="editUserEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white-50 small fw-bold text-uppercase">Telefone</label>
+                        <input type="text" class="form-control admin-input" name="phone" id="editUserPhone">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning btn-sm fw-bold text-dark text-uppercase" id="btnSalvarEdicao">Salvar</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div class="container mt-4 mb-5">
-    <h2 class="mb-4 text-center fw-bold">Controle de Acesso</h2>
+<div class="modal fade" id="modalDesativar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pulp-modal" style="background-color: #064e3b; border: 2px solid var(--church-red);">
+            <div class="modal-header pulp-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h5 class="modal-title fw-bold text-white" style="font-family: 'Bungee', cursive;">Suspender Acesso</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <i class="fas fa-user-lock text-danger mb-3" style="font-size: 3rem;"></i>
+                <p class="text-white">Deseja desativar o usuário <br><strong id="nomeUsuarioDesativar" class="text-warning"></strong>?</p>
+                <small class="text-white-50">Ele perderá o acesso ao sistema, mas os palpites continuarão salvos no banco de dados.</small>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger btn-sm fw-bold text-uppercase" id="btnConfirmarDesativacao">Desativar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle text-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>E-mail</th>
-                            <th>Telefone</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for u in usuarios %}
-                        <tr>
-                            <td class="text-muted fw-bold">#{{ u.id }}</td>
-                            <td class="fw-bold">{{ u.name }}</td>
-                            <td>{{ u.email }}</td>
-                            <td>{{ u.phone }}</td>
-                            <td>
-                                {% if u.is_approved %}
-                                    <span class="badge bg-success">Aprovado</span>
-                                {% else %}
-                                    <span class="badge bg-warning text-dark">Aguardando</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <form class="form-acao d-inline" onsubmit="event.preventDefault(); executarAcao(this);">
-                                    <input type="hidden" name="user_id" value="{{ u.id }}">
-                                    
-                                    {% if not u.is_approved %}
-                                    <button type="submit" name="acao" value="aprovar" class="btn btn-sm btn-success" onclick="this.form.acao_selecionada.value='aprovar'">Aprovar</button>
-                                    {% endif %}
-                                    
-                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ u.id }}">Editar</button>
-                                    
-                                    <button type="submit" name="acao" value="excluir" class="btn btn-sm btn-danger" onclick="if(confirm('Tem certeza que deseja excluir {{ u.name }}?')) this.form.acao_selecionada.value='excluir'; else return false;">Excluir</button>
-                                    
-                                    <input type="hidden" name="acao" id="acao_selecionada">
-                                </form>
-                            </td>
-                        </tr>
-
-                        <div class="modal fade" id="editModal{{ u.id }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Editar Usuário</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form class="form-acao" onsubmit="event.preventDefault(); executarAcao(this);">
-                                            <input type="hidden" name="user_id" value="{{ u.id }}">
-                                            <input type="hidden" name="acao" value="editar">
-                                            
-                                            <div class="mb-3 text-start">
-                                                <label class="form-label">Nome</label>
-                                                <input type="text" name="name" class="form-control" value="{{ u.name }}">
-                                            </div>
-                                            <div class="mb-3 text-start">
-                                                <label class="form-label">E-mail</label>
-                                                <input type="text" name="email" class="form-control" value="{{ u.email }}">
-                                            </div>
-                                            <div class="mb-3 text-start">
-                                                <label class="form-label">Telefone</label>
-                                                <input type="text" name="phone" class="form-control" value="{{ u.phone }}">
-                                            </div>
-                                            <button type="submit" class="btn btn-primary w-100">Salvar Alterações</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="modal fade" id="modalResetSenha" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pulp-modal" style="background-color: #064e3b; border: 2px solid #0dcaf0;">
+            <div class="modal-header pulp-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h5 class="modal-title fw-bold text-white" style="font-family: 'Bungee', cursive;">Reset de Senha</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <i class="fas fa-key text-info mb-3" style="font-size: 3rem;"></i>
+                <p class="text-white">Deseja redefinir a senha de <br><strong id="nomeUsuarioReset" class="text-info"></strong>?</p>
+                <div class="alert text-dark fw-bold mt-3" style="background-color: #0dcaf0; border-radius: 4px;">
+                    A nova senha será: bolao2026
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-info btn-sm fw-bold text-dark text-uppercase" id="btnConfirmarReset">Resetar</button>
             </div>
         </div>
     </div>
@@ -103,26 +177,89 @@
 
 {% block scripts %}
 <script>
-function executarAcao(form) {
-    const formData = new FormData(form);
-    
-    // Pega o botão clicado se for aprovar/excluir fora do modal
-    if(form.acao_selecionada && form.acao_selecionada.value) {
-        formData.set('acao', form.acao_selecionada.value);
-    }
+function processarAcao(formData, btn) {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
 
-    fetch('{{ url_for("admin.acao_usuario") }}', {
-        method: 'POST',
-        body: formData
-    })
+    fetch('{{ url_for("admin.acao_usuario") }}', { method: 'POST', body: formData })
     .then(response => response.json())
     .then(data => {
         if(data.status === 'success') {
-            location.reload(); // Recarrega para mostrar as mudanças
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.classList.add('bg-success', 'text-white', 'border-success');
+            
+            // Se foi reset de senha, avisa o admin qual é a senha via Alert antes de recarregar
+            if(formData.get('acao') === 'resetar_senha') {
+                alert(data.message);
+            }
+            setTimeout(() => location.reload(), 800); 
         } else {
             alert("Erro: " + data.message);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
+    })
+    .catch(error => {
+        console.error("Erro Fetch:", error);
+        alert('Erro na conexão com o servidor.');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     });
 }
+
+// 1. ATIVAR USUÁRIO
+document.querySelectorAll('.btn-acao').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const formData = new FormData();
+        formData.append('user_id', this.getAttribute('data-id'));
+        formData.append('acao', this.getAttribute('data-acao'));
+        processarAcao(formData, this);
+    });
+});
+
+// 2. MODAL DE EDIÇÃO
+function abrirModalEditar(id, nome, email, telefone) {
+    document.getElementById('editUserId').value = id;
+    document.getElementById('editUserName').value = nome;
+    document.getElementById('editUserEmail').value = email;
+    document.getElementById('editUserPhone').value = telefone !== 'None' ? telefone : '';
+    new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+}
+
+document.getElementById('formEditarUsuario').addEventListener('submit', function(e) {
+    e.preventDefault();
+    processarAcao(new FormData(this), document.getElementById('btnSalvarEdicao'));
+});
+
+// 3. MODAL DE DESATIVAÇÃO
+let idAcaoAtual = null;
+
+function confirmarDesativacao(id, nome) {
+    idAcaoAtual = id;
+    document.getElementById('nomeUsuarioDesativar').textContent = nome;
+    new bootstrap.Modal(document.getElementById('modalDesativar')).show();
+}
+
+document.getElementById('btnConfirmarDesativacao').addEventListener('click', function() {
+    const formData = new FormData();
+    formData.append('user_id', idAcaoAtual);
+    formData.append('acao', 'desativar');
+    processarAcao(formData, this);
+});
+
+// 4. MODAL DE RESET DE SENHA
+function confirmarResetSenha(id, nome) {
+    idAcaoAtual = id;
+    document.getElementById('nomeUsuarioReset').textContent = nome;
+    new bootstrap.Modal(document.getElementById('modalResetSenha')).show();
+}
+
+document.getElementById('btnConfirmarReset').addEventListener('click', function() {
+    const formData = new FormData();
+    formData.append('user_id', idAcaoAtual);
+    formData.append('acao', 'resetar_senha');
+    processarAcao(formData, this);
+});
 </script>
 {% endblock %}

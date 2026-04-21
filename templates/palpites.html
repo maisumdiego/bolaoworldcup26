@@ -4,14 +4,86 @@
 
 {% block content %}
 <style>
+    /* Estilos do Popover Pulp Noir */
     .pulp-popover { --bs-popover-bg: #022c22; --bs-popover-border-color: var(--pulp-gold); --bs-popover-header-bg: #064e3b; --bs-popover-header-color: var(--pulp-gold); --bs-popover-body-color: #fff; box-shadow: 6px 6px 0px rgba(0,0,0,0.6); border: 2px solid var(--pulp-gold); }
     .pulp-popover .popover-header { font-family: 'Bungee', cursive; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .pulp-popover .popover-body { font-size: 0.8rem; font-weight: 600; line-height: 1.6; }
     .time-info-trigger { cursor: help; transition: transform 0.2s ease; }
     .time-info-trigger:hover { transform: scale(1.05); }
-    .dias-nav-container { background-color: rgba(0, 0, 0, 0.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 5px; }
-    .dia-btn { border-radius: 50px !important; color: #fff !important; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
-    .dia-btn.active { background-color: var(--pulp-gold) !important; color: #000 !important; }
+
+    /* CORREÇÃO 3: Formatação Perfeita das Bandeiras */
+    .bandeira {
+        width: 56px !important;
+        height: 38px !important;
+        object-fit: cover !important;
+        object-position: center !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    .bandeira-popover {
+        width: 80px !important;
+        height: 50px !important;
+        object-fit: cover !important;
+        border-radius: 4px;
+        border: 2px solid var(--pulp-gold);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+        margin-bottom: 0.5rem;
+    }
+
+    /* CORREÇÃO 1: Evitar que as pílulas sejam cortadas */
+    .dias-nav-container { 
+        background-color: rgba(0, 0, 0, 0.2); 
+        border-radius: 12px; 
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        padding: 10px 15px; 
+        width: 100%; /* Garante que o contêiner não tente vazar da tela */
+    }
+    
+    .dias-nav {
+        gap: 8px;
+        padding-bottom: 12px; /* Mais espaço para a barra respirar */
+        overflow-x: auto !important; /* Força a rolagem apenas horizontal */
+        overflow-y: hidden !important; /* Bloqueia qualquer rolagem vertical acidental */
+        -webkit-overflow-scrolling: touch; /* Rolagem suave no mobile */
+        
+        /* Suporte nativo e forçado para Firefox */
+        scrollbar-width: thin;
+        scrollbar-color: var(--pulp-gold) rgba(255, 255, 255, 0.05);
+    }
+
+    /* CORREÇÃO 2: Scrollbar forçada e elegante para Desktop */
+    .dias-nav::-webkit-scrollbar {
+        height: 8px;
+        -webkit-appearance: none; /* Impede o SO de esconder a barra por padrão */
+    }
+    .dias-nav::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+    .dias-nav::-webkit-scrollbar-thumb {
+        background-color: var(--pulp-gold);
+        border-radius: 10px;
+        border: 2px solid rgba(0, 0, 0, 0.2); 
+    }
+    
+    .dia-btn { 
+        border-radius: 50px !important; 
+        color: #fff !important; 
+        font-family: 'Montserrat', sans-serif !important;
+        font-weight: 700 !important; 
+        font-size: 0.90rem !important; 
+        text-transform: none !important; 
+        white-space: nowrap !important; 
+        border: 2px solid transparent !important; /* Borda invisível para manter o tamanho físico estático */
+        transition: all 0.2s ease;
+    }
+    .dia-btn.active { 
+        background-color: var(--pulp-gold) !important; 
+        color: #000 !important; 
+        border-color: var(--pulp-gold) !important; /* A borda agora apenas muda de cor, não aumenta o tamanho */
+    }
 </style>
 
 <div class="container mt-4 mb-5">
@@ -44,7 +116,7 @@
             <ul class="nav nav-pills dias-nav d-flex flex-nowrap overflow-auto" role="tablist">
                 {% for dia_str in datas_ordenadas %}
                 <li class="nav-item">
-                    <button class="nav-link dia-btn filter-btn {% if dia_str == dia_ativo %}active{% endif %}" data-filter-type="date" data-filter-val="{{ dia_str }}">{{ dia_str[8:10] }}/{{ dia_str[5:7] }}</button>
+                    <button class="nav-link dia-btn filter-btn {% if dia_str == dia_ativo %}active{% endif %}" data-filter-type="date" data-filter-val="{{ dia_str }}">{{ dias_semana[dia_str] }} {{ dia_str[8:10] }}/{{ dia_str[5:7] }}</button>
                 </li>
                 {% endfor %}
             </ul>
@@ -87,7 +159,7 @@
                                 <i class="far fa-clock"></i> 
                                 <span class="game-time-display" 
                                       data-time="{{ jogo.datetime_game.strftime('%H:%M') }}" 
-                                      data-full="{{ jogo.datetime_game.strftime('%d/%m às %H:%M') }}">
+                                      data-full="{{ dias_semana[jogo.dia_str] }} {{ jogo.datetime_game.strftime('%d/%m às %H:%M') }}">
                                     {{ jogo.datetime_game.strftime('%H:%M') }}
                                 </span> 
                                 | {{ jogo.phase }}
@@ -101,7 +173,7 @@
                             <div class="confronto-container d-flex justify-content-between align-items-center">
                                 <div class="time text-center" style="width: 30%;">
                                     {% if jogo.team_a %}
-                                        <div class="time-info-trigger" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-html="true" data-bs-custom-class="pulp-popover" title="⭐ {{ jogo.team_a.team_name }}" data-bs-content="<strong>Ranking FIFA:</strong> {{ jogo.team_a.fifa_ranking }}º<br><strong>Continente:</strong> {{ jogo.team_a.continent }}<br><strong>Títulos:</strong> {% if jogo.team_a.world_cups_won > 0 %}{% for i in range(jogo.team_a.world_cups_won) %}<i class='fas fa-star' style='color: #F59E0B;'></i>{% endfor %}{% else %}<span class='text-white-50'>Nenhum</span>{% endif %}">
+                                        <div class="time-info-trigger" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-html="true" data-bs-custom-class="pulp-popover" title="⭐ {{ jogo.team_a.team_name }}" data-bs-content="<div class='text-center'><img src='{{ jogo.team_a.team_flag_url }}' class='bandeira-popover'></div><strong>Ranking FIFA:</strong> {{ jogo.team_a.fifa_ranking }}º<br><strong>Continente:</strong> {{ jogo.team_a.continent }}<br><strong>Títulos:</strong> {% if jogo.team_a.world_cups_won > 0 %}{% for i in range(jogo.team_a.world_cups_won) %}<i class='fas fa-star' style='color: #F59E0B;'></i>{% endfor %}{% else %}<span class='text-white-50'>Nenhum</span>{% endif %}">
                                             <img src="{{ jogo.team_a.team_flag_url }}" class="bandeira">
                                             <div class="time-sigla mt-2 text-decoration-underline" style="text-underline-offset: 4px; text-decoration-color: rgba(255,255,255,0.2);">{{ jogo.team_a.ab }}</div>
                                         </div>
@@ -118,7 +190,7 @@
 
                                 <div class="time text-center" style="width: 30%;">
                                     {% if jogo.team_b %}
-                                        <div class="time-info-trigger" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-html="true" data-bs-custom-class="pulp-popover" title="⭐ {{ jogo.team_b.team_name }}" data-bs-content="<strong>Ranking FIFA:</strong> {{ jogo.team_b.fifa_ranking }}º<br><strong>Continente:</strong> {{ jogo.team_b.continent }}<br><strong>Títulos:</strong> {% if jogo.team_b.world_cups_won > 0 %}{% for i in range(jogo.team_b.world_cups_won) %}<i class='fas fa-star' style='color: #F59E0B;'></i>{% endfor %}{% else %}<span class='text-white-50'>Nenhum</span>{% endif %}">
+                                        <div class="time-info-trigger" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-html="true" data-bs-custom-class="pulp-popover" title="⭐ {{ jogo.team_b.team_name }}" data-bs-content="<div class='text-center'><img src='{{ jogo.team_b.team_flag_url }}' class='bandeira-popover'></div><strong>Ranking FIFA:</strong> {{ jogo.team_b.fifa_ranking }}º<br><strong>Continente:</strong> {{ jogo.team_b.continent }}<br><strong>Títulos:</strong> {% if jogo.team_b.world_cups_won > 0 %}{% for i in range(jogo.team_b.world_cups_won) %}<i class='fas fa-star' style='color: #F59E0B;'></i>{% endfor %}{% else %}<span class='text-white-50'>Nenhum</span>{% endif %}">
                                             <img src="{{ jogo.team_b.team_flag_url }}" class="bandeira">
                                             <div class="time-sigla mt-2 text-decoration-underline" style="text-underline-offset: 4px; text-decoration-color: rgba(255,255,255,0.2);">{{ jogo.team_b.ab }}</div>
                                         </div>
@@ -134,21 +206,38 @@
                                 {% if jogo.status == 'encerrado' %}
                                     <small class="text-uppercase fw-bold" style="color: #fff; font-size: 0.7rem;">Resultado Oficial</small>
                                     <div class="resultado-numero fs-5 fw-bold text-warning">{{ jogo.team_a_result }} x {{ jogo.team_b_result }}</div>
-                                    {% if palpite_a != '' %}
-                                        {% set p_a, p_b = palpite_a|int, palpite_b|int %}
-                                        {% set r_a, r_b = jogo.team_a_result, jogo.team_b_result %}
-                                        {% if p_a == r_a and p_b == r_b %}<span class="badge bg-success shadow-sm">+5 pts</span>
-                                        {% elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b) %}
-                                            {% if p_a == r_a or p_b == r_b %}<span class="badge bg-info text-dark shadow-sm">+3 pts</span>
-                                            {% else %}<span class="badge bg-warning text-dark shadow-sm">+2 pts</span>{% endif %}
-                                        {% else %}<span class="badge bg-danger shadow-sm">0 pts</span>{% endif %}
+                                    
+                                    {% if jogo.id in palpites_usuario %}
+                                        <div class="mt-2">
+                                            {% set p_a = palpites_usuario[jogo.id]['a']|int %}
+                                            {% set p_b = palpites_usuario[jogo.id]['b']|int %}
+                                            {% set r_a = jogo.team_a_result|int %}
+                                            {% set r_b = jogo.team_b_result|int %}
+                                            
+                                            {% if p_a == r_a and p_b == r_b %}
+                                                <span class="badge bg-success shadow-sm px-2 py-1">+5 pts</span>
+                                            {% elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b) %}
+                                                {% if p_a == r_a or p_b == r_b %}
+                                                    <span class="badge bg-info text-dark shadow-sm px-2 py-1">+3 pts</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark shadow-sm px-2 py-1">+2 pts</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-danger shadow-sm px-2 py-1">0 pts</span>
+                                            {% endif %}
+                                        </div>
                                     {% endif %}
-                                {% else %}<small class="text-uppercase" style="color: rgba(255, 255, 255, 0.7); font-weight: 600; font-size: 0.8rem;">Aguardando Jogo</small>{% endif %}
+                                    
+                                {% else %}
+                                    <small class="text-uppercase" style="color: rgba(255, 255, 255, 0.7); font-weight: 600; font-size: 0.8rem;">Aguardando Jogo</small>
+                                {% endif %}
                             </div>
                             
                             {% if pode_palpitar %}
                                 <button type="submit" class="btn btn-salvar-pulp px-4 fw-bold"><i class="fas fa-check me-1"></i> Salvar Palpite</button>
-                            {% else %}<span class="badge bg-secondary fs-6">Encerrado</span>{% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary fs-6">Encerrado</span>
+                            {% endif %}
                         </div>
                     </div>
                 </form>
@@ -198,9 +287,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeDisplays = document.querySelectorAll('.game-time-display');
         timeDisplays.forEach(el => {
             if (type === 'date') {
-                el.textContent = el.getAttribute('data-time'); // Só mostra 15:00
+                el.textContent = el.getAttribute('data-time');
             } else {
-                el.textContent = el.getAttribute('data-full'); // Mostra 12/06 às 15:00
+                el.textContent = el.getAttribute('data-full');
             }
         });
 
@@ -226,7 +315,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (activeBtn) {
             applyFilter('group', activeBtn.getAttribute('data-filter-val'));
         } else {
-            // Trava de segurança: Se os botões de grupo ainda não existirem, mostra todos da fase de grupos
             applyFilter('group', 'none'); 
             gameWrappers.forEach(w => {
                 if (w.getAttribute('data-phase') === 'Fase de Grupos') w.classList.remove('d-none');

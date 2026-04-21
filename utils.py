@@ -2,24 +2,19 @@ from collections import defaultdict
 from models import db, Game, GroupStanding
 
 def atualizar_classificacao_grupos():
-    # 1. Busca todos os times na tabela de classificação
     standings = GroupStanding.query.all()
     stats_dict = {s.team_id: s for s in standings}
-    
-    # 2. Zera todas as métricas (Limpeza do ETL)
+
     for s in standings:
         s.matches_played = s.wins = s.draws = s.losses = 0
         s.goals_for = s.goals_against = s.goal_difference = s.points = 0
 
-    # 3. Busca apenas os jogos encerrados da Fase de Grupos
     jogos_grupos = Game.query.filter(Game.status == 'encerrado', Game.phase == 'Grupos').all()
 
-    # 4. Aplica a matemática do futebol
     for jogo in jogos_grupos:
         r_a = jogo.team_a_result
         r_b = jogo.team_b_result
         
-        # Computa para o Time A
         if jogo.team_a_id in stats_dict:
             st_a = stats_dict[jogo.team_a_id]
             st_a.matches_played += 1
@@ -36,7 +31,6 @@ def atualizar_classificacao_grupos():
             else:
                 st_a.losses += 1
                 
-        # Computa para o Time B
         if jogo.team_b_id in stats_dict:
             st_b = stats_dict[jogo.team_b_id]
             st_b.matches_played += 1
@@ -53,28 +47,21 @@ def atualizar_classificacao_grupos():
             else:
                 st_b.losses += 1
 
-    # Salva o recálculo no banco
     db.session.commit()
 
 def automatizar_chaveamento():
-    # Pega a tabela de classificação atualizada
     standings = GroupStanding.query.all()
     
-    # Agrupa por letra do grupo
     grupos = defaultdict(list)
     for s in standings:
         grupos[s.group_name].append(s)
         
-    # Busca todos os jogos que NÃO são da fase de grupos
     jogos_mata_mata = Game.query.filter(Game.phase != 'Grupos').all()
 
     for letra, times in grupos.items():
-        # Soma quantos jogos os times desse grupo já jogaram
         total_partidas_grupo = sum(t.matches_played for t in times)
         
-        # Se for 12 (4 times x 3 jogos), o grupo está finalizado!
         if total_partidas_grupo == 12:
-            # Ordena pela regra da FIFA
             times.sort(key=lambda x: (x.points, x.goal_difference, x.goals_for), reverse=True)
             primeiro = times[0].team_id
             segundo = times[1].team_id
@@ -83,20 +70,17 @@ def automatizar_chaveamento():
             tag_segundo = f"2{letra}"
             
             for jogo in jogos_mata_mata:
-                # Substitui o Time A
                 if jogo.placeholder_a == tag_primeiro:
                     jogo.team_a_id = primeiro
                 elif jogo.placeholder_a == tag_segundo:
                     jogo.team_a_id = segundo
                     
-                # Substitui o Time B
                 if jogo.placeholder_b == tag_primeiro:
                     jogo.team_b_id = primeiro
                 elif jogo.placeholder_b == tag_segundo:
                     jogo.team_b_id = segundo
                     
         else:
-            # Reversibilidade: Se o grupo não estiver 100% finalizado
             tag_primeiro = f"1{letra}"
             tag_segundo = f"2{letra}"
             

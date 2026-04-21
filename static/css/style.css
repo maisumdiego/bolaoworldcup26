@@ -5,9 +5,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Bungee&display=swap');
 
 :root {
-    /* Paleta Principal */
-    --bg-void: #0a0a0c;          
-    --surface-dark: #16161a;     
+    /* Paleta Principal Atualizada */
+    --bg-void: #0f172a;          /* Fundo de todas as páginas (Azul Marinho) */
+    --surface-dark: #1e293b;     /* Fundo de todos os cards/caixas (Ardósia) */
+    
     --church-red: #E11D48;       
     --pulp-gold: #F59E0B;        
     
@@ -161,73 +162,59 @@ body {
 .dia-semana { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
 
 /* ==========================================================================
-   TELA DE PALPITES: CARDS DE JOGOS (HQ)
+   TELA DE PALPITES: CARDS DE JOGOS (VIBRANTES)
    ========================================================================== */
 .jogo-card {
-    background-color: var(--surface-dark) !important;
-    border: 2px solid #27272a !important; 
-    border-radius: 8px !important;
-    box-shadow: 6px 6px 0px rgba(225, 29, 72, 0.15); 
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%) !important; /* Gradiente elegante para dar volume */
+    border: 1px solid rgba(245, 158, 11, 0.2) !important; /* Borda dourada bem sutil */
+    border-radius: 12px !important;
+    box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.4) !important; 
     color: var(--text-main);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .jogo-card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 8px 8px 0px rgba(245, 158, 11, 0.4); 
+    transform: translateY(-4px);
+    border-color: var(--pulp-gold) !important; /* Acende a borda dourada no hover */
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.15) !important; /* Brilho projetado */
 }
 
 .jogo-card .card-header {
-    background-color: transparent !important;
-    border-bottom: 2px solid #27272a !important;
+    background-color: rgba(255, 255, 255, 0.03) !important; /* Leve clareada no topo */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     font-family: 'Montserrat', sans-serif;
     font-size: 0.85rem;
     font-weight: 600;
     letter-spacing: 1px;
-    color: var(--text-muted) !important;
-    padding: 15px 20px !important;
+    color: #e2e8f0 !important; /* Texto mais branco para destacar do fundo */
+    padding: 12px 20px !important;
 }
 
 .jogo-card .card-footer {
-    background-color: rgba(0,0,0,0.2) !important;
-    border-top: 1px dashed #3f3f46 !important;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.25) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
     padding: 15px 20px !important;
 }
 
-/* Bandeiras e Siglas */
-.bandeira {
-    width: 60px; 
-    height: auto;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-}
-
-.time-sigla {
-    font-family: 'Bungee', cursive;
-    font-size: 1.2rem;
-    color: var(--text-main);
-    letter-spacing: 1px;
-}
-
 /* ==========================================================================
-   PLACARES
+   PLACARES (INPUTS VIBRANTES)
    ========================================================================== */
 .palpite-input {
-    background-color: #000 !important;
-    border: 2px solid #3f3f46 !important;
-    border-radius: 6px !important;
-    color: var(--pulp-gold) !important;
+    background-color: #020617 !important; /* Fundo azul ultra-escuro para dar profundidade */
+    border: 2px solid #334155 !important; /* Borda ardósia que combina com o fundo */
+    border-radius: 8px !important;
+    color: var(--pulp-gold) !important; /* O número salta em dourado */
     font-family: 'Bungee', cursive;
-    font-size: 2rem !important;
+    font-size: 2.2rem !important;
     width: 80px !important;
     height: 70px !important;
     text-align: center;
     padding: 0 !important;
     appearance: textfield; 
-    box-shadow: inset 0 2px 10px rgba(0,0,0,1);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.6);
+    transition: all 0.2s ease;
 }
 
 .palpite-input::-webkit-inner-spin-button,
@@ -237,15 +224,17 @@ body {
 }
 
 .palpite-input:focus {
-    border-color: var(--church-red) !important;
+    background-color: #000 !important;
+    border-color: var(--pulp-gold) !important; /* Fica dourado quando o usuário clica para digitar */
     outline: none;
-    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.3), inset 0 2px 10px rgba(0,0,0,1);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3), inset 0 3px 6px rgba(0,0,0,0.8) !important;
+    transform: scale(1.05); /* O input dá um leve "pulo" para frente */
 }
 
 .placar-x {
     font-family: 'Bungee', cursive;
     font-size: 1.5rem;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.4); /* O 'X' fica mais discreto para destacar os números */
 }
 
 /* ==========================================================================

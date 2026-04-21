@@ -1,10 +1,287 @@
 {% extends "base.html" %}
 
-{% block title %}Início - Bolão da Copa 2026{% endblock %}
+{% block title %}Início - Bolão da Cabeça 2026{% endblock %}
 
 {% block content %}
-<div class="container mt-5 text-center">
-    <h1 class="display-4">Bem-vindo ao Bolão!</h1>
-    <p class="lead mt-3">Faça o login no cabeçalho para começar a registrar seus palpites e desafiar seus amigos.</p>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<style>
+    :root {
+        --church-red: #8b0000;
+        --pulp-gold: #F59E0B;
+        --navy-hero: #0f172a; /* Azul Marinho para o Banner */
+        --slate-bg: #1e293b;  /* Azul acinzentado para quebra */
+    }
+
+    /* 1. MÁSCARA DA LOGO */
+    .logo-wrapper {
+        display: inline-block;
+        filter: drop-shadow(4px 4px 0px var(--church-red));
+        margin-bottom: 1.5rem;
+    }
+
+    .logo-icon {
+        display: block;
+        width: 320px;
+        height: 320px;
+        background-color: var(--pulp-gold);
+        -webkit-mask: url("{{ url_for('static', filename='img/bolao_logo.svg') }}") no-repeat center;
+        mask: url("{{ url_for('static', filename='img/bolao_logo.svg') }}") no-repeat center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+    }
+
+    .title-font {
+        font-family: 'Bungee', cursive;
+        color: var(--pulp-gold);
+        text-shadow: 3px 3px 0px var(--church-red);
+    }
+
+    /* 2. SEÇÕES: Alternância de cores (sem linhas divisórias) */
+    .section-home { 
+        padding: 4rem 0; 
+    }
+    
+    .hero-banner {
+        background: linear-gradient(135deg, var(--navy-hero) 0%, #1e1b4b 100%);
+        margin-top: -1rem; /* Remove o espaço vazio (gap) criado pelo container de flash messages no base.html */
+        position: relative;
+    }
+
+    .bg-dark-section { background-color: #0f172a; }
+    .bg-slate-section { background-color: var(--slate-bg); }
+
+    /* 3. CARDS DE PONTUAÇÃO */
+    .rule-card {
+        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+        border: 2px solid rgba(245, 158, 11, 0.3);
+        border-radius: 12px;
+        padding: 2.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+        box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
+    }
+    .rule-card:hover {
+        border-color: var(--pulp-gold);
+        transform: translateY(-5px);
+        box-shadow: 10px 10px 0px rgba(139, 0, 0, 0.4);
+    }
+    .rule-points {
+        font-family: 'Bungee', cursive;
+        font-size: 3.5rem;
+        line-height: 1;
+        margin-bottom: 1rem;
+    }
+
+    /* 4. CARDS DE TIMES E HOVER */
+    #carouselTeams .carousel-inner {
+        overflow: visible !important;
+        padding: 20px 0;
+    }
+    
+    #carouselTeams .carousel-item {
+        overflow: visible !important;
+    }
+
+    .team-card {
+        background-color: #020617;
+        border: 2px solid #334155;
+        border-radius: 12px;
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+        height: 100%;
+        touch-action: pan-y;
+    }
+
+    .team-card:hover {
+        transform: scale(1.08);
+        border-color: var(--pulp-gold);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        z-index: 10;
+    }
+
+    .bandeira-destaque { 
+        width: 70px; height: 45px; 
+        object-fit: cover; 
+        border: 2px solid rgba(255,255,255,0.1);
+        border-radius: 4px;
+        margin-bottom: 0.8rem;
+    }
+
+    .carousel-control-prev, .carousel-control-next { width: 5%; z-index: 20; }
+</style>
+
+<section class="section-home hero-banner text-center">
+    <div class="container" data-aos="zoom-in">
+        <div class="logo-wrapper">
+            <div class="logo-icon"></div>
+        </div>
+        
+        <h1 class="display-3 fw-bold text-uppercase title-font">
+            Bolão da Cabeça 2026
+        </h1>
+        <p class="lead fw-bold text-white-50" style="letter-spacing: 2px;">A GLÓRIA AGUARDA OS MELHORES PALPITES</p>
+        
+        {% if not current_user.is_authenticated %}
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-warning btn-lg fw-bold px-5 shadow text-dark">ENTRAR</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg fw-bold px-5 shadow">CADASTRAR</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% if current_user.is_authenticated and proximos_jogos %}
+<section class="section-home bg-slate-section">
+    <div class="container" data-aos="fade-up">
+        <h3 class="title-font text-center mb-5" style="font-size: 1.8rem;">Próximos Confrontos</h3>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {% for jogo in proximos_jogos %}
+            <div class="col">
+                <div class="team-card p-4 text-center">
+                    <small class="text-warning d-block mb-3 fw-bold">{{ jogo.datetime_game.strftime('%d/%m %H:%M') }}</small>
+                    <div class="d-flex justify-content-center align-items-center mb-4 gap-2">
+                        {% if jogo.team_a %}<img src="{{ jogo.team_a.team_flag_url }}" style="width: 45px; height: 30px; border-radius: 3px;">{% endif %}
+                        <span class="fw-bold text-white mx-1">X</span>
+                        {% if jogo.team_b %}<img src="{{ jogo.team_b.team_flag_url }}" style="width: 45px; height: 30px; border-radius: 3px;">{% endif %}
+                    </div>
+                    <a href="{{ url_for('main.palpites') }}" class="btn btn-sm btn-{{ 'success' if jogo.id in palpites_usuario else 'outline-warning' }} w-100 fw-bold">
+                        {{ 'PALPITE FEITO' if jogo.id in palpites_usuario else 'DAR PALPITE' }}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section-home bg-dark-section">
+    <div class="container" data-aos="fade-right">
+        <h3 class="title-font text-center mb-5" style="font-size: 1.8rem;"><i class="fas fa-clipboard-list me-2"></i> Como pontuar</h3>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="rule-card">
+                    <div class="rule-points text-success">+5</div>
+                    <h5 class="fw-bold text-uppercase text-warning">Na Mosca</h5>
+                    <p class="text-white-50 small mb-0">Você cravou o resultado exato. O mestre da previsão!</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="rule-card">
+                    <div class="rule-points text-info">+3</div>
+                    <h5 class="fw-bold text-uppercase text-warning">Vencedor e Gols</h5>
+                    <p class="text-white-50 small mb-0">Acertou o vencedor/empate e os gols de um dos times.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="rule-card">
+                    <div class="rule-points" style="color: var(--church-red);">+2</div>
+                    <h5 class="fw-bold text-uppercase text-warning">Tendência</h5>
+                    <p class="text-white-50 small mb-0">Acertou apenas quem venceu ou se deu empate.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-home bg-slate-section">
+    <div class="container" data-aos="fade-left">
+        <h3 class="title-font text-center mb-5" style="font-size: 1.8rem;">Raio-X da Copa</h3>
+        
+        <div id="carouselTeams" class="carousel slide" data-bs-ride="false" data-bs-touch="true">
+            <div class="carousel-inner px-5">
+                {% for chunk in participantes|batch(4) %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <div class="row g-3 justify-content-center">
+                        {% for team in chunk %}
+                        <div class="col-6 col-lg-3">
+                            <div class="team-card p-4 text-center" onclick="buscarDadosAPI('{{ team.team_name }}')">
+                                <img src="{{ team.team_flag_url }}" class="bandeira-destaque">
+                                <h6 class="text-white fw-bold text-uppercase mb-1">{{ team.team_name }}</h6>
+                                {% if team.fifa_ranking %}
+                                    <span class="badge bg-dark border border-warning text-warning">Ranking: {{ team.fifa_ranking }}º</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselTeams" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselTeams" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="modalCuriosidade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content pulp-modal" style="background-color: #f8fafc; border: 3px solid var(--pulp-gold); border-radius: 8px;">
+            <div class="modal-header border-bottom border-warning" style="background-color: #0f172a;">
+                <h5 class="modal-title fw-bold text-warning" id="modalCountryName" style="font-family: 'Bungee', cursive;"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-dark" id="modalBodyContent"></div>
+            <div class="modal-footer border-0 justify-content-between pt-0 pb-3" style="background-color: #f8fafc;">
+                <small class="text-muted fw-bold"><i class="fab fa-wikipedia-w me-1"></i> Wikipedia API</small>
+                <small class="text-muted fw-bold"><i class="fas fa-database me-1"></i> REST Countries API</small>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({ duration: 800, once: true });
+
+    const modalCuriosidade = new bootstrap.Modal(document.getElementById('modalCuriosidade'));
+    const body = document.getElementById('modalBodyContent');
+
+    async function buscarDadosAPI(nomePais) {
+        document.getElementById('modalCountryName').textContent = nomePais.toUpperCase();
+        body.innerHTML = '<div class="text-center p-5"><i class="fas fa-futbol fa-spin fa-3x text-success mb-3"></i><h5 class="fw-bold">Buscando dossiê...</h5></div>';
+        modalCuriosidade.show();
+
+        try {
+            const resCountries = await fetch(`https://restcountries.com/v3.1/translation/${nomePais}`);
+            const dataCountries = await resCountries.json();
+            const c = dataCountries[0];
+
+            let wikiResumo = "";
+            try {
+                const resWiki = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${nomePais}`);
+                const dataWiki = await resWiki.json();
+                if (dataWiki.extract) {
+                    wikiResumo = `<div class="mt-4 p-3 bg-white rounded border border-warning">
+                                    <h6 class="fw-bold text-uppercase mb-2 text-danger"><i class="fas fa-book-open me-2"></i>Sobre o País</h6>
+                                    <p class="small text-muted mb-0" style="text-align: justify;">${dataWiki.extract}</p>
+                                  </div>`;
+                }
+            } catch (e) {}
+
+            // DADOS RESTAURADOS COMPLETO NO JS
+            body.innerHTML = `
+                <div class="px-2 py-3">
+                    <ul class="list-group list-group-flush shadow-sm">
+                        <li class="list-group-item d-flex justify-content-between"><strong>Capital:</strong> <span>${c.capital ? c.capital[0] : 'N/A'}</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>População:</strong> <span>${c.population.toLocaleString('pt-BR')}</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>Continente:</strong> <span>${c.subregion || c.region}</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>Idiomas:</strong> <span>${c.languages ? Object.values(c.languages).join(', ') : 'N/A'}</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>Moeda:</strong> <span>${c.currencies ? Object.values(c.currencies)[0].name : 'N/A'}</span></li>
+                    </ul>
+                    ${wikiResumo}
+                </div>`;
+        } catch (err) {
+            body.innerHTML = '<p class="text-center p-5">Erro ao carregar dados.</p>';
+        }
+    }
+</script>
 {% endblock %}

@@ -3,48 +3,75 @@
 {% block title %}Admin - Resultados Oficiais{% endblock %}
 
 {% block content %}
+<style>
+    /* Estilos baseados no Pulp Noir para o Admin */
+    .admin-card { background-color: #064e3b !important; border: 2px solid #022c22 !important; border-radius: 8px; box-shadow: 6px 6px 0px rgba(0,0,0,0.5); }
+    .admin-card-header { background-color: #022c22 !important; border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--pulp-gold) !important; font-family: 'Bungee', cursive; font-size: 1.1rem; }
+    
+    .table-pulp { color: #fff; }
+    .table-pulp thead { background-color: rgba(0,0,0,0.3); color: rgba(255,255,255,0.7); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+    .table-pulp td, .table-pulp th { border-bottom: 1px solid rgba(255,255,255,0.1) !important; vertical-align: middle; }
+    .table-pulp tbody tr:hover { background-color: rgba(255,255,255,0.05); }
+
+    /* Inputs Dark Mode */
+    .admin-input { background-color: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.2) !important; color: #fff !important; }
+    .admin-input:focus { border-color: var(--pulp-gold) !important; box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.2) !important; }
+    
+    /* Navegação */
+    .dias-nav-container { background-color: rgba(0, 0, 0, 0.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 5px; }
+    .dia-btn { border-radius: 50px !important; color: #fff !important; font-family: 'Montserrat', sans-serif !important; font-weight: 700 !important; font-size: 0.9rem !important; transition: all 0.3s ease; }
+    .dia-btn.active { background-color: var(--pulp-gold) !important; color: #000 !important; }
+
+    /* Bandeiras Padronizadas */
+    .bandeira-admin { width: 32px; height: 22px; object-fit: cover; border-radius: 2px; border: 1px solid rgba(255,255,255,0.2); }
+</style>
+
 <div class="container mt-4 mb-5">
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">Painel de Controle</h2>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 2px 2px 0px var(--church-red);">
+            Painel de Controle
+        </h2>
         
         <div class="btn-group shadow-sm" role="group">
-            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-dark active">
-                <i class="bi bi-trophy"></i> Resultados
+            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-warning fw-bold text-dark">
+                <i class="fas fa-trophy me-1"></i> Resultados
             </a>
-            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-dark">
-                <i class="bi bi-people"></i> Usuários
+            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-warning fw-bold">
+                <i class="fas fa-users me-1"></i> Usuários
             </a>
         </div>
     </div>
     
-    <ul class="nav nav-pills mb-4 justify-content-center shadow-sm p-2 bg-white rounded" id="pills-tab-fases" role="tablist">
-        {% for fase in fases_ordenadas %}
-        <li class="nav-item" role="presentation">
-            <button class="nav-link fw-bold {% if fase == fase_ativa %}active{% endif %}" 
-                    id="tab-fase-{{ loop.index }}" 
-                    data-bs-toggle="pill" 
-                    data-bs-target="#pills-fase-{{ loop.index }}" 
-                    type="button" role="tab">
-                {{ fase }}
-            </button>
-        </li>
-        {% endfor %}
-    </ul>
+    <div class="dias-nav-container mb-4">
+        <ul class="nav nav-pills d-flex flex-nowrap overflow-auto justify-content-md-center" id="pills-tab-fases" role="tablist">
+            {% for fase in fases_ordenadas %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link dia-btn px-4 {% if fase == fase_ativa %}active{% endif %}" 
+                        id="tab-fase-{{ loop.index }}" 
+                        data-bs-toggle="pill" 
+                        data-bs-target="#pills-fase-{{ loop.index }}" 
+                        type="button" role="tab">
+                    {{ fase }}
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 
     <div class="tab-content" id="pills-tabContent-fases">
         {% for fase in fases_ordenadas %}
             <div class="tab-pane fade {% if fase == fase_ativa %}show active{% endif %}" id="pills-fase-{{ loop.index }}" role="tabpanel">
                 
-                <div class="card mb-5 shadow-sm border-0">
-                    <div class="card-header bg-dark text-white fw-bold">
-                        <i class="bi bi-calendar-event"></i> Jogos - {{ fase }}
+                <div class="card admin-card mb-5">
+                    <div class="card-header admin-card-header p-3">
+                        <i class="far fa-calendar-check me-2"></i> Jogos - {{ fase }}
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+                        <table class="table table-pulp align-middle mb-0">
+                            <thead>
                                 <tr>
-                                    <th class="text-center" style="width: 5%">#</th>
+                                    <th class="text-center" style="width: 5%">ID</th>
                                     <th style="width: 15%">Data/Hora</th>
                                     <th class="text-end" style="width: 22%">Time A</th>
                                     <th class="text-center" style="width: 18%">Placar Real</th>
@@ -55,38 +82,38 @@
                             <tbody>
                                 {% for jogo in jogos_por_fase[fase] %}
                                 <tr>
-                                    <td class="text-center fw-bold text-muted">
-                                        {{ jogo.id }}
+                                    <td class="text-center fw-bold" style="color: rgba(255,255,255,0.5);">
+                                        #{{ jogo.id }}
                                     </td>
-                                    <td class="small text-muted">
-                                        {{ jogo.datetime_game.strftime('%d/%m %H:%M') }}
+                                    <td class="small" style="color: rgba(255,255,255,0.7);">
+                                        {{ jogo.datetime_game.strftime('%d/%m às %H:%M') }}
                                     </td>
                                     <td class="text-end">
                                         <span class="me-2 fw-bold">{{ jogo.team_a.team_name if jogo.team_a else jogo.placeholder_a }}</span>
                                         {% if jogo.team_a %}
-                                            <img src="{{ jogo.team_a.team_flag_url }}" width="30" class="border">
+                                            <img src="{{ jogo.team_a.team_flag_url }}" class="bandeira-admin">
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <form class="form-admin-resultado d-flex justify-content-center gap-2">
+                                        <form class="form-admin-resultado d-flex justify-content-center align-items-center gap-2">
                                             <input type="hidden" name="game_id" value="{{ jogo.id }}">
-                                            <input type="number" name="result_a" class="form-control form-control-sm text-center fw-bold" 
-                                                style="width: 60px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required>
-                                            <span class="align-self-center text-muted fw-bold">X</span>
-                                            <input type="number" name="result_b" class="form-control form-control-sm text-center fw-bold" 
-                                                style="width: 60px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required>
+                                            <input type="number" name="result_a" class="form-control form-control-sm text-center fw-bold admin-input" 
+                                                style="width: 60px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required min="0">
+                                            <span class="text-white-50 fw-bold">X</span>
+                                            <input type="number" name="result_b" class="form-control form-control-sm text-center fw-bold admin-input" 
+                                                style="width: 60px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required min="0">
                                         </form>
                                     </td>
                                     <td class="text-start">
                                         {% if jogo.team_b %}
-                                            <img src="{{ jogo.team_b.team_flag_url }}" width="30" class="border me-2">
+                                            <img src="{{ jogo.team_b.team_flag_url }}" class="bandeira-admin me-2">
                                         {% endif %}
                                         <span class="fw-bold">{{ jogo.team_b.team_name if jogo.team_b else jogo.placeholder_b }}</span>
                                     </td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm w-100 btn-submit-admin {% if jogo.status == 'encerrado' %}btn-primary{% else %}btn-success{% endif %} fw-bold" 
-                                                onclick="enviarResultado(this)">
-                                            {{ 'Atualizar' if jogo.status == 'encerrado' else 'Salvar' }}
+                                        <button type="button" class="btn btn-sm w-100 fw-bold text-uppercase {% if jogo.status == 'encerrado' %}btn-outline-warning{% else %}btn-warning text-dark{% endif %}" 
+                                                onclick="enviarResultado(this)" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                            <i class="fas fa-check me-1"></i> {{ 'Atualizar' if jogo.status == 'encerrado' else 'Salvar' }}
                                         </button>
                                     </td>
                                 </tr>
@@ -101,14 +128,14 @@
     </div>
 
     {% if jogos_pendentes %}
-    <div class="card shadow-sm mt-5 border-warning">
-        <div class="card-header bg-warning text-dark fw-bold">
-            <i class="bi bi-exclamation-triangle-fill"></i> Ajuste de Confrontos (Times a Definir)
+    <div class="card admin-card mt-5 border-warning" style="border-color: var(--pulp-gold) !important;">
+        <div class="card-header p-3 fw-bold text-dark text-uppercase" style="background-color: var(--pulp-gold); font-family: 'Bungee', cursive; font-size: 1rem;">
+            <i class="fas fa-exclamation-triangle me-2"></i> Ajuste de Confrontos (Times a Definir)
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle text-center mb-0">
-                    <thead class="table-light">
+                <table class="table table-pulp align-middle text-center mb-0">
+                    <thead>
                         <tr>
                             <th>Jogo</th>
                             <th>Fase</th>
@@ -122,21 +149,21 @@
                         <tr>
                             <form class="form-pendente">
                                 <input type="hidden" name="game_id" value="{{ jogo.id }}">
-                                <td class="fw-bold text-muted">#{{ jogo.id }}</td>
-                                <td><span class="badge bg-secondary">{{ jogo.phase }}</span></td>
+                                <td class="fw-bold" style="color: rgba(255,255,255,0.5);">#{{ jogo.id }}</td>
+                                <td><span class="badge" style="background-color: rgba(255,255,255,0.1); color: var(--pulp-gold);">{{ jogo.phase }}</span></td>
                                 
                                 <td>
                                 {% if jogo.team_a %}
                                     <span class="fw-bold">{{ jogo.team_a.ab }}</span>
                                 {% elif 'definir' in jogo.placeholder_a|lower %}
-                                    <select name="team_a_id" class="form-select form-select-sm border-warning">
+                                    <select name="team_a_id" class="form-select form-select-sm admin-input border-warning">
                                         <option value="">{{ jogo.placeholder_a }}</option>
                                         {% for time in todos_times %}
                                             <option value="{{ time.id }}">{{ time.team_name }}</option>
                                         {% endfor %}
                                     </select>
                                 {% else %}
-                                    <span class="text-muted fst-italic">{{ jogo.placeholder_a }} (Automático)</span>
+                                    <span class="fst-italic" style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">{{ jogo.placeholder_a }} (Automático)</span>
                                 {% endif %}
                             </td>
 
@@ -144,19 +171,21 @@
                                 {% if jogo.team_b %}
                                     <span class="fw-bold">{{ jogo.team_b.ab }}</span>
                                 {% elif 'definir' in jogo.placeholder_b|lower %}
-                                    <select name="team_b_id" class="form-select form-select-sm border-warning">
+                                    <select name="team_b_id" class="form-select form-select-sm admin-input border-warning">
                                         <option value="">{{ jogo.placeholder_b }}</option>
                                         {% for time in todos_times %}
                                             <option value="{{ time.id }}">{{ time.team_name }}</option>
                                         {% endfor %}
                                     </select>
                                 {% else %}
-                                    <span class="text-muted fst-italic">{{ jogo.placeholder_b }} (Automático)</span>
+                                    <span class="fst-italic" style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">{{ jogo.placeholder_b }} (Automático)</span>
                                 {% endif %}
                             </td>
                                 
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-primary fw-bold btn-salvar-pendente">Injetar Time</button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning fw-bold text-uppercase btn-salvar-pendente" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                        Injetar Time
+                                    </button>
                                 </td>
                             </form>
                         </tr>
@@ -173,7 +202,7 @@
 
 {% block scripts %}
 <script>
-// Função para Salvar Placar do Jogo
+// Mantive todo o seu JS intacto, apenas atualizei as classes de cores no feedback visual
 function enviarResultado(btn) {
     const row = btn.closest('tr');
     const form = row.querySelector('.form-admin-resultado');
@@ -183,7 +212,7 @@ function enviarResultado(btn) {
     const originalClasses = btn.className;
     
     btn.disabled = true;
-    btn.innerHTML = 'Salvando...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
     fetch('{{ url_for("admin.salvar_resultado") }}', {
         method: 'POST',
@@ -193,11 +222,11 @@ function enviarResultado(btn) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            btn.className = 'btn btn-sm w-100 btn-secondary fw-bold';
-            btn.innerHTML = 'Salvo ✓';
+            btn.className = 'btn btn-sm w-100 btn-success fw-bold text-uppercase';
+            btn.innerHTML = '<i class="fas fa-check-double"></i> Salvo';
             setTimeout(() => {
-                btn.className = 'btn btn-sm w-100 btn-primary fw-bold';
-                btn.innerHTML = 'Atualizar';
+                btn.className = 'btn btn-sm w-100 btn-outline-warning fw-bold text-uppercase';
+                btn.innerHTML = '<i class="fas fa-check me-1"></i> Atualizar';
                 btn.disabled = false;
             }, 2000);
         } else {
@@ -215,14 +244,13 @@ function enviarResultado(btn) {
     });
 }
 
-// Função Nova para Salvar Times Pendentes (Mata-Mata)
 document.querySelectorAll('.btn-salvar-pendente').forEach(btn => {
     btn.addEventListener('click', function() {
         const form = this.closest('form');
         const formData = new FormData(form);
         const originalText = this.innerHTML;
         
-        this.innerHTML = "Salvando...";
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         this.disabled = true;
 
         fetch('{{ url_for("admin.salvar_pendente") }}', {
@@ -232,8 +260,8 @@ document.querySelectorAll('.btn-salvar-pendente').forEach(btn => {
         .then(response => response.json())
         .then(data => {
             if(data.status === 'success') {
-                this.classList.replace('btn-primary', 'btn-success');
-                this.innerHTML = "✓ Salvo";
+                this.classList.replace('btn-outline-warning', 'btn-success');
+                this.innerHTML = "<i class='fas fa-check-double'></i> Salvo";
                 setTimeout(() => location.reload(), 1500); 
             } else {
                 alert("Erro: " + data.message);
