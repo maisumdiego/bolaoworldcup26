@@ -139,3 +139,30 @@ def acao_usuario():
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)})
+
+# ===================================================================== 
+
+@admin_bp.route('/init_grupos')
+@admin_required
+def init_grupos():
+    if GroupStanding.query.first():
+        return "Os grupos já foram inicializados!"
+
+    times = Team.query.all()
+    if not times:
+        return "A tabela de times está vazia."
+
+    letras_grupos = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
+    
+    for i, time in enumerate(times):
+        indice = (i // 4) % len(letras_grupos)
+        letra_do_grupo = letras_grupos[indice]
+
+        novo_time_no_grupo = GroupStanding(
+            group_name=letra_do_grupo,
+            team_id=time.id
+        )
+        db.session.add(novo_time_no_grupo)
+
+    db.session.commit()
+    return "✅ SUCESSO! Grupos inicializados via painel administrativo."

@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from routes.admin import admin_bp
 from routes.main import main_bp
 from routes.auth import auth_bp
+from datetime import timedelta
 import os
 
 # IMPORTAÇÃO DOS NOSSOS MODELOS
@@ -16,6 +17,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(hours=1)
+app.config['SESSION_PERMANENT'] = False
 
 # INICIALIZA O BANCO DE DADOS
 db.init_app(app)

@@ -35,6 +35,8 @@ def index():
                            proximos_jogos=proximos_jogos,
                            palpites_usuario=palpites_usuario)
 
+# =====================================================================
+
 @main_bp.route('/palpites')
 @login_required
 def palpites():
@@ -101,6 +103,8 @@ def palpites():
                            timedelta=timedelta,
                            palpites_usuario=palpites_usuario)
 
+# =====================================================================
+
 @main_bp.route('/salvar_palpite', methods=['POST'])
 @login_required
 def salvar_palpite():
@@ -124,6 +128,8 @@ def salvar_palpite():
         return jsonify({"status": "success", "message": "Salvo"}), 200
     except ValueError:
         return jsonify({"status": "error", "message": "Valores inválidos."}), 400
+
+# =====================================================================
 
 @main_bp.route('/ranking')
 @login_required
@@ -158,19 +164,7 @@ def ranking():
     ranking_data.sort(key=lambda x: (x['pontos'], x['exatos'], x['parciais'], x['tendencia']), reverse=True)
     return render_template('ranking.html', ranking=ranking_data)
 
-@main_bp.route('/init_grupos')
-def init_grupos():
-    if GroupStanding.query.first(): return "Grupos já inicializados."
-    times = Team.query.all()
-    letras_grupos = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
-    
-    for i, time in enumerate(times):
-        indice = (i // 4) % len(letras_grupos)
-        novo_time = GroupStanding(group_name=letras_grupos[indice], team_id=time.id)
-        db.session.add(novo_time)
-
-    db.session.commit()
-    return "✅ SUCESSO!"
+# =====================================================================
 
 @main_bp.route('/torneio')
 def torneio():
@@ -193,6 +187,8 @@ def torneio():
     } for j in jogos_mata_mata]
         
     return render_template('torneio.html', grupos=grupos_ordenados, jogos_mata_mata=jogos_json)
+
+# =====================================================================
 
 @main_bp.route('/get_palpites_jogo/<int:jogo_id>')
 @login_required

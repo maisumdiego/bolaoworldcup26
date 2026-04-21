@@ -313,7 +313,7 @@ body {
 
 .modal-title {
     font-family: 'Bungee', cursive;
-    color: var(--pulp-gold) !important;
+    color: var(--text-main) !important;
 }
 
 /* Tabela de Apostas dentro do Modal */
