@@ -1,3 +1,4 @@
+import os  # <-- IMPORTANTE: Adicionado para ler as variáveis de ambiente
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,12 +19,26 @@ def register():
             flash(f"O email {email} já está cadastrado!", "warning")
             return redirect(url_for('auth.register'))
         
+        auto_approve = os.getenv('AUTO_APPROVE', 'False').lower() == 'true'
+
         hashed_password = generate_password_hash(password)
-        new_user = User(name=name, email=email, phone=phone, password_hash=hashed_password)
+        
+        # Adicionamos o is_approved na criação do objeto
+        new_user = User(
+            name=name, 
+            email=email, 
+            phone=phone, 
+            password_hash=hashed_password,
+            is_approved=auto_approve
+        )
         db.session.add(new_user)
         db.session.commit()
 
-        flash("Cadastro realizado! Aguarde a aprovação do administrador.", "success")
+        if auto_approve:
+            flash("Cadastro realizado com sucesso! Você já pode fazer login.", "success")
+        else:
+            flash("Cadastro realizado! Aguarde a aprovação do administrador.", "success")
+            
         return redirect(url_for('main.index'))
         
     return render_template('register.html')
@@ -55,4 +70,4 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main.index')) 
+    return redirect(url_for('main.index'))
