@@ -11,7 +11,7 @@
     .time-info-trigger { cursor: help; transition: transform 0.2s ease; }
     .time-info-trigger:hover { transform: scale(1.05); }
 
-    /* CORREÇÃO 3: Formatação Perfeita das Bandeiras */
+    /* Formatação Perfeita das Bandeiras */
     .bandeira {
         width: 56px !important;
         height: 38px !important;
@@ -32,58 +32,39 @@
         margin-bottom: 0.5rem;
     }
 
-    /* CORREÇÃO 1: Evitar que as pílulas sejam cortadas */
+    /* Pílulas do Carrossel */
     .dias-nav-container { 
         background-color: rgba(0, 0, 0, 0.2); 
         border-radius: 12px; 
         border: 1px solid rgba(255, 255, 255, 0.1); 
         padding: 10px 15px; 
-        width: 100%; /* Garante que o contêiner não tente vazar da tela */
+        width: 100%; 
     }
     
     .dias-nav {
         gap: 8px;
-        padding-bottom: 12px; /* Mais espaço para a barra respirar */
-        overflow-x: auto !important; /* Força a rolagem apenas horizontal */
-        overflow-y: hidden !important; /* Bloqueia qualquer rolagem vertical acidental */
-        -webkit-overflow-scrolling: touch; /* Rolagem suave no mobile */
-        
-        /* Suporte nativo e forçado para Firefox */
+        padding: 5px 8px 15px 5px !important; 
+        overflow-x: auto !important; 
+        overflow-y: hidden !important; 
+        -webkit-overflow-scrolling: touch; 
         scrollbar-width: thin;
         scrollbar-color: var(--pulp-gold) rgba(255, 255, 255, 0.05);
     }
 
-    /* CORREÇÃO 2: Scrollbar forçada e elegante para Desktop */
-    .dias-nav::-webkit-scrollbar {
-        height: 8px;
-        -webkit-appearance: none; /* Impede o SO de esconder a barra por padrão */
+    .dias-nav .nav-item:last-child {
+        margin-right: 6px;
     }
-    .dias-nav::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-    }
-    .dias-nav::-webkit-scrollbar-thumb {
-        background-color: var(--pulp-gold);
-        border-radius: 10px;
-        border: 2px solid rgba(0, 0, 0, 0.2); 
-    }
+
+    .dias-nav::-webkit-scrollbar { height: 8px; -webkit-appearance: none; }
+    .dias-nav::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+    .dias-nav::-webkit-scrollbar-thumb { background-color: var(--pulp-gold); border-radius: 10px; border: 2px solid rgba(0, 0, 0, 0.2); }
     
     .dia-btn { 
-        border-radius: 50px !important; 
-        color: #fff !important; 
-        font-family: 'Montserrat', sans-serif !important;
-        font-weight: 700 !important; 
-        font-size: 0.90rem !important; 
-        text-transform: none !important; 
-        white-space: nowrap !important; 
-        border: 2px solid transparent !important; /* Borda invisível para manter o tamanho físico estático */
-        transition: all 0.2s ease;
+        border-radius: 50px !important; color: #fff !important; font-family: 'Montserrat', sans-serif !important;
+        font-weight: 700 !important; font-size: 0.90rem !important; text-transform: none !important; 
+        white-space: nowrap !important; border: 2px solid transparent !important; transition: all 0.2s ease;
     }
-    .dia-btn.active { 
-        background-color: var(--pulp-gold) !important; 
-        color: #000 !important; 
-        border-color: var(--pulp-gold) !important; /* A borda agora apenas muda de cor, não aumenta o tamanho */
-    }
+    .dia-btn.active { background-color: var(--pulp-gold) !important; color: #000 !important; border-color: var(--pulp-gold) !important; }
 </style>
 
 <div class="container mt-4 mb-5">
@@ -234,7 +215,11 @@
                             </div>
                             
                             {% if pode_palpitar %}
-                                <button type="submit" class="btn btn-salvar-pulp px-4 fw-bold"><i class="fas fa-check me-1"></i> Salvar Palpite</button>
+                                {% if jogo.id in palpites_usuario %}
+                                    <button type="submit" class="btn btn-atualizar-pulp px-4 fw-bold"><i class="fas fa-sync-alt me-1"></i> Atualizar</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-salvar-pulp px-4 fw-bold"><i class="fas fa-check me-1"></i> Salvar</button>
+                                {% endif %}
                             {% else %}
                                 <span class="badge bg-secondary fs-6">Encerrado</span>
                             {% endif %}
@@ -339,7 +324,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.form-palpite').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault(); 
-            const btn = this.querySelector('.btn-salvar-pulp');
+            // Pega o botão submetido, independentemente se é salvar ou atualizar
+            const btn = this.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
             
             btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
@@ -349,13 +335,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'success') {
+                    // Estado de SUCESSO (Verde)
                     btn.innerHTML = '<i class="fas fa-check-double me-1"></i> Salvo';
+                    btn.classList.remove('btn-salvar-pulp', 'btn-atualizar-pulp');
                     btn.classList.add('bg-success', 'text-white');
-                    btn.classList.remove('btn-salvar-pulp');
+                    
                     setTimeout(() => {
-                        btn.innerHTML = originalText;
+                        // Após 2 segundos, ele SEMPRE se transforma no botão de "Atualizar" (Azul)
+                        btn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Atualizar';
                         btn.classList.remove('bg-success', 'text-white');
-                        btn.classList.add('btn-salvar-pulp');
+                        btn.classList.add('btn-atualizar-pulp');
                         btn.disabled = false;
                     }, 2000);
                 } else {

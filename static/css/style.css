@@ -33,6 +33,12 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+    position: relative; /* Ajuda a conter os elementos do AOS */
+}
+
 /* ==========================================================================
    BARRA DE NAVEGAÇÃO E MARCA
    ========================================================================== */
@@ -238,7 +244,7 @@ body {
 }
 
 /* ==========================================================================
-   RODAPÉ DO CARD E BOTÃO SALVAR
+   RODAPÉ DO CARD E BOTÕES DE PALPITE
    ========================================================================== */
 .text-destaque-resultado {
     color: var(--text-main) !important; 
@@ -252,6 +258,7 @@ body {
     font-size: 1.4rem;
 }
 
+/* O BOTÃO SALVAR (AMARELO) QUE HAVIA SUMIDO */
 .btn-salvar-pulp {
     background-color: var(--pulp-gold) !important;
     border: 2px solid #000 !important;
@@ -264,14 +271,60 @@ body {
     box-shadow: 3px 3px 0px #000;
     transition: all 0.1s ease;
 }
-
 .btn-salvar-pulp:hover {
     transform: translate(1px, 1px);
     box-shadow: 2px 2px 0px #000;
     background-color: #ffca2c !important;
 }
-
 .btn-salvar-pulp:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #000;
+}
+
+/* O BOTÃO ATUALIZAR (AZUL CLARO) */
+
+.btn-atualizar-pulp {
+    background-color: var(--pulp-gold) !important; 
+    border: 2px solid #000 !important;
+    color: #000 !important;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 8px 15px;
+    box-shadow: 3px 3px 0px #000;
+    transition: all 0.1s ease;
+}
+.btn-atualizar-pulp:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0px #000;
+    background-color: var(--pulp-gold) !important; 
+}
+.btn-atualizar-pulp:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #000;
+}
+
+.btn-atualizar-pulp {
+    background-color: var(--pulp-gold) !important; /* Azul claro */
+    border: 2px solid #000 !important;
+    color: #000 !important;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 8px 15px;
+    box-shadow: 3px 3px 0px #000;
+    transition: all 0.1s ease;
+}
+
+.btn-atualizar-pulp:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0px #000;
+    background-color: #ffca2c !important; /* Azul mais clarinho no hover */
+}
+
+.btn-atualizar-pulp:active {
     transform: translate(3px, 3px);
     box-shadow: 0px 0px 0px #000;
 }
@@ -345,10 +398,10 @@ body {
 .podium-container {
     display: flex;
     justify-content: center;
-    align-items: flex-end;
+    align-items: flex-end; 
     gap: 15px;
     margin-bottom: 50px;
-    padding-top: 20px;
+    padding: 40px 15px 0 15px; 
 }
 
 .podium-card {
@@ -356,9 +409,14 @@ body {
     border: 2px solid #27272a;
     border-radius: 8px;
     text-align: center;
-    padding: 20px 10px;
+    padding: 15px 10px;
     width: 100%;
     max-width: 180px;
+    height: 190px; /* A MÁGICA: Altura única para os 3 cartões. Chega de texto a vazar! */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     transition: transform 0.3s ease;
 }
 
@@ -366,17 +424,39 @@ body {
 
 /* Medalhas Individuais */
 .podium-1 { 
-    height: 220px; 
     border-color: var(--pulp-gold) !important;
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
     order: 2; /* O 1º fica no centro */
+    margin-bottom: 25px; /* A MÁGICA 2: Empurra apenas o 1º lugar para o alto */
 }
-.podium-2 { height: 180px; order: 1; border-color: #cbd5e1 !important; } /* Prata */
-.podium-3 { height: 160px; order: 3; border-color: #d97706 !important; } /* Bronze */
+.podium-2 { 
+    order: 1; 
+    border-color: #cbd5e1 !important; /* Prata */
+}
+.podium-3 { 
+    order: 3; 
+    border-color: #d97706 !important; /* Bronze */
+}
 
 .podium-medal { font-size: 2.5rem; margin-bottom: 10px; display: block; }
-.podium-name { font-family: 'Bungee', cursive; font-size: 0.9rem; color: #fff; margin-bottom: 5px; }
-.podium-points { font-family: 'Bungee', cursive; color: var(--pulp-gold); font-size: 1.5rem; }
+.podium-name { font-family: 'Bungee', cursive; font-size: 0.9rem; color: #fff; margin-bottom: 5px; width: 100%; }
+.podium-points { font-family: 'Bungee', cursive; color: var(--pulp-gold); font-size: 1.5rem; line-height: 1; margin-bottom: 2px; }
+
+@media (max-width: 576px) {
+    .podium-container {
+        gap: 8px; /* Junta as caixas sutilmente para elas caberem na tela */
+        padding: 40px 10px 0 10px;
+    }
+    .podium-card {
+        padding: 15px 5px; /* Reduz o espaço interno da caixa */
+    }
+    .podium-medal {
+        font-size: 2rem; /* Medalha ligeiramente menor */
+    }
+    .podium-points {
+        font-size: 1.2rem; /* Fonte menor para não vazar */
+    }
+}
 
 /* ==========================================================================
    RANKING: VERDE PROFUNDO (SEM FUNDO BRANCO)
@@ -474,7 +554,7 @@ body {
 
 /* ==========================================================================
    PÁGINA TORNEIO
-   ========================================================================== *
+   ========================================================================== */
 
 /* 1. ESTILO DAS TABELAS (CLEAN) */
 .table-pulp td, .table-pulp th {

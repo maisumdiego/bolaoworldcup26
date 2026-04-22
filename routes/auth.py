@@ -23,7 +23,6 @@ def register():
 
         hashed_password = generate_password_hash(password)
         
-        # Adicionamos o is_approved na criação do objeto
         new_user = User(
             name=name, 
             email=email, 

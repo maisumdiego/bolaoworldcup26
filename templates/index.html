@@ -73,14 +73,20 @@
         margin-bottom: 1rem;
     }
 
-    /* 4. CARDS DE TIMES E HOVER */
-    #carouselTeams .carousel-inner {
-        overflow: visible !important;
-        padding: 20px 0;
+/* 4. CARDS DE TIMES E HOVER - BLINDAGEM MOBILE */
+    #carouselTeams {
+        max-width: 100%;
+        overflow: hidden; /* Impede a página de alargar durante a transição */
     }
-    
+
+    #carouselTeams .carousel-inner {
+        overflow: hidden !important; /* Corta o slide que está à espera de entrar */
+        padding: 20px 5px;
+        min-height: 400px; /* Trava a altura para as 2 linhas de cards no mobile */
+    }
+
     #carouselTeams .carousel-item {
-        overflow: visible !important;
+        transition: transform 0.4s ease-in-out;
     }
 
     .team-card {
@@ -89,15 +95,26 @@
         border-radius: 12px;
         transition: all 0.3s ease-in-out;
         cursor: pointer;
+        
         height: 100%;
-        touch-action: pan-y;
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        /* Remove o flash de clique no mobile (Ghost Hover) */
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .team-card:hover {
-        transform: scale(1.08);
-        border-color: var(--pulp-gold);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        z-index: 10;
+    /* O hover de crescimento só funciona se o utilizador usar um rato (PC) */
+    @media (hover: hover) and (pointer: fine) {
+        .team-card:hover {
+            transform: scale(1.08);
+            border-color: var(--pulp-gold);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
     }
 
     .bandeira-destaque { 
@@ -123,9 +140,15 @@
         <p class="lead fw-bold text-white-50" style="letter-spacing: 2px;">A GLÓRIA AGUARDA OS MELHORES PALPITES</p>
         
         {% if not current_user.is_authenticated %}
-            <div class="d-flex justify-content-center gap-3 mt-4">
-                <a class="btn btn-warning btn-lg fw-bold px-5 shadow text-dark" data-bs-toggle="modal" data-bs-target="#loginModal">ENTRAR</a>
-                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg fw-bold px-5 shadow">CADASTRAR</a>
+            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mt-4 px-4">
+                <a class="btn btn-warning btn-lg fw-bold px-sm-5 shadow text-dark" data-bs-toggle="modal" data-bs-target="#loginModal">ENTRAR</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg fw-bold px-sm-5 shadow">CADASTRAR</a>
+            </div>
+        {% else %}
+            <div class="d-grid d-sm-flex justify-content-sm-center mt-4 px-4">
+                <a href="{{ url_for('main.palpites') }}" class="btn btn-warning btn-lg fw-bold px-sm-5 shadow text-dark" style="border: 2px solid #000; box-shadow: 4px 4px 0px #000 !important; background-color: var(--pulp-gold);">
+                    <i class="fas fa-futbol me-2"></i> MEUS PALPITES
+                </a>
             </div>
         {% endif %}
     </div>
@@ -251,13 +274,34 @@
         modalCuriosidade.show();
 
         try {
-            const resCountries = await fetch(`https://restcountries.com/v3.1/translation/${nomePais}`);
-            const dataCountries = await resCountries.json();
-            const c = dataCountries[0];
+            let c = {};
+            let termoWiki = nomePais; // A Wikipedia é inteligente e resolve redirecionamentos sozinha
 
+            // 1. DICIONÁRIO DE EXCEÇÕES (Bypass da API RestCountries)
+            const excecoesRest = {
+                "Inglaterra": { capital: ['Londres'], population: 56286961, subregion: 'Europa do Norte', languages: {eng: 'Inglês'}, currencies: {GBP: {name: 'Libra Esterlina'}} },
+                "Escócia": { capital: ['Edimburgo'], population: 5463300, subregion: 'Europa do Norte', languages: {eng: 'Inglês', gla: 'Gaélico escocês'}, currencies: {GBP: {name: 'Libra Esterlina'}} },
+                "República Tcheca": { capital: ['Praga'], population: 10900000, subregion: 'Europa Central', languages: {ces: 'Tcheco'}, currencies: {CZK: {name: 'Coroa Checa'}} }
+            };
+
+            // 2. TRATAMENTO E BUSCA
+            if (excecoesRest[nomePais]) {
+                // Se for um país problemático, injeta os dados manualmente
+                c = excecoesRest[nomePais];
+            } else {
+                // Tratamento de acentuação (De "Coréia" para "Coreia")
+                let termoRest = nomePais === 'Coréia do Sul' ? 'Coreia do Sul' : nomePais;
+                
+                const resCountries = await fetch(`https://restcountries.com/v3.1/translation/${termoRest}`);
+                if (!resCountries.ok) throw new Error("País não encontrado na API REST");
+                const dataCountries = await resCountries.json();
+                c = dataCountries[0];
+            }
+
+            // 3. BUSCA NA WIKIPEDIA (Funciona para todos)
             let wikiResumo = "";
             try {
-                const resWiki = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${nomePais}`);
+                const resWiki = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${termoWiki}`);
                 const dataWiki = await resWiki.json();
                 if (dataWiki.extract) {
                     wikiResumo = `<div class="mt-4 p-3 bg-white rounded border border-warning">
@@ -265,22 +309,25 @@
                                     <p class="small text-muted mb-0" style="text-align: justify;">${dataWiki.extract}</p>
                                   </div>`;
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.warn("Aviso: Wikipedia não retornou dados.", e);
+            }
 
-            // DADOS RESTAURADOS COMPLETO NO JS
+            // 4. RENDERIZAÇÃO NA TELA
             body.innerHTML = `
                 <div class="px-2 py-3">
                     <ul class="list-group list-group-flush shadow-sm">
                         <li class="list-group-item d-flex justify-content-between"><strong>Capital:</strong> <span>${c.capital ? c.capital[0] : 'N/A'}</span></li>
-                        <li class="list-group-item d-flex justify-content-between"><strong>População:</strong> <span>${c.population.toLocaleString('pt-BR')}</span></li>
-                        <li class="list-group-item d-flex justify-content-between"><strong>Continente:</strong> <span>${c.subregion || c.region}</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>População:</strong> <span>${c.population ? c.population.toLocaleString('pt-BR') : 'N/A'}</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>Continente:</strong> <span>${c.subregion || c.region || 'N/A'}</span></li>
                         <li class="list-group-item d-flex justify-content-between"><strong>Idiomas:</strong> <span>${c.languages ? Object.values(c.languages).join(', ') : 'N/A'}</span></li>
                         <li class="list-group-item d-flex justify-content-between"><strong>Moeda:</strong> <span>${c.currencies ? Object.values(c.currencies)[0].name : 'N/A'}</span></li>
                     </ul>
                     ${wikiResumo}
                 </div>`;
         } catch (err) {
-            body.innerHTML = '<p class="text-center p-5">Erro ao carregar dados.</p>';
+            body.innerHTML = '<div class="text-center p-5 text-danger"><i class="fas fa-exclamation-triangle fa-3x mb-3"></i><p>Nenhuma inteligência encontrada para este país no momento.</p></div>';
+            console.error("Erro na busca de dados:", err);
         }
     }
 </script>

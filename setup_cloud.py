@@ -23,9 +23,9 @@ def run_setup():
             
             # 2. Checa se a coluna da migração existe
             colunas = [c['name'] for c in inspector.get_columns('dim_teams')]
-            if 'worlds_cups_won' not in colunas:
-                print("2/4 - Migração: Adicionando coluna 'worlds_cups_won'...")
-                db.session.execute(text("ALTER TABLE dim_teams ADD COLUMN worlds_cups_won INTEGER DEFAULT 0;"))
+            if 'world_cups_won' not in colunas:
+                print("2/4 - Migração: Adicionando coluna 'world_cups_won'...")
+                db.session.execute(text("ALTER TABLE dim_teams ADD COLUMN world_cups_won INTEGER DEFAULT 0;"))
                 db.session.commit()
             else:
                 print("Passo 1/2: Estrutura e colunas OK. Pulando criação.")
