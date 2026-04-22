@@ -10,18 +10,11 @@ import os
 # IMPORTAÇÃO DOS NOSSOS MODELOS
 from models import db, User
 
-#load_dotenv()
+load_dotenv()
 app = Flask(__name__)
 
-uri = os.getenv('DATABASE_URL')
-
-if uri and uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
-
-print("DATABASE_URL:", os.getenv('DATABASE_URL'))
-
 # CONFIGURAÇÕES GERAIS
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(hours=1)
