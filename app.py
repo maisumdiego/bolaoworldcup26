@@ -10,7 +10,7 @@ import os
 # IMPORTAÇÃO DOS NOSSOS MODELOS
 from models import db, User
 
-load_dotenv()
+#load_dotenv()
 app = Flask(__name__)
 
 # CONFIGURAÇÕES GERAIS
