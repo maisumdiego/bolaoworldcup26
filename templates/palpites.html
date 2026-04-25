@@ -190,19 +190,14 @@
                                     
                                     {% if jogo.id in palpites_usuario %}
                                         <div class="mt-2">
-                                            {% set p_a = palpites_usuario[jogo.id]['a']|int %}
-                                            {% set p_b = palpites_usuario[jogo.id]['b']|int %}
-                                            {% set r_a = jogo.team_a_result|int %}
-                                            {% set r_b = jogo.team_b_result|int %}
+                                            {% set pontos, tipo = calcular_pontos_palpite(palpite_a, palpite_b, jogo.team_a_result, jogo.team_b_result) %}
                                             
-                                            {% if p_a == r_a and p_b == r_b %}
+                                            {% if tipo == 'exato' %}
                                                 <span class="badge bg-success shadow-sm px-2 py-1">+5 pts</span>
-                                            {% elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b) %}
-                                                {% if p_a == r_a or p_b == r_b %}
-                                                    <span class="badge bg-info text-dark shadow-sm px-2 py-1">+3 pts</span>
-                                                {% else %}
-                                                    <span class="badge bg-warning text-dark shadow-sm px-2 py-1">+2 pts</span>
-                                                {% endif %}
+                                            {% elif tipo == 'parcial' %}
+                                                <span class="badge bg-info text-dark shadow-sm px-2 py-1">+3 pts</span>
+                                            {% elif tipo == 'tendencia' %}
+                                                <span class="badge bg-warning text-dark shadow-sm px-2 py-1">+2 pts</span>
                                             {% else %}
                                                 <span class="badge bg-danger shadow-sm px-2 py-1">0 pts</span>
                                             {% endif %}

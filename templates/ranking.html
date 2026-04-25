@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ranking.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4 mb-5">
     
@@ -13,15 +17,32 @@
     </div>
 
     {% if ranking %}
+        
         <div class="podium-container mb-5">
             {% for jogador in ranking[:3] %}
-                <div class="podium-card podium-{{ loop.index }}">
-                    <span class="podium-medal">
+                <div class="podium-card podium-{{ loop.index }} d-flex flex-column align-items-center text-center">
+                    
+                    <div class="profile-img-container podium-size-{{ loop.index }} mb-1">
+                        {% set is_cloudinary = jogador.profile_pic and jogador.profile_pic.startswith('http') %}
+                        
+                        {% if is_cloudinary %}
+                            <img src="{{ jogador.profile_pic }}" class="profile-img-inner" alt="Avatar">
+                        {% else %}
+                            <i class="fas fa-user default-avatar-icon" 
+                               {% if loop.index == 2 %} style="color: #C0C0C0;" 
+                               {% elif loop.index == 3 %} style="color: #CD7F32;" 
+                               {% endif %}>
+                            </i>
+                        {% endif %}
+                    </div>
+
+                    <span class="podium-medal mb-1">
                         {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
                     </span>
-                    <div class="podium-name text-truncate px-2" style="color: #fff !important;">{{ jogador.nome }}</div>
+                    <div class="podium-name text-truncate px-2 w-100" style="color: #fff !important;">{{ jogador.nome }}</div>
                     <div class="podium-points" style="color: var(--pulp-gold) !important;">{{ jogador.pontos }}</div>
                     <small class="text-uppercase fw-bold" style="font-size: 0.7rem; color: #fff !important;">Pontos</small>
+                    
                 </div>
             {% endfor %}
         </div>
@@ -61,6 +82,8 @@
                 </table>
             </div>
         </div>
+
     {% endif %}
+
 </div>
 {% endblock %}

@@ -2,7 +2,9 @@ import os  # <-- IMPORTANTE: Adicionado para ler as variáveis de ambiente
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from models import db, User
+from cloudinary.uploader import upload
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -70,3 +72,37 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+
+@auth_bp.route('/atualizar_perfil', methods=['POST'])
+@login_required
+def atualizar_perfil():
+    name = request.form.get('name')
+    nova_senha = request.form.get('password')
+    foto = request.files.get('foto')
+
+    if name:
+        current_user.name = name
+    
+    if nova_senha and nova_senha.strip() != "":
+        from werkzeug.security import generate_password_hash
+        current_user.password = generate_password_hash(nova_senha)
+        
+    if foto and foto.filename != '':
+        user_email_id = current_user.email.replace('@', '_at_').replace('.', '_')
+        
+        try:
+            upload_result = upload(
+                foto, 
+                folder="bolao_profiles/", 
+                public_id=user_email_id,
+                overwrite=True,
+                resource_type="image"
+            )
+            
+            current_user.profile_pic = upload_result['secure_url']
+        except Exception as e:
+            print(f"Erro no Cloudinary: {e}")
+
+    db.session.commit()
+    return redirect(url_for('main.perfil'))

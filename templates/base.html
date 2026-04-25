@@ -19,14 +19,13 @@
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
             <div class="navbar-logo"></div>
-            
             <div class="brand-text">
                 <span class="brand-line-1">Bolão da</span>
                 <span class="brand-line-2">Cabeça 2026</span>
             </div>
         </a>
         
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         
@@ -45,10 +44,10 @@
 
                 {% if current_user.is_authenticated and current_user.email == admin_email %}
                 <li class="nav-item dropdown ms-lg-3">
-                    <a class="nav-link dropdown-toggle btn-admin-nav" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-gear"></i> Admin
+                    <a class="nav-link dropdown-toggle btn-admin-nav" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog"></i> Admin
                     </a>
-                    <ul class="dropdown-menu shadow">
+                    <ul class="dropdown-menu shadow" aria-labelledby="adminDropdown">
                         <li><a class="dropdown-item" href="{{ url_for('admin.admin_resultados') }}">Resultados</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('admin.gerenciar_usuarios') }}">Usuários</a></li>
                     </ul>
@@ -58,10 +57,53 @@
             
             <div class="d-flex align-items-center mt-3 mt-lg-0">
                 {% if current_user.is_authenticated %}
-                    <span class="text-light me-3 fw-bold small" style="letter-spacing: 0.5px;">
-                        <i class="fas fa-user text-warning me-1"></i> {{ current_user.name.split()[0] }}
-                    </span>
-                    <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-danger fw-bold">Sair</a>
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center text-light fw-bold p-0" 
+                        href="#" 
+                        id="userProfileDropdown" 
+                        role="button" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false">
+                            
+                            <div class="profile-img-container nav-size me-2">
+                                {% if current_user.profile_pic and current_user.profile_pic.startswith('http') %}
+                                    <img src="{{ current_user.profile_pic }}" class="profile-img-inner" alt="Avatar">
+                                {% else %}
+                                    <i class="fas fa-user default-avatar-icon"></i>
+                                {% endif %}
+                            </div>
+
+                            <span>{{ current_user.name.split()[0] }}</span>
+                        </a>
+                        
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2 custom-dropdown" aria-labelledby="userProfileDropdown">
+                            <li>
+                                <a class="dropdown-item text-white fw-bold py-2" href="{{ url_for('main.perfil') }}">
+                                    <i class="fas fa-user-circle me-2 text-warning"></i>Meu Perfil
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger fw-bold py-2" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2 custom-dropdown" aria-labelledby="userProfileDropdown">
+                            <li>
+                                <a class="dropdown-item text-white fw-bold py-2" href="{{ url_for('main.perfil') }}">
+                                    <i class="fas fa-user-circle me-2 text-warning"></i>Meu Perfil
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger fw-bold py-2" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 {% else %}
                     <button type="button" class="btn btn-sm btn-warning fw-bold me-2 text-dark" data-bs-toggle="modal" data-bs-target="#loginModal">
                         Entrar

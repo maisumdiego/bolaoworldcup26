@@ -126,3 +126,23 @@ def avancar_mata_mata(jogo_atual):
         db.session.commit()
     else:
         print(f"❌ DEBUG: Não achei NENHUM jogo com o texto '{proximo_placeholder}'.")
+
+def calcular_pontos_palpite(p_a, p_b, r_a, r_b):
+    if p_a is None or p_b is None or r_a is None or r_b is None:
+        return 0, 'erro'
+    p_a, p_b, r_a, r_b = int(p_a), int(p_b), int(r_a), int(r_b)
+    
+    # 1. Acerto Exato (Na mosca)
+    if p_a == r_a and p_b == r_b:
+        return 5, 'exato'
+    
+    # 2. Acerto de Tendência (Vencedor ou Empate)
+    elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b):
+        # 3. Acerto Parcial (Acertou a tendência E o placar de um dos times)
+        if p_a == r_a or p_b == r_b:
+            return 3, 'parcial'
+        else:
+            return 2, 'tendencia'
+            
+    # 4. Erro Total
+    return 0, 'erro'

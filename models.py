@@ -18,6 +18,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_approved = db.Column(db.Boolean, default=False)
+    profile_pic = db.Column(db.String(120), nullable=False, default='default.png')
 
 class Team(db.Model):
     __tablename__ = 'dim_teams'

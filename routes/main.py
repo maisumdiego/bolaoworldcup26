@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
+from collections import defaultdict
 from datetime import datetime, timedelta
 from collections import defaultdict
 from models import db, Game, Prediction, User, GroupStanding, Team
+from utils import calcular_pontos_palpite
 
 main_bp = Blueprint('main', __name__)
 
@@ -140,25 +142,33 @@ def ranking():
 
     for user in usuarios:
         pontos_totais = acertos_exatos = acertos_parciais = acertos_tendencia = 0
+        
         palpites_raw = Prediction.query.filter_by(user_id=user.id).order_by(Prediction.created_at.desc()).all()
 
-        palpites_finais = {p.game_id: p for p in palpites_raw}
+        palpites_finais = {}
+        for p in palpites_raw:
+            if p.game_id not in palpites_finais:
+                palpites_finais[p.game_id] = p
 
         for jogo in jogos_encerrados:
             palpite = palpites_finais.get(jogo.id)
             if palpite:
-                p_a, p_b = palpite.result_a, palpite.result_b
-                r_a, r_b = jogo.team_a_result, jogo.team_b_result
-
-                if p_a == r_a and p_b == r_b:
-                    pontos_totais += 5; acertos_exatos += 1
-                elif (p_a > p_b and r_a > r_b) or (p_a < p_b and r_a < r_b) or (p_a == p_b and r_a == r_b):
-                    if p_a == r_a or p_b == r_b: pontos_totais += 3; acertos_parciais += 1
-                    else: pontos_totais += 2; acertos_tendencia += 1
-        
+                pontos, tipo = calcular_pontos_palpite(
+                    palpite.result_a, palpite.result_b, 
+                    jogo.team_a_result, jogo.team_b_result
+                )
+                pontos_totais += pontos
+                if tipo == 'exato': acertos_exatos += 1
+                elif tipo == 'parcial': acertos_parciais += 1
+                elif tipo == 'tendencia': acertos_tendencia += 1
+                
         ranking_data.append({
-            'nome': user.name, 'pontos': pontos_totais, 'exatos': acertos_exatos,
-            'parciais': acertos_parciais, 'tendencia': acertos_tendencia
+            'nome': user.name, 
+            'pontos': pontos_totais, 
+            'exatos': acertos_exatos,
+            'parciais': acertos_parciais, 
+            'tendencia': acertos_tendencia,
+            'profile_pic': user.profile_pic 
         })
     
     ranking_data.sort(key=lambda x: (x['pontos'], x['exatos'], x['parciais'], x['tendencia']), reverse=True)
@@ -209,11 +219,81 @@ def get_palpites_jogo(jogo_id):
             if visibilidade_liberada:
                 pontos = 0
                 if jogo.status == 'encerrado':
-                    if p.result_a == r_a and p.result_b == r_b: pontos = 5
-                    elif (p.result_a > p.result_b and r_a > r_b) or (p.result_a < p.result_b and r_a < r_b) or (p.result_a == p.result_b and r_a == r_b):
-                        pontos = 3 if (p.result_a == r_a or p.result_b == r_b) else 2
+                    pontos, _ = calcular_pontos_palpite(
+                        p.result_a, p.result_b, 
+                        jogo.team_a_result, jogo.team_b_result
+                    )
                 ultimos_palpites[p.user_id] = {"nome": nome_usuario, "result_a": p.result_a, "result_b": p.result_b, "pontos": pontos, "liberado": True}
             else:
                 ultimos_palpites[p.user_id] = {"nome": nome_usuario, "liberado": False}
         
     return jsonify({"status": "success", "visibilidade_liberada": visibilidade_liberada, "palpites": list(ultimos_palpites.values())})
+
+@main_bp.route('/perfil')
+@login_required
+def perfil():
+    jogos_encerrados = Game.query.filter_by(status='encerrado').order_by(Game.datetime_game).all()
+    todos_usuarios = User.query.filter_by(is_approved=True).all()
+    n_usuarios = len(todos_usuarios) if todos_usuarios else 1
+
+    palpites_raw = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.created_at.desc()).all()
+    
+    palpites_finais_user = {}
+    for p in palpites_raw:
+        if p.game_id not in palpites_finais_user:
+            palpites_finais_user[p.game_id] = p
+            
+    num_trocas = len(palpites_raw) - len(palpites_finais_user)
+    
+    ids_jogos = [j.id for j in jogos_encerrados]
+    todos_palpites = Prediction.query.filter(Prediction.game_id.in_(ids_jogos)).order_by(Prediction.created_at.desc()).all()
+    
+    mapa_geral = defaultdict(dict)
+    for p in todos_palpites:
+        if p.user_id not in mapa_geral[p.game_id]:
+            mapa_geral[p.game_id][p.user_id] = p
+
+    stats = {'exatos': 0, 'parciais': 0, 'tendencia': 0, 'total_pontos': 0}
+    user_evolucao, media_evolucao = defaultdict(int), defaultdict(float)
+    historico = []
+
+    for jogo in jogos_encerrados:
+        dia = jogo.datetime_game.strftime('%d/%m')
+        
+        pts_grupo = 0
+        for p_obj in mapa_geral[jogo.id].values():
+            pts, _ = calcular_pontos_palpite(p_obj.result_a, p_obj.result_b, jogo.team_a_result, jogo.team_b_result)
+            pts_grupo += pts
+        media_evolucao[dia] += (pts_grupo / n_usuarios)
+
+        p_u = palpites_finais_user.get(jogo.id)
+        if p_u:
+            pts_u, tipo = calcular_pontos_palpite(p_u.result_a, p_u.result_b, jogo.team_a_result, jogo.team_b_result)
+            
+            stats['total_pontos'] += pts_u
+            if tipo == 'exato': stats['exatos'] += 1
+            elif tipo == 'parcial': stats['parciais'] += 1
+            elif tipo == 'tendencia': stats['tendencia'] += 1
+            
+            user_evolucao[dia] += pts_u
+
+            historico.append({
+                'timestamp': jogo.datetime_game.timestamp(),
+                'data': jogo.datetime_game.strftime('%d/%m %H:%M'),
+                'jogo': jogo,
+                'palpite': f"{p_u.result_a} x {p_u.result_b}",
+                'real': f"{jogo.team_a_result} x {jogo.team_b_result}",
+                'pontos': pts_u,
+                'tipo': tipo 
+            })
+
+    labels = sorted(list(set(user_evolucao.keys()) | set(media_evolucao.keys())))
+    user_acc, media_acc, u_sum, m_sum = [], [], 0, 0
+    for l in labels:
+        u_sum += user_evolucao[l]; m_sum += media_evolucao[l]
+        user_acc.append(u_sum); media_acc.append(round(m_sum, 1))
+
+    return render_template('perfil.html', stats=stats, num_trocas=num_trocas, 
+                           num_palpites=len(palpites_finais_user), total_jogos=len(jogos_encerrados),
+                           chart_labels=labels, user_data=user_acc, media_data=media_acc, 
+                           historico=historico)
