@@ -21,12 +21,6 @@
         text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.5rem;
     }
 
-    /* 3. Tabs */
-    .dash-nav-container {
-        width: fit-content; margin: 0 auto; padding: 12px 18px;
-        background-color: rgba(0, 0, 0, 0.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
     /* 4. Tabela */
     .table-scroll-container {
         max-height: 420px;
@@ -95,9 +89,17 @@
     </div>
 
     <div class="dash-nav-container mb-5">
-        <ul class="nav nav-pills border-0" id="perfilTabs" role="tablist">
-            <li class="nav-item"><button class="nav-link dia-btn active" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane" type="button">Dashboard</button></li>
-            <li class="nav-item"><button class="nav-link dia-btn" id="config-tab" data-bs-toggle="tab" data-bs-target="#config-pane" type="button">Configurações</button></li>
+        <ul class="nav pulp-nav-container mb-5" id="perfilTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link pulp-nav-btn active" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane" type="button">
+                    <i class="fas fa-chart-line me-2"></i> Meus Dados
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link pulp-nav-btn" id="config-tab" data-bs-toggle="tab" data-bs-target="#config-pane" type="button">
+                    <i class="fas fa-user-cog me-2"></i> Configurações
+                </button>
+            </li>
         </ul>
     </div>
 
@@ -106,9 +108,9 @@
             <div class="row g-4 mb-4">
                 <div class="col-lg-4">
                     <div class="d-flex flex-column gap-3 h-100">
-                        <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Trocas</small><h2 class="fw-bold text-white mb-0">{{ num_trocas }}</h2></div>
+                        <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Jogos encerrados</small><h2 class="fw-bold text-white mb-0">{{ total_jogos }}</h2></div>
                         <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Palpites</small><h2 class="fw-bold text-white mb-0">{{ num_palpites }}</h2></div>
-                        <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Encerrados</small><h2 class="fw-bold text-white mb-0">{{ total_jogos }}</h2></div>
+                        <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Trocas de palpite</small><h2 class="fw-bold text-white mb-0">{{ num_trocas }}</h2></div>
                     </div>
                 </div>
                 <div class="col-lg-8">

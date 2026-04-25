@@ -162,14 +162,12 @@ html, body {
 
 /* O Container da Borda (MANTIDO) */
 .profile-img-container {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background-color: rgba(245, 158, 11, 0.05);
     overflow: hidden;
-    position: relative;
-    vertical-align: middle;
+    flex-shrink: 0 !important; 
 }
 
 .nav-size { 
@@ -184,7 +182,11 @@ html, body {
 
 /* Imagem Real (MANTIDO) */
 .profile-img-inner {
-    width: 100%; height: 100%; object-fit: cover;
+    width: 100% !important; 
+    height: 100% !important; 
+    object-fit: cover !important; 
+    aspect-ratio: 1 / 1 !important; 
+    border-radius: 50% !important;
 }
 
 /* NOVO: Estilo para o Ícone Padrão */
@@ -486,9 +488,10 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: flex-end; 
-    gap: 15px;
+    gap: 20px !important;
     margin-bottom: 50px;
-    padding: 40px 15px 0 15px; 
+    padding: 40px 15px 0 15px;
+    flex-wrap: wrap; /* Para não quebrar no mobile */
 }
 
 .podium-card {
@@ -496,13 +499,19 @@ html, body {
     border: 2px solid #27272a;
     border-radius: 8px;
     text-align: center;
-    padding: 15px 10px;
-    width: 100%;
-    max-width: 180px;
-    height: 190px; /* A MÁGICA: Altura única para os 3 cartões. Chega de texto a vazar! */
+    padding: 20px 10px !important;
+    
+    /* Aumentamos a largura para o nome respirar */
+    width: 100% !important;
+    max-width: 220px !important; 
+    
+    /* Trocamos height fixo por min-height para o nome poder quebrar linha */
+    min-height: 220px !important; 
+    height: auto !important;
+    
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* Alinha o conteúdo pelo topo */
     align-items: center;
     transition: transform 0.3s ease;
 }
@@ -526,7 +535,19 @@ html, body {
 }
 
 .podium-medal { font-size: 2.5rem; margin-bottom: 10px; display: block; }
-.podium-name { font-family: 'Bungee', cursive; font-size: 0.9rem; color: #fff; margin-bottom: 5px; width: 100%; }
+.podium-name {
+    font-family: 'Bungee', cursive;
+    font-size: 0.85rem !important; /* Reduzimos um pouco o tamanho */
+    color: #fff;
+    margin: 12px 0 5px 0 !important;
+    width: 100%;
+    
+    /* TRATAMENTO DO NOME */
+    white-space: normal !important; /* Permite que o nome pule para a linha de baixo */
+    word-wrap: break-word !important;
+    line-height: 1.2 !important;
+    text-transform: uppercase;
+}
 .podium-points { font-family: 'Bungee', cursive; color: var(--pulp-gold); font-size: 1.5rem; line-height: 1; margin-bottom: 2px; }
 
 @media (max-width: 576px) {
@@ -545,8 +566,8 @@ html, body {
     }
 }
 
-.podium-size-1 { width: 65px !important; height: 65px !important; border: 3px solid var(--pulp-gold) !important; }
-.podium-size-2, .podium-size-3 { width: 45px !important; height: 45px !important; }
+.podium-size-1 { width: 100px !important; height: 100px !important; border: 3px solid var(--pulp-gold) !important; }
+.podium-size-2, .podium-size-3 { width: 100px !important; height: 100px !important; }
 .podium-size-2 { border: 2px solid #C0C0C0 !important; }
 .podium-size-3 { border: 2px solid #CD7F32 !important; }
 
@@ -730,4 +751,84 @@ html, body {
 .pulp-popover .popover-body {
     font-size: 0.8rem;
     font-weight: 600;
+}
+
+/* Estilo exclusivo para a navegação do Torneio */
+.torneio-btn {
+    color: #fff !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 50px !important;
+    transition: all 0.2s;
+}
+
+.torneio-btn.active {
+    background-color: var(--pulp-gold) !important;
+    color: #000 !important;
+}
+
+/* Mantém o estilo quadrado/noir apenas para os botões de data nos palpites */
+.dia-btn {
+    display: flex;
+    flex-direction: column;
+    min-width: 90px;
+    border-radius: 6px !important;
+    /* Adicione aqui os estilos específicos que você quer manter só nos palpites */
+}
+
+/* ==========================================================================
+   PADRONIZAÇÃO DE NAVEGAÇÃO (ESTILO PALPITES)
+   ========================================================================== */
+
+.pulp-nav-container {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 50px !important;
+    padding: 8px !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    list-style: none !important;
+    margin-bottom: 2rem !important;
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5) !important;
+
+    /* AJUSTE DE LARGURA E CENTRALIZAÇÃO */
+    width: fit-content !important; /* Faz a caixa ter o tamanho exato do conteúdo */
+    margin-left: auto !important;   /* Centraliza o container na página */
+    margin-right: auto !important;
+    padding: 10px 20px !important; /* Aumente um pouco o padding lateral */
+    justify-content: flex-start !important; /* Em menus longos, comece da esquerda */
+}
+    
+
+
+/* Unificando o estilo para ser IDENTICO ao de palpites */
+.pulp-nav-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: transparent !important;
+    color: var(--text-muted) !important;
+    border: 2px solid transparent !important;
+    
+    /* O SEGREDO: 50px para virar pílula, igual aos palpites */
+    border-radius: 50px !important; 
+    
+    padding: 10px 25px !important;
+    min-width: 120px !important; /* Dá o aspecto alongado do print */
+    
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.pulp-nav-btn.active {
+    color: #000 !important; /* Texto preto no fundo dourado, como no print */
+    background-color: var(--pulp-gold) !important;
+    border-color: var(--pulp-gold) !important;
+    box-shadow: 2px 2px 0px var(--church-red) !important;
+    transform: translateY(-2px) !important;
 }
