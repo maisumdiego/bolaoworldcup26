@@ -552,17 +552,29 @@ html, body {
 
 @media (max-width: 576px) {
     .podium-container {
-        gap: 8px; /* Junta as caixas sutilmente para elas caberem na tela */
+        flex-direction: column !important; /* Força os cards a empilharem verticalmente */
+        align-items: center !important;
+        gap: 15px !important;
         padding: 40px 10px 0 10px;
     }
+    
+    /* Reordenando para a ordem correta na vertical */
+    .podium-1 { order: 1 !important; margin-bottom: 0 !important; } /* 1º Lugar vai pro topo */
+    .podium-2 { order: 2 !important; } /* 2º Lugar fica no meio */
+    .podium-3 { order: 3 !important; } /* 3º Lugar fica no fim */
+
     .podium-card {
-        padding: 15px 5px; /* Reduz o espaço interno da caixa */
+        width: 100% !important;
+        max-width: 280px !important; /* Deixa o card um pouco mais largo no mobile */
+        padding: 15px 5px;
     }
+    
     .podium-medal {
-        font-size: 2rem; /* Medalha ligeiramente menor */
+        font-size: 2rem;
     }
+    
     .podium-points {
-        font-size: 1.2rem; /* Fonte menor para não vazar */
+        font-size: 1.2rem;
     }
 }
 
@@ -785,22 +797,29 @@ html, body {
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 50px !important;
     padding: 8px !important;
+    
+    /* Regras vitais para o Mobile */
     display: flex !important;
-    justify-content: center !important;
+    flex-wrap: nowrap !important; /* Impede os botões de pularem para a linha de baixo */
+    overflow-x: auto !important;  /* Habilita o scroll horizontal */
+    -webkit-overflow-scrolling: touch !important; /* Scroll suave no iOS */
+    
+    width: 100% !important; /* Limita ao tamanho da tela */
+    max-width: 100% !important;
+    
+    justify-content: flex-start !important; /* Começa sempre da esquerda */
     gap: 10px !important;
     list-style: none !important;
     margin-bottom: 2rem !important;
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5) !important;
-
-    /* AJUSTE DE LARGURA E CENTRALIZAÇÃO */
-    width: fit-content !important; /* Faz a caixa ter o tamanho exato do conteúdo */
-    margin-left: auto !important;   /* Centraliza o container na página */
-    margin-right: auto !important;
-    padding: 10px 20px !important; /* Aumente um pouco o padding lateral */
-    justify-content: flex-start !important; /* Em menus longos, comece da esquerda */
-}
     
+    /* Esconde a barra de rolagem visual mas mantém a funcionalidade */
+    scrollbar-width: none; 
+}
 
+.pulp-nav-container::-webkit-scrollbar { 
+    display: none; 
+}
 
 /* Unificando o estilo para ser IDENTICO ao de palpites */
 .pulp-nav-btn {
@@ -831,4 +850,73 @@ html, body {
     border-color: var(--pulp-gold) !important;
     box-shadow: 2px 2px 0px var(--church-red) !important;
     transform: translateY(-2px) !important;
+}
+
+/* ==========================================================================
+   INPUTS DOS MODAIS (DARK MODE PULP NOIR)
+   ========================================================================== */
+.pulp-modal label {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.btn:focus, .btn:active, .pulp-input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+body.modal-open {
+    padding-right: 0 !important;
+}
+
+.modal {
+    overflow-y: auto !important;
+    scrollbar-width: none; /* Firefox */
+}
+.modal::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.modal-open .modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.pulp-input {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    transition: all 0.2s ease;
+}
+
+.pulp-input:focus {
+    border-color: var(--pulp-gold) !important;
+    box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.25) !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.pulp-input::placeholder {
+    color: rgba(255, 255, 255, 0.25) !important;
+    font-size: 0.85rem;
+}
+
+/* Estilo do botão de "Escolher Ficheiro" no upload da imagem */
+.pulp-input::file-selector-button {
+    background-color: #022c22;
+    color: var(--pulp-gold);
+    border: none;
+    border-right: 1px solid rgba(255,255,255,0.2);
+    padding: 0.375rem 0.75rem;
+    margin-right: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pulp-input::file-selector-button:hover {
+    background-color: var(--pulp-gold);
+    color: #000;
 }

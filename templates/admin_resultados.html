@@ -28,13 +28,23 @@
             Painel de Controle
         </h2>
         
-        <div class="btn-group shadow-sm" role="group">
-            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-warning fw-bold text-dark">
-                <i class="fas fa-trophy me-1"></i> Resultados
-            </a>
-            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-warning fw-bold">
-                <i class="fas fa-users me-1"></i> Usuários
-            </a>
+        <div class="d-flex flex-column flex-sm-row gap-3 align-items-center">
+            <div class="btn-group shadow-sm" role="group">
+                <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-warning fw-bold text-dark">
+                    <i class="fas fa-trophy me-1"></i> Resultados
+                </a>
+                <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-warning fw-bold">
+                    <i class="fas fa-users me-1"></i> Usuários
+                </a>
+            </div>
+
+            <div class="form-check form-switch d-flex align-items-center">
+                <input class="form-check-input me-2" type="checkbox" id="toggleEncerrados" style="cursor: pointer; width: 40px; height: 20px;">
+                <label class="form-check-label text-warning fw-bold small text-uppercase" for="toggleEncerrados" style="cursor: pointer; padding-top: 2px;">
+                    Ocultar Encerrados
+                </label>
+            </div>
+            
         </div>
     </div>
     
@@ -74,7 +84,7 @@
                             </thead>
                             <tbody>
                                 {% for jogo in jogos_por_fase[fase] %}
-                                <tr>
+                                <tr data-status="{{ jogo.status }}">
                                     <td class="text-center fw-bold" style="color: rgba(255,255,255,0.5);">
                                         #{{ jogo.id }}
                                     </td>
@@ -264,5 +274,27 @@ document.querySelectorAll('.btn-salvar-pendente').forEach(btn => {
         });
     });
 });
+
+// Lógica para o Toggle de Jogos Encerrados
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('toggleEncerrados');
+    
+    if (toggleBtn) {
+        toggleBtn.addEventListener('change', function() {
+            const esconder = this.checked;
+            // Seleciona todas as linhas cujo status é 'encerrado'
+            const linhasEncerradas = document.querySelectorAll('tr[data-status="encerrado"]');
+            
+            linhasEncerradas.forEach(row => {
+                if (esconder) {
+                    row.style.display = 'none'; // Esconde
+                } else {
+                    row.style.display = '';     // Mostra (volta ao padrão da tabela)
+                }
+            });
+        });
+    }
+});
+
 </script>
 {% endblock %}

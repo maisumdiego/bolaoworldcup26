@@ -50,10 +50,9 @@
                         <tr>
                             <th>Pos</th>
                             <th class="text-start">Participante</th>
-                            <th>Exato (5)</th>
+                            <th>Total</th> <th>Exato (5)</th>
                             <th>Parcial (3)</th>
                             <th>Tendência (2)</th>
-                            <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,17 +60,29 @@
                         <tr class="{% if current_user.name == jogador.nome %}user-row-highlight{% endif %}">
                             <td><span class="pos-numero">{{ loop.index }}º</span></td>
                             <td class="text-start">
-                                <span class="user-name-text">{{ jogador.nome }}</span>
-                                {% if current_user.name == jogador.nome %}
-                                    <span class="badge bg-danger ms-2" style="font-size: 0.6rem; border: 1px solid #fff;">VOCÊ</span>
-                                {% endif %}
+                                <div class="d-flex align-items-center">
+                                    <div class="profile-img-container shadow-sm me-3" style="width: 38px; height: 38px; border: 2px solid var(--pulp-gold);">
+                                        {% if jogador.profile_pic and jogador.profile_pic.startswith('http') %}
+                                            <img src="{{ jogador.profile_pic }}" class="profile-img-inner" alt="Avatar">
+                                        {% else %}
+                                            <i class="fas fa-user default-avatar-icon" style="font-size: 1.1rem;"></i>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div>
+                                        <span class="user-name-text">{{ jogador.nome }}</span>
+                                        {% if current_user.name == jogador.nome %}
+                                            <span class="badge bg-danger ms-2" style="font-size: 0.6rem; border: 1px solid #fff;">VOCÊ</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="pontos-total" style="font-size: 1.2rem;">
+                                {{ jogador.pontos }} pts
                             </td>
                             <td>{{ jogador.exatos }}</td>
                             <td>{{ jogador.parciais }}</td>
                             <td>{{ jogador.tendencia }}</td>
-                            <td class="pontos-total" style="font-size: 1.2rem;">
-                                {{ jogador.pontos }} pts
-                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
