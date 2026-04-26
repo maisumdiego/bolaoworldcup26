@@ -36,8 +36,11 @@ db.init_app(app)
 
 # INICIALIZA O LOGIN MANAGER
 login_manager = LoginManager()
+login_manager.login_message = "Por favor, faça login para acessar esta página."
+login_manager.login_message_category = 'info'
+login_manager.login_view = 'main.index'
 login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
+
 
 ## Rota do login manager
 @login_manager.user_loader
