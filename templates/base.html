@@ -161,19 +161,23 @@
             <div class="modal-body p-4">
                 <form action="{{ url_for('auth.register') }}" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">NICKNAME</label>
+                        <label class="form-label small fw-bold">NICKNAME*</label>
                         <input type="text" name="name" class="form-control pulp-input" placeholder="Nome ou apelido" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">E-MAIL</label>
+                        <label class="form-label small fw-bold">E-MAIL*</label>
                         <input type="email" name="email" class="form-control pulp-input" placeholder="seu@email.com" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">FOTO DE PERFIL (OPCIONAL)</label>
+                        <label class="form-label small fw-bold">CELULAR</label>
+                        <input type="tel" name="phone" class="form-control pulp-input" placeholder="(11) 99999-9999" maxlength="15">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">FOTO DE PERFIL</label>
                         <input type="file" name="profile_pic" class="form-control pulp-input" accept="image/*">
                     </div>
                     <div class="mb-4">
-                        <label class="form-label small fw-bold">SENHA</label>
+                        <label class="form-label small fw-bold">SENHA*</label>
                         <input type="password" name="password" class="form-control pulp-input" placeholder="Crie uma senha" required>
                     </div>
                     <button type="submit" class="btn btn-salvar-pulp w-100 py-2">

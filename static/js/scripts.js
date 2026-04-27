@@ -107,3 +107,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const celularInput = document.querySelector('input[name="phone"]');
+    
+    if (celularInput) {
+        celularInput.addEventListener('input', function(e) {
+            // Remove tudo o que não for dígito numérico
+            let limpar = e.target.value.replace(/\D/g, '');
+            
+            // Divide o número em blocos para a formatação
+            let mascara = limpar.match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+            
+            // Aplica os parênteses e o hífen
+            e.target.value = !mascara[2] ? mascara[1] : '(' + mascara[1] + ') ' + mascara[2] + (mascara[3] ? '-' + mascara[3] : '');
+        });
+    }
+});
+
