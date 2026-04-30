@@ -118,11 +118,14 @@
     }
 
     .bandeira-destaque { 
-        width: 70px; height: 45px; 
-        object-fit: cover; 
-        border: 2px solid rgba(255,255,255,0.1);
-        border-radius: 4px;
-        margin-bottom: 0.8rem;
+        width: 84px !important; 
+        height: 56px !important; /* Mantém a proporção universal 3:2 */
+        object-fit: cover !important; /* Corta os excessos sem distorcer ou espremer a imagem */
+        object-position: center !important; /* Garante que o centro da bandeira seja o foco */
+        border: 2px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 6px !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
     }
 
     .carousel-control-prev, .carousel-control-next { width: 5%; z-index: 20; }
@@ -219,7 +222,12 @@
                     <div class="row g-3 justify-content-center">
                         {% for team in chunk %}
                         <div class="col-6 col-lg-3">
-                            <div class="team-card p-4 text-center" onclick="buscarDadosAPI('{{ team.team_name }}')">
+                            <!-- Adicionamos os data-attributes e chamamos abrirModalPais() -->
+                            <div class="team-card p-4 text-center" 
+                                data-nome="{{ team.team_name }}" 
+                                data-flag="{{ team.team_flag_url }}" 
+                                onclick="abrirModalPais('{{ team.team_name }}')">
+                                
                                 <img src="{{ team.team_flag_url }}" class="bandeira-destaque">
                                 <h6 class="text-white fw-bold text-uppercase mb-1">{{ team.team_name }}</h6>
                                 {% if team.fifa_ranking %}
@@ -246,9 +254,21 @@
 <div class="modal fade" id="modalCuriosidade" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content pulp-modal" style="background-color: #f8fafc; border: 3px solid var(--pulp-gold); border-radius: 8px;">
-            <div class="modal-header border-bottom border-warning" style="background-color: #0f172a;">
-                <h5 class="modal-title fw-bold text-warning" id="modalCountryName" style="font-family: 'Bungee', cursive;"></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <!-- CABEÇALHO LIMPO (SÓ TEXTO E SETAS) -->
+            <div class="modal-header border-bottom border-warning d-flex align-items-center" style="background-color: #0f172a; padding: 0.8rem 1rem;">
+                <button class="btn btn-link text-warning p-1 text-decoration-none" onclick="navegarPais(-1)">
+                    <i class="fas fa-chevron-left fa-lg"></i>
+                </button>
+                
+                <div class="d-flex align-items-center justify-content-center flex-grow-1 mx-2 overflow-hidden">
+                    <h5 class="modal-title fw-bold text-warning mb-0 text-truncate text-center w-100" id="modalCountryName" style="font-family: 'Bungee', cursive;"></h5>
+                </div>
+                
+                <button class="btn btn-link text-warning p-1 text-decoration-none" onclick="navegarPais(1)">
+                    <i class="fas fa-chevron-right fa-lg"></i>
+                </button>
+                
+                <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-dark" id="modalBodyContent"></div>
             <div class="modal-footer border-0 justify-content-between pt-0 pb-3" style="background-color: #f8fafc;">
@@ -265,40 +285,78 @@
 <script>
     AOS.init({ duration: 800, once: true });
 
-    const modalCuriosidade = new bootstrap.Modal(document.getElementById('modalCuriosidade'));
+    let modalCuriosidade;
     const body = document.getElementById('modalBodyContent');
+    const listaPaises = [];
+    let indiceAtual = 0;
 
-    async function buscarDadosAPI(nomePais) {
-        document.getElementById('modalCountryName').textContent = nomePais.toUpperCase();
-        body.innerHTML = '<div class="text-center p-5"><i class="fas fa-futbol fa-spin fa-3x text-success mb-3"></i><h5 class="fw-bold">Buscando dossiê...</h5></div>';
+    document.addEventListener("DOMContentLoaded", function() {
+        modalCuriosidade = new bootstrap.Modal(document.getElementById('modalCuriosidade'));
+        
+        // Constrói a lista lendo os cards de forma segura
+        const cards = document.querySelectorAll('.team-card');
+        cards.forEach(card => {
+            const nome = card.getAttribute('data-nome');
+            const flag = card.getAttribute('data-flag');
+            if (nome && flag) {
+                listaPaises.push({ nome: nome, flag: flag });
+            }
+        });
+    });
+
+    function abrirModalPais(nomePais) {
+        indiceAtual = listaPaises.findIndex(p => p.nome === nomePais);
+        if (indiceAtual === -1) indiceAtual = 0;
+        
+        carregarDadosNoModal();
         modalCuriosidade.show();
+    }
+
+    function navegarPais(direcao) {
+        indiceAtual += direcao;
+        // Navegação infinita
+        if (indiceAtual < 0) indiceAtual = listaPaises.length - 1;
+        if (indiceAtual >= listaPaises.length) indiceAtual = 0;
+        
+        carregarDadosNoModal();
+    }
+
+    async function carregarDadosNoModal() {
+        const pais = listaPaises[indiceAtual];
+        const nomePais = pais.nome;
+        
+        // Atualiza apenas o título no cabeçalho (a bandeira pequena não existe mais)
+        document.getElementById('modalCountryName').textContent = nomePais.toUpperCase();
+
+        body.innerHTML = '<div class="text-center p-5"><i class="fas fa-futbol fa-spin fa-3x text-success mb-3"></i><h5 class="fw-bold">Buscando dossiê...</h5></div>';
 
         try {
             let c = {};
-            let termoWiki = nomePais; // A Wikipedia é inteligente e resolve redirecionamentos sozinha
+            let termoWiki = nomePais;
 
-            // 1. DICIONÁRIO DE EXCEÇÕES (Bypass da API RestCountries)
             const excecoesRest = {
                 "Inglaterra": { capital: ['Londres'], population: 56286961, subregion: 'Europa do Norte', languages: {eng: 'Inglês'}, currencies: {GBP: {name: 'Libra Esterlina'}} },
                 "Escócia": { capital: ['Edimburgo'], population: 5463300, subregion: 'Europa do Norte', languages: {eng: 'Inglês', gla: 'Gaélico escocês'}, currencies: {GBP: {name: 'Libra Esterlina'}} },
-                "República Tcheca": { capital: ['Praga'], population: 10900000, subregion: 'Europa Central', languages: {ces: 'Tcheco'}, currencies: {CZK: {name: 'Coroa Checa'}} }
+                "República Tcheca": { capital: ['Praga'], population: 10900000, subregion: 'Europa Central', languages: {ces: 'Tcheco'}, currencies: {CZK: {name: 'Coroa Checa'}} },
+                "País de Gales": { capital: ['Cardiff'], population: 3136000, subregion: 'Europa do Norte', languages: {eng: 'Inglês', cym: 'Galês'}, currencies: {GBP: {name: 'Libra Esterlina'}} }
             };
 
-            // 2. TRATAMENTO E BUSCA
             if (excecoesRest[nomePais]) {
-                // Se for um país problemático, injeta os dados manualmente
                 c = excecoesRest[nomePais];
             } else {
-                // Tratamento de acentuação (De "Coréia" para "Coreia")
                 let termoRest = nomePais === 'Coréia do Sul' ? 'Coreia do Sul' : nomePais;
-                
                 const resCountries = await fetch(`https://restcountries.com/v3.1/translation/${termoRest}`);
-                if (!resCountries.ok) throw new Error("País não encontrado na API REST");
+                if (!resCountries.ok) throw new Error("País não encontrado");
                 const dataCountries = await resCountries.json();
-                c = dataCountries[0];
+                
+                // Filtro rígido pelo nome exato em português
+                c = dataCountries.find(p => 
+                    (p.translations && p.translations.por && p.translations.por.common.toLowerCase() === termoRest.toLowerCase()) ||
+                    (p.name && p.name.common.toLowerCase() === termoRest.toLowerCase())
+                ) || dataCountries[0];
             }
 
-            // 3. BUSCA NA WIKIPEDIA (Funciona para todos)
+            // Wikipedia
             let wikiResumo = "";
             try {
                 const resWiki = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${termoWiki}`);
@@ -309,25 +367,62 @@
                                     <p class="small text-muted mb-0" style="text-align: justify;">${dataWiki.extract}</p>
                                   </div>`;
                 }
-            } catch (e) {
-                console.warn("Aviso: Wikipedia não retornou dados.", e);
+            } catch (e) {}
+
+            // Traduções
+            const tradContinentes = {
+                "South America": "América do Sul", "North America": "América do Norte", "Central America": "América Central", "Caribbean": "Caribe",
+                "Northern Europe": "Europa do Norte", "Western Europe": "Europa Ocidental", "Eastern Europe": "Leste Europeu", "Southern Europe": "Europa Meridional",
+                "Western Asia": "Ásia Ocidental", "Eastern Asia": "Ásia Oriental", "Southern Asia": "Ásia Meridional", "South-Eastern Asia": "Sudeste Asiático",
+                "Northern Africa": "Norte da África", "Western Africa": "África Ocidental", "Middle Africa": "África Central", "Eastern Africa": "África Oriental", "Southern Africa": "África Austral",
+                "Oceania": "Oceania", "Australia and New Zealand": "Austrália e Nova Zelândia"
+            };
+            const contTraduzido = c.subregion ? (tradContinentes[c.subregion] || c.subregion) : (c.region || 'N/A');
+
+            let idiomasTraduzidos = 'N/A';
+            if (c.languages) {
+                try {
+                    const formatadorIdiomas = new Intl.DisplayNames(['pt-BR'], { type: 'language' });
+                    idiomasTraduzidos = Object.keys(c.languages).map(code => {
+                        let nome = formatadorIdiomas.of(code);
+                        return nome.charAt(0).toUpperCase() + nome.slice(1);
+                    }).join(', ');
+                } catch(e) {
+                    idiomasTraduzidos = Object.values(c.languages).join(', ');
+                }
             }
 
-            // 4. RENDERIZAÇÃO NA TELA
+            let moedaTraduzida = 'N/A';
+            if (c.currencies) {
+                try {
+                    const formatadorMoedas = new Intl.DisplayNames(['pt-BR'], { type: 'currency' });
+                    const codMoeda = Object.keys(c.currencies)[0];
+                    let nomeMoeda = formatadorMoedas.of(codMoeda);
+                    moedaTraduzida = nomeMoeda.charAt(0).toUpperCase() + nomeMoeda.slice(1);
+                } catch(e) {
+                    moedaTraduzida = Object.values(c.currencies)[0].name;
+                }
+            }
+
+            // Renderização Final - Bandeira gigante isolada no topo
             body.innerHTML = `
                 <div class="px-2 py-3">
+                    <div class="text-center mb-4">
+                        <img src="${pais.flag}" alt="Bandeira de ${nomePais}" class="shadow-sm" style="width: 140px; height: auto; border-radius: 6px; border: 2px solid rgba(0,0,0,0.1);">
+                    </div>
+
                     <ul class="list-group list-group-flush shadow-sm">
-                        <li class="list-group-item d-flex justify-content-between"><strong>Capital:</strong> <span>${c.capital ? c.capital[0] : 'N/A'}</span></li>
-                        <li class="list-group-item d-flex justify-content-between"><strong>População:</strong> <span>${c.population ? c.population.toLocaleString('pt-BR') : 'N/A'}</span></li>
-                        <li class="list-group-item d-flex justify-content-between"><strong>Continente:</strong> <span>${c.subregion || c.region || 'N/A'}</span></li>
-                        <li class="list-group-item d-flex justify-content-between"><strong>Idiomas:</strong> <span>${c.languages ? Object.values(c.languages).join(', ') : 'N/A'}</span></li>
-                        <li class="list-group-item d-flex justify-content-between"><strong>Moeda:</strong> <span>${c.currencies ? Object.values(c.currencies)[0].name : 'N/A'}</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Capital:</strong> <span class="text-end">${c.capital ? c.capital[0] : 'N/A'}</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>População:</strong> <span class="text-end">${c.population ? c.population.toLocaleString('pt-BR') : 'N/A'}</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Continente:</strong> <span class="text-end">${contTraduzido}</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Idiomas:</strong> <span class="text-end text-break w-50">${idiomasTraduzidos}</span></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Moeda:</strong> <span class="text-end">${moedaTraduzida}</span></li>
                     </ul>
                     ${wikiResumo}
                 </div>`;
         } catch (err) {
             body.innerHTML = '<div class="text-center p-5 text-danger"><i class="fas fa-exclamation-triangle fa-3x mb-3"></i><p>Nenhuma inteligência encontrada para este país no momento.</p></div>';
-            console.error("Erro na busca de dados:", err);
+            console.error(err);
         }
     }
 </script>
