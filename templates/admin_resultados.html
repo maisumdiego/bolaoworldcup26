@@ -4,74 +4,147 @@
 
 {% block content %}
 <style>
-    /* Estilos baseados no Pulp Noir para o Admin */
-    .admin-card { background-color: #064e3b !important; border: 2px solid #022c22 !important; border-radius: 8px; box-shadow: 6px 6px 0px rgba(0,0,0,0.5); }
-    .admin-card-header { background-color: #022c22 !important; border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--pulp-gold) !important; font-family: 'Bungee', cursive; font-size: 1.1rem; }
+    /* Estilos Padronizados para o Painel Admin */
+    .admin-container {
+        background-color: var(--pulp-green-base);
+        border: 3px solid #022c22;
+        border-radius: 12px;
+        box-shadow: 8px 8px 0px rgba(0,0,0,0.6);
+        overflow: hidden;
+    }
     
-    .table-pulp { color: #fff; }
-    .table-pulp thead { background-color: rgba(0,0,0,0.3); color: rgba(255,255,255,0.7); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-    .table-pulp td, .table-pulp th { border-bottom: 1px solid rgba(255,255,255,0.1) !important; vertical-align: middle; }
-    .table-pulp tbody tr:hover { background-color: rgba(255,255,255,0.05); }
+    .admin-table thead th {
+        background-color: #022c22 !important;
+        color: var(--pulp-gold) !important;
+        font-family: 'Bungee', cursive;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        padding: 15px !important;
+        border-bottom: 2px solid #ffffff !important;
+    }
+
+    .admin-table tbody tr td {
+        background-color: #064e3b !important;
+        color: #fff !important;
+        padding: 15px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    }
+
+    .admin-table tbody tr:nth-child(even) td {
+        background-color: #043d2e !important;
+    }
 
     /* Inputs Dark Mode */
-    .admin-input { background-color: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.2) !important; color: #fff !important; }
-    .admin-input:focus { border-color: var(--pulp-gold) !important; box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.2) !important; }
+    .admin-input { 
+        background-color: rgba(0,0,0,0.3) !important; 
+        border: 1px solid rgba(255,255,255,0.2) !important; 
+        color: #fff !important; 
+    }
+    .admin-input:focus { 
+        border-color: var(--pulp-gold) !important; 
+        box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.2) !important; 
+    }
 
     /* Bandeiras Padronizadas */
-    .bandeira-admin { width: 32px; height: 22px; object-fit: cover; border-radius: 2px; border: 1px solid rgba(255,255,255,0.2); }
+    .bandeira-admin { 
+        width: 32px; 
+        height: 22px; 
+        object-fit: cover; 
+        border-radius: 2px; 
+        border: 1px solid rgba(255,255,255,0.2); 
+    }
+
+    /* Ajuste para navegação de fases */
+    .pulp-nav-container {
+        border-bottom: 2px solid rgba(255,255,255,0.05);
+    }
+
+    /* Barra de rolagem customizada para as fases - INTEGRADA À BOX */
+    .pulp-nav-container {
+        overflow-x: auto !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: var(--pulp-gold) transparent !important;
+        padding-bottom: 5px !important; /* Reduzido para não transbordar */
+        margin-bottom: 1.5rem !important;
+    }
+
+    .pulp-nav-container::-webkit-scrollbar {
+        height: 5px !important; /* Mais fina */
+        display: block !important;
+    }
+    .pulp-nav-container::-webkit-scrollbar-track {
+        background: transparent !important; /* Remove o fundo verde indesejado */
+    }
+    .pulp-nav-container::-webkit-scrollbar-thumb {
+        background: var(--pulp-gold) !important;
+        border-radius: 20px !important;
+    }
+    .pulp-nav-container::-webkit-scrollbar-thumb:hover {
+        background: #ffca2c !important;
+    }
 </style>
 
-<div class="container mt-4 mb-5 px-3 px-md-5">
+<div class="container mt-4 mb-5 px-3 px-md-4">
     
-    <!-- HEADER RE-ESTRUTURADO -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+    <!-- HEADER PADRONIZADO -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-4">
         <div class="text-center text-md-start">
             <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 2.5rem;">
                 Painel Admin
             </h2>
-            <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">Resultados Oficiais</p>
+            <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">Gestão de Resultados Oficiais</p>
         </div>
         
-        <div class="btn-group shadow-sm mt-3 mt-md-0" role="group">
-            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-warning fw-bold text-dark px-4">Resultados</a>
-            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-warning fw-bold px-4">Usuários</a>
+        <div class="btn-group shadow-sm" role="group">
+            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-warning fw-bold text-dark px-4">
+                <i class="fas fa-trophy me-1"></i> Resultados
+            </a>
+            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-warning fw-bold px-4">
+                <i class="fas fa-users me-1"></i> Usuários
+            </a>
         </div>
     </div>
 
-    <!-- FILTRO EM LINHA SEPARADA PARA NÃO SOBREPOR -->
-    <div class="d-flex justify-content-center justify-content-md-end mb-4">
-        <div class="form-check form-switch d-flex align-items-center bg-dark bg-opacity-25 px-3 py-2 rounded-pill border border-white border-opacity-10 shadow-sm">
-            <input class="form-check-input me-2" type="checkbox" id="toggleEncerrados" style="cursor: pointer;">
-            <label class="form-check-label text-warning fw-bold small text-uppercase mb-0" for="toggleEncerrados" style="cursor: pointer; letter-spacing: 1px; font-size: 0.7rem;">
-                Ocultar Encerrados
-            </label>
+    <!-- FILTROS E NAVEGAÇÃO MODELO PALPITES -->
+    <div class="row mb-2">
+        <div class="col-12 d-flex justify-content-end">
+            <div class="form-check form-switch d-flex align-items-center bg-dark bg-opacity-25 px-3 py-2 rounded-pill border border-white border-opacity-10 shadow-sm" style="min-height: 45px;">
+                <input class="form-check-input ms-0" type="checkbox" id="toggleEncerrados" style="cursor: pointer; width: 2.5em; height: 1.25em; margin-top: 0;">
+                <label class="form-check-label text-warning fw-bold small text-uppercase mb-0 ms-3" for="toggleEncerrados" style="cursor: pointer; letter-spacing: 1px; font-size: 0.7rem;">
+                    Ocultar Encerrados
+                </label>
+            </div>
         </div>
     </div>
-    
-        <ul class="nav pulp-nav-container d-flex flex-nowrap overflow-auto mb-4" id="pills-tab-fases" role="tablist">
+
+    <div class="dias-nav-container mb-4">
+        <ul class="nav nav-pills dias-nav d-flex flex-nowrap overflow-auto" id="pills-tab-fases" role="tablist">
             {% for fase in fases_ordenadas %}
             <li class="nav-item" role="presentation">
-                <button class="nav-link pulp-nav-btn px-4 {% if fase == fase_ativa %}active{% endif %}" 
+                <button class="nav-link dia-btn px-4 {% if fase == fase_ativa %}active{% endif %}" 
                         id="tab-fase-{{ loop.index }}" 
                         data-bs-toggle="pill" 
                         data-bs-target="#pills-fase-{{ loop.index }}" 
-                        type="button" role="tab">
+                        type="button" role="tab" style="white-space: nowrap;">
                     {{ fase }}
                 </button>
             </li>
             {% endfor %}
         </ul>
+    </div>
 
     <div class="tab-content" id="pills-tabContent-fases">
         {% for fase in fases_ordenadas %}
             <div class="tab-pane fade {% if fase == fase_ativa %}show active{% endif %}" id="pills-fase-{{ loop.index }}" role="tabpanel">
                 
-                <div class="card admin-card mb-5">
-                    <div class="card-header admin-card-header p-3">
-                        <i class="far fa-calendar-check me-2"></i> Jogos - {{ fase }}
+                <div class="admin-container shadow-lg mb-5">
+                    <div class="p-3 text-center" style="background-color: #022c22; border-bottom: 2px solid rgba(255,255,255,0.1);">
+                        <h5 class="mb-0 fw-bold text-uppercase" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); font-size: 1.1rem;">
+                            <i class="far fa-calendar-check me-2"></i> Jogos - {{ fase }}
+                        </h5>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-pulp align-middle mb-0">
+                        <table class="table admin-table align-middle mb-0">
                             <thead>
                                 <tr>
                                     <th class="text-center" style="width: 5%">ID</th>
@@ -85,14 +158,14 @@
                             <tbody>
                                 {% for jogo in jogos_por_fase[fase] %}
                                 <tr data-status="{{ jogo.status }}">
-                                    <td class="text-center fw-bold" style="color: rgba(255,255,255,0.5);">
+                                    <td class="text-center fw-bold opacity-50">
                                         #{{ jogo.id }}
                                     </td>
-                                    <td class="small" style="color: rgba(255,255,255,0.7);">
-                                        {{ jogo.datetime_game.strftime('%d/%m às %H:%M') }}
+                                    <td class="small opacity-75">
+                                        {{ jogo.datetime_game.strftime('%d/%m %H:%M') }}
                                     </td>
                                     <td class="text-end">
-                                        <span class="me-2 fw-bold">{{ jogo.team_a.team_name if jogo.team_a else jogo.placeholder_a }}</span>
+                                        <span class="me-2 fw-bold text-uppercase small">{{ jogo.team_a.team_name if jogo.team_a else jogo.placeholder_a }}</span>
                                         {% if jogo.team_a %}
                                             <img src="{{ jogo.team_a.team_flag_url }}" class="bandeira-admin">
                                         {% endif %}
@@ -101,21 +174,21 @@
                                         <form class="form-admin-resultado d-flex justify-content-center align-items-center gap-2">
                                             <input type="hidden" name="game_id" value="{{ jogo.id }}">
                                             <input type="number" name="result_a" class="form-control form-control-sm text-center fw-bold admin-input" 
-                                                style="width: 60px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required min="0">
+                                                style="width: 50px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required min="0">
                                             <span class="text-white-50 fw-bold">X</span>
                                             <input type="number" name="result_b" class="form-control form-control-sm text-center fw-bold admin-input" 
-                                                style="width: 60px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required min="0">
+                                                style="width: 50px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required min="0">
                                         </form>
                                     </td>
                                     <td class="text-start">
                                         {% if jogo.team_b %}
                                             <img src="{{ jogo.team_b.team_flag_url }}" class="bandeira-admin me-2">
                                         {% endif %}
-                                        <span class="fw-bold">{{ jogo.team_b.team_name if jogo.team_b else jogo.placeholder_b }}</span>
+                                        <span class="fw-bold text-uppercase small">{{ jogo.team_b.team_name if jogo.team_b else jogo.placeholder_b }}</span>
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm w-100 fw-bold text-uppercase {% if jogo.status == 'encerrado' %}btn-outline-warning{% else %}btn-warning text-dark{% endif %}" 
-                                                onclick="enviarResultado(this)" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                                onclick="enviarResultado(this)" style="font-size: 0.7rem; letter-spacing: 1px;">
                                             <i class="fas fa-check me-1"></i> {{ 'Atualizar' if jogo.status == 'encerrado' else 'Salvar' }}
                                         </button>
                                     </td>
@@ -131,33 +204,38 @@
     </div>
 
     {% if jogos_pendentes %}
-    <div class="card admin-card mt-5 border-warning" style="border-color: var(--pulp-gold) !important;">
-        <div class="card-header p-3 fw-bold text-dark text-uppercase" style="background-color: var(--pulp-gold); font-family: 'Bungee', cursive; font-size: 1rem;">
-            <i class="fas fa-exclamation-triangle me-2"></i> Ajuste de Confrontos (Times a Definir)
+    <div class="admin-container shadow-lg mt-5" style="border-color: var(--pulp-gold) !important;">
+        <div class="p-3 text-center" style="background-color: var(--pulp-gold); border-bottom: 2px solid rgba(0,0,0,0.1);">
+            <h5 class="mb-0 fw-bold text-uppercase text-dark" style="font-family: 'Bungee', cursive; font-size: 1.1rem;">
+                <i class="fas fa-exclamation-triangle me-2"></i> Ajuste de Confrontos (A Definir)
+            </h5>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-pulp align-middle text-center mb-0">
-                    <thead>
-                        <tr>
-                            <th>Jogo</th>
-                            <th>Fase</th>
-                            <th>Lado A</th>
-                            <th>Lado B</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for jogo in jogos_pendentes %}
-                        <tr>
-                            <form class="form-pendente">
-                                <input type="hidden" name="game_id" value="{{ jogo.id }}">
-                                <td class="fw-bold" style="color: rgba(255,255,255,0.5);">#{{ jogo.id }}</td>
-                                <td><span class="badge" style="background-color: rgba(255,255,255,0.1); color: var(--pulp-gold);">{{ jogo.phase }}</span></td>
-                                
-                                <td>
+        <div class="table-responsive">
+            <table class="table admin-table align-middle text-center mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 10%">Jogo</th>
+                        <th style="width: 20%">Fase</th>
+                        <th style="width: 25%">Lado A</th>
+                        <th style="width: 25%">Lado B</th>
+                        <th style="width: 20%">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jogo in jogos_pendentes %}
+                    <tr>
+                        <form class="form-pendente">
+                            <input type="hidden" name="game_id" value="{{ jogo.id }}">
+                            <td class="fw-bold opacity-50">#{{ jogo.id }}</td>
+                            <td>
+                                <span class="badge bg-dark bg-opacity-50 text-warning border border-warning border-opacity-25 px-3 py-2 text-uppercase" style="font-size: 0.65rem;">
+                                    {{ jogo.phase }}
+                                </span>
+                            </td>
+                            
+                            <td>
                                 {% if jogo.team_a %}
-                                    <span class="fw-bold">{{ jogo.team_a.ab }}</span>
+                                    <span class="fw-bold text-uppercase small">{{ jogo.team_a.ab }}</span>
                                 {% elif 'definir' in jogo.placeholder_a|lower %}
                                     <select name="team_a_id" class="form-select form-select-sm admin-input border-warning">
                                         <option value="">{{ jogo.placeholder_a }}</option>
@@ -166,13 +244,13 @@
                                         {% endfor %}
                                     </select>
                                 {% else %}
-                                    <span class="fst-italic" style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">{{ jogo.placeholder_a }} (Automático)</span>
+                                    <span class="fst-italic opacity-50 small">{{ jogo.placeholder_a }}</span>
                                 {% endif %}
                             </td>
 
                             <td>
                                 {% if jogo.team_b %}
-                                    <span class="fw-bold">{{ jogo.team_b.ab }}</span>
+                                    <span class="fw-bold text-uppercase small">{{ jogo.team_b.ab }}</span>
                                 {% elif 'definir' in jogo.placeholder_b|lower %}
                                     <select name="team_b_id" class="form-select form-select-sm admin-input border-warning">
                                         <option value="">{{ jogo.placeholder_b }}</option>
@@ -181,21 +259,20 @@
                                         {% endfor %}
                                     </select>
                                 {% else %}
-                                    <span class="fst-italic" style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">{{ jogo.placeholder_b }} (Automático)</span>
+                                    <span class="fst-italic opacity-50 small">{{ jogo.placeholder_b }}</span>
                                 {% endif %}
                             </td>
-                                
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-outline-warning fw-bold text-uppercase btn-salvar-pendente" style="font-size: 0.75rem; letter-spacing: 1px;">
-                                        Injetar Time
-                                    </button>
-                                </td>
-                            </form>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-warning fw-bold text-uppercase btn-salvar-pendente" style="font-size: 0.7rem;">
+                                    Injetar Time
+                                </button>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     {% endif %}
@@ -205,7 +282,6 @@
 
 {% block scripts %}
 <script>
-// Mantive todo o seu JS intacto, apenas atualizei as classes de cores no feedback visual
 function enviarResultado(btn) {
     const row = btn.closest('tr');
     const form = row.querySelector('.form-admin-resultado');
@@ -275,26 +351,17 @@ document.querySelectorAll('.btn-salvar-pendente').forEach(btn => {
     });
 });
 
-// Lógica para o Toggle de Jogos Encerrados
 document.addEventListener('DOMContentLoaded', function() {
     const toggleBtn = document.getElementById('toggleEncerrados');
-    
     if (toggleBtn) {
         toggleBtn.addEventListener('change', function() {
             const esconder = this.checked;
-            // Seleciona todas as linhas cujo status é 'encerrado'
             const linhasEncerradas = document.querySelectorAll('tr[data-status="encerrado"]');
-            
             linhasEncerradas.forEach(row => {
-                if (esconder) {
-                    row.style.display = 'none'; // Esconde
-                } else {
-                    row.style.display = '';     // Mostra (volta ao padrão da tabela)
-                }
+                row.style.display = esconder ? 'none' : '';
             });
         });
     }
 });
-
 </script>
 {% endblock %}

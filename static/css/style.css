@@ -2,8 +2,6 @@
    BOLÃO DA CABEÇA 2026 - ESTILO PULP NOIR (COMPLETO)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Bungee&display=swap');
-
 :root {
     /* Paleta Principal Atualizada */
     --bg-void: #0f172a;          /* Fundo de todas as páginas (Azul Marinho) */
@@ -18,6 +16,20 @@
     /* Textos Base */
     --text-main: #f4f4f5;        
     --text-muted: #a1a1aa;       
+}
+
+.btn-pulp-jump {
+    transition: all 0.2s ease !important;
+}
+
+.btn-pulp-jump:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 6px 6px 0px #000 !important;
+}
+
+.btn-pulp-jump:active {
+    transform: translateY(0px) !important;
+    box-shadow: 2px 2px 0px #000 !important;
 }
 
 /* ==========================================================================
@@ -202,16 +214,17 @@ html, body {
 .dias-nav-container {
     background-color: var(--surface-dark);
     border: 2px solid #27272a;
-    border-radius: 8px;
-    padding: 10px;
+    border-radius: 6px; /* Ajustado para 6px */
+    padding: 15px; /* Aumentado para comportar o salto */
     box-shadow: 6px 6px 0px rgba(0,0,0,0.5); 
+    overflow: visible !important;
 }
 
 .dias-nav {
     border-bottom: none;
-    overflow-x: auto; /* Garante o scroll */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: var(--pulp-gold) transparent; /* Firefox */
+    overflow-x: auto; 
+    scrollbar-width: thin; 
+    scrollbar-color: var(--pulp-gold) transparent; 
     padding-bottom: 5px;
 }
 .dias-nav::-webkit-scrollbar {
@@ -235,7 +248,7 @@ html, body {
     border: 2px solid transparent !important;
     border-radius: 6px !important;
     padding: 8px 15px !important;
-    min-width: 90px; /* Um pouco maior para facilitar o clique */
+    min-width: 90px; 
     font-family: 'Montserrat', sans-serif;
     transition: all 0.2s ease;
 }
