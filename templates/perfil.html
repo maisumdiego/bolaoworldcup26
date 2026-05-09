@@ -70,10 +70,10 @@
     .dash-input::placeholder { color: #6b7280 !important; }
 </style>
 
-<div class="container mt-4 mb-5">
+<div class="container mt-4 mb-5 px-3 px-md-4">
     <div class="row mb-4 align-items-center">
         <div class="col-auto">
-            <div class="profile-img-container dash-size shadow">
+            <div class="profile-img-container dash-size shadow-lg" style="border-width: 4px;">
                 {% if current_user.profile_pic and current_user.profile_pic.startswith('http') %}
                     <img src="{{ current_user.profile_pic }}" class="profile-img-inner" alt="Avatar Perfil">
                 {% else %}
@@ -81,10 +81,11 @@
                 {% endif %}
             </div>
         </div>
-        <div class="col">
-            <h1 class="display-5 fw-bold mb-0" style="font-family: 'Bungee'; color: var(--pulp-gold); text-shadow: 2px 2px 0px var(--church-red);">
+        <div class="col text-center text-md-start">
+            <h1 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 2.5rem;">
                 {{ current_user.name }}
             </h1>
+            <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">Meu Dashboard</p>
         </div>
     </div>
 

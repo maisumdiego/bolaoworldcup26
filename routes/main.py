@@ -95,7 +95,7 @@ def palpites():
     return render_template('palpites.html', 
                            jogos=jogos, 
                            datas_ordenadas=datas_ordenadas,
-                           dias_semana=dias_semana, # Passando o dicionário para o HTML
+                           dias_semana=dias_semana, 
                            grupos_ordenados=grupos_ordenados,
                            fases_ordenadas=fases_ordenadas,
                            dia_ativo=dia_ativo,
@@ -184,7 +184,12 @@ def torneio():
     for g in grupos_dict: grupos_dict[g].sort(key=lambda x: (x.points, x.goal_difference, x.goals_for), reverse=True)
     grupos_ordenados = dict(sorted(grupos_dict.items()))
 
-    jogos_mata_mata = Game.query.filter(Game.phase != 'Grupos').order_by(Game.id).all()
+    jogos_mata_mata_obj = Game.query.filter(Game.phase != 'Grupos').order_by(Game.id).all()
+    
+    ids_classificados = set()
+    for j in jogos_mata_mata_obj:
+        if j.team_a_id: ids_classificados.add(j.team_a_id)
+        if j.team_b_id: ids_classificados.add(j.team_b_id)
     
     jogos_json = [{
         'id': j.id, 'phase': j.phase,
@@ -194,9 +199,12 @@ def torneio():
         'team_b_flag': j.team_b.team_flag_url if j.team_b else None,
         'score_a': j.team_a_result if j.status == 'encerrado' else None,
         'score_b': j.team_b_result if j.status == 'encerrado' else None
-    } for j in jogos_mata_mata]
+    } for j in jogos_mata_mata_obj]
         
-    return render_template('torneio.html', grupos=grupos_ordenados, jogos_mata_mata=jogos_json)
+    return render_template('torneio.html', 
+                           grupos=grupos_ordenados, 
+                           jogos_mata_mata=jogos_json,
+                           ids_classificados=list(ids_classificados))
 
 # =====================================================================
 
@@ -209,8 +217,6 @@ def get_palpites_jogo(jogo_id):
     palpites_all = Prediction.query.filter_by(game_id=jogo_id).order_by(Prediction.created_at.desc()).all()
     
     ultimos_palpites = {}
-    r_a, r_b = jogo.team_a_result, jogo.team_b_result
-
     for p in palpites_all:
         if p.user_id not in ultimos_palpites:
             user = User.query.get(p.user_id)

@@ -4,89 +4,131 @@
 
 {% block content %}
 <style>
-    /* Estilos baseados no Pulp Noir */
-    .admin-card { background-color: #064e3b !important; border: 2px solid #022c22 !important; border-radius: 8px; box-shadow: 6px 6px 0px rgba(0,0,0,0.5); }
-    .admin-card-header { background-color: #022c22 !important; border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--pulp-gold) !important; font-family: 'Bungee', cursive; font-size: 1.1rem; }
+    /* Estilos específicos para o Painel de Usuários */
+    .admin-container {
+        background-color: var(--pulp-green-base);
+        border: 3px solid #022c22;
+        border-radius: 12px;
+        box-shadow: 8px 8px 0px rgba(0,0,0,0.6);
+        overflow: hidden;
+    }
     
-    .table-pulp { color: #fff; }
-    .table-pulp thead { background-color: rgba(0,0,0,0.3); color: rgba(255,255,255,0.7); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-    .table-pulp td, .table-pulp th { border-bottom: 1px solid rgba(255,255,255,0.1) !important; vertical-align: middle; }
-    .table-pulp tbody tr:hover { background-color: rgba(255,255,255,0.05); }
+    .admin-table thead th {
+        background-color: #022c22 !important;
+        color: var(--pulp-gold) !important;
+        font-family: 'Bungee', cursive;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        padding: 15px !important;
+        border-bottom: 2px solid #ffffff !important;
+    }
 
-    /* Status Badges */
-    .badge-pulp-aprovado { background-color: #059669; color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-    .badge-pulp-pendente { background-color: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+    .admin-table tbody tr td {
+        background-color: #064e3b !important;
+        color: #fff !important;
+        padding: 15px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    }
 
-    .admin-input { background-color: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.2) !important; color: #fff !important; }
-    .admin-input:focus { border-color: var(--pulp-gold) !important; box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.2) !important; }
+    .admin-table tbody tr:nth-child(even) td {
+        background-color: #043d2e !important;
+    }
+
+    .badge-status {
+        font-size: 0.65rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
 </style>
 
-<div class="container mt-4 mb-5">
+<div class="container mt-4 mb-5 px-3 px-md-4">
     
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
-        <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 2px 2px 0px var(--church-red);">
-            Controle de Acesso
-        </h2>
+    <!-- HEADER PADRONIZADO -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-4">
+        <div class="text-center text-md-start">
+            <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 2.5rem;">
+                Controle de Acesso
+            </h2>
+            <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">Aprovação e Gestão de Participantes</p>
+        </div>
         
         <div class="btn-group shadow-sm" role="group">
-            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-outline-warning fw-bold">
+            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-outline-warning fw-bold px-4">
                 <i class="fas fa-trophy me-1"></i> Resultados
             </a>
-            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-warning fw-bold text-dark">
+            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-warning fw-bold text-dark px-4">
                 <i class="fas fa-users me-1"></i> Usuários
             </a>
         </div>
     </div>
 
-    <div class="card admin-card shadow-sm">
-        <div class="card-header admin-card-header p-3">
-            <i class="fas fa-user-shield me-2"></i> Participantes Cadastrados
+    <!-- TABELA DE USUÁRIOS -->
+    <div class="admin-container shadow-lg">
+        <div class="p-3 text-center" style="background-color: #022c22; border-bottom: 2px solid rgba(255,255,255,0.1);">
+            <h5 class="mb-0 fw-bold text-uppercase" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); font-size: 1.1rem;">
+                <i class="fas fa-user-shield me-2"></i> Participantes Cadastrados
+            </h5>
         </div>
         <div class="table-responsive">
-            <table class="table table-pulp align-middle mb-0">
+            <table class="table admin-table align-middle mb-0">
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%">ID</th>
-                        <th style="width: 20%">Nome</th>
+                        <th style="width: 25%">Participante</th>
                         <th style="width: 25%">E-mail</th>
-                        <th class="text-center" style="width: 15%">Cadastro</th>
-                        <th class="text-center" style="width: 10%">Status</th>
-                        <th class="text-center" style="width: 25%">Ações</th>
+                        <th class="text-center" style="width: 15%">Status</th>
+                        <th class="text-center" style="width: 30%">Ações Administrativas</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for usuario in usuarios %}
-                    <tr>
-                        <td class="text-center fw-bold" style="color: rgba(255,255,255,0.5);">#{{ usuario.id }}</td>
-                        <td class="fw-bold" style="{% if not usuario.is_approved %}opacity: 0.5;{% endif %}">{{ usuario.name }}</td>
-                        <td class="text-muted small">{{ usuario.email }}</td>
-                        <td class="text-center small">{{ usuario.created_at.strftime('%d/%m/%Y') if usuario.created_at else '--/--/----' }}</td>
+                    <tr class="{% if not usuario.is_approved %}opacity-75{% endif %}">
+                        <td class="text-center fw-bold opacity-50">#{{ usuario.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="profile-img-container me-3 shadow-sm" style="width: 40px; height: 40px; border: 2px solid {% if usuario.is_approved %}var(--pulp-gold){% else %}#334155{% endif %};">
+                                    {% if usuario.profile_pic and usuario.profile_pic.startswith('http') %}
+                                        <img src="{{ usuario.profile_pic }}" class="profile-img-inner" alt="Avatar">
+                                    {% else %}
+                                        <i class="fas fa-user default-avatar-icon" style="font-size: 1.1rem;"></i>
+                                    {% endif %}
+                                </div>
+                                <span class="fw-bold text-uppercase small">{{ usuario.name }}</span>
+                            </div>
+                        </td>
+                        <td class="small opacity-75">{{ usuario.email }}</td>
                         <td class="text-center">
                             {% if usuario.is_approved %}
-                                <span class="badge badge-pulp-aprovado px-2 py-1" style="font-size: 0.7rem;"><i class="fas fa-check-circle me-1"></i> Ativo</span>
+                                <span class="badge bg-success bg-opacity-25 text-success badge-status">
+                                    <i class="fas fa-check-circle me-1"></i> Ativo
+                                </span>
                             {% else %}
-                                <span class="badge badge-pulp-pendente px-2 py-1" style="font-size: 0.7rem;"><i class="fas fa-lock me-1"></i> Inativo</span>
+                                <span class="badge bg-warning bg-opacity-25 text-warning badge-status">
+                                    <i class="fas fa-clock me-1"></i> Pendente
+                                </span>
                             {% endif %}
                         </td>
                         <td class="text-center">
-                            <div class="d-flex gap-1 justify-content-center flex-wrap">
-                                
+                            <div class="d-flex gap-2 justify-content-center">
                                 {% if not usuario.is_approved %}
-                                    <button type="button" class="btn btn-sm btn-success fw-bold text-white text-uppercase btn-acao" data-id="{{ usuario.id }}" data-acao="aprovar" style="font-size: 0.65rem;">
-                                        Ativar
+                                    <button type="button" class="btn btn-sm btn-success fw-bold text-uppercase btn-acao" data-id="{{ usuario.id }}" data-acao="aprovar">
+                                        Aprovar
                                     </button>
                                 {% else %}
-                                    <button type="button" class="btn btn-sm btn-outline-danger fw-bold text-uppercase" style="font-size: 0.65rem;" onclick="confirmarDesativacao('{{ usuario.id }}', '{{ usuario.name }}')">
-                                        Desativar
+                                    <button type="button" class="btn btn-sm btn-outline-danger fw-bold text-uppercase" onclick="confirmarDesativacao('{{ usuario.id }}', '{{ usuario.name }}')">
+                                        Suspender
                                     </button>
                                 {% endif %}
                                 
-                                <button type="button" class="btn btn-sm btn-outline-warning fw-bold text-uppercase" style="font-size: 0.65rem;" onclick="abrirModalEditar('{{ usuario.id }}', '{{ usuario.name }}', '{{ usuario.email }}', '{{ usuario.phone }}')">
+                                <button type="button" class="btn btn-sm btn-outline-warning fw-bold text-uppercase" onclick="abrirModalEditar('{{ usuario.id }}', '{{ usuario.name }}', '{{ usuario.email }}', '{{ usuario.phone }}')">
                                     Editar
                                 </button>
 
-                                <button type="button" class="btn btn-sm btn-outline-info fw-bold text-uppercase" style="font-size: 0.65rem;" onclick="confirmarResetSenha('{{ usuario.id }}', '{{ usuario.name }}')">
-                                    Senha
+                                <button type="button" class="btn btn-sm btn-outline-info fw-bold text-uppercase" onclick="confirmarResetSenha('{{ usuario.id }}', '{{ usuario.name }}')">
+                                    <i class="fas fa-key"></i>
                                 </button>
                             </div>
                         </td>
@@ -99,28 +141,29 @@
 
 </div>
 
+<!-- MODAIS -->
 <div class="modal fade" id="modalEditarUsuario" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content pulp-modal" style="background-color: #064e3b; border: 2px solid var(--pulp-gold);">
-            <div class="modal-header pulp-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <h5 class="modal-title fw-bold text-warning" style="font-family: 'Bungee', cursive;">Editar Participante</h5>
+        <div class="modal-content pulp-modal">
+            <div class="modal-header pulp-header">
+                <h5 class="modal-title">Editar Participante</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="formEditarUsuario">
                 <div class="modal-body p-4">
                     <input type="hidden" name="user_id" id="editUserId">
                     <input type="hidden" name="acao" value="editar">
-                    <div class="mb-3">
-                        <label class="form-label text-white-50 small fw-bold text-uppercase">Nome Completo</label>
-                        <input type="text" class="form-control admin-input" name="name" id="editUserName" required>
+                    <div class="mb-4">
+                        <label class="form-label">Nome Completo</label>
+                        <input type="text" class="form-control pulp-input" name="name" id="editUserName" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">E-mail de Acesso</label>
+                        <input type="email" class="form-control pulp-input" name="email" id="editUserEmail" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-white-50 small fw-bold text-uppercase">E-mail</label>
-                        <input type="email" class="form-control admin-input" name="email" id="editUserEmail" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-white-50 small fw-bold text-uppercase">Telefone</label>
-                        <input type="text" class="form-control admin-input" name="phone" id="editUserPhone">
+                        <label class="form-label">Telefone / WhatsApp</label>
+                        <input type="text" class="form-control pulp-input" name="phone" id="editUserPhone">
                     </div>
                 </div>
                 <div class="modal-footer border-0">
@@ -134,19 +177,18 @@
 
 <div class="modal fade" id="modalDesativar" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content pulp-modal" style="background-color: #064e3b; border: 2px solid var(--church-red);">
-            <div class="modal-header pulp-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <h5 class="modal-title fw-bold text-white" style="font-family: 'Bungee', cursive;">Suspender Acesso</h5>
+        <div class="modal-content pulp-modal" style="border-color: var(--church-red) !important;">
+            <div class="modal-header pulp-header">
+                <h5 class="modal-title">Suspender Acesso</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-center p-4">
-                <i class="fas fa-user-lock text-danger mb-3" style="font-size: 3rem;"></i>
-                <p class="text-white">Deseja desativar o usuário <br><strong id="nomeUsuarioDesativar" class="text-warning"></strong>?</p>
-                <small class="text-white-50">Ele perderá o acesso ao sistema, mas os palpites continuarão salvos no banco de dados.</small>
+            <div class="modal-body text-center p-5">
+                <i class="fas fa-user-slash text-danger mb-4" style="font-size: 4rem;"></i>
+                <p class="text-white fs-5">Deseja desativar o acesso de <br><strong id="nomeUsuarioDesativar" class="text-warning"></strong>?</p>
             </div>
             <div class="modal-footer border-0 justify-content-center">
-                <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger btn-sm fw-bold text-uppercase" id="btnConfirmarDesativacao">Desativar</button>
+                <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase" data-bs-dismiss="modal">Manter Ativo</button>
+                <button type="button" class="btn btn-danger btn-sm fw-bold text-uppercase" id="btnConfirmarDesativacao">Confirmar Suspensão</button>
             </div>
         </div>
     </div>
@@ -154,21 +196,21 @@
 
 <div class="modal fade" id="modalResetSenha" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content pulp-modal" style="background-color: #064e3b; border: 2px solid #0dcaf0;">
-            <div class="modal-header pulp-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <h5 class="modal-title fw-bold text-white" style="font-family: 'Bungee', cursive;">Reset de Senha</h5>
+        <div class="modal-content pulp-modal" style="border-color: #0dcaf0 !important;">
+            <div class="modal-header pulp-header">
+                <h5 class="modal-title">Reset de Senha</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-center p-4">
-                <i class="fas fa-key text-info mb-3" style="font-size: 3rem;"></i>
-                <p class="text-white">Deseja redefinir a senha de <br><strong id="nomeUsuarioReset" class="text-info"></strong>?</p>
-                <div class="alert text-dark fw-bold mt-3" style="background-color: #0dcaf0; border-radius: 4px;">
-                    A nova senha será: bolao2026
+            <div class="modal-body text-center p-5">
+                <i class="fas fa-key text-info mb-4" style="font-size: 4rem;"></i>
+                <p class="text-white fs-5">Redefinir senha de <br><strong id="nomeUsuarioReset" class="text-info"></strong>?</p>
+                <div class="alert mt-4 bg-info bg-opacity-25 text-white border-info fw-bold">
+                    NOVA SENHA PADRÃO: bolao2026
                 </div>
             </div>
             <div class="modal-footer border-0 justify-content-center">
                 <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-info btn-sm fw-bold text-dark text-uppercase" id="btnConfirmarReset">Resetar</button>
+                <button type="button" class="btn btn-info btn-sm fw-bold text-dark text-uppercase px-4" id="btnConfirmarReset">Resetar Agora</button>
             </div>
         </div>
     </div>
@@ -187,12 +229,9 @@ function processarAcao(formData, btn) {
     .then(data => {
         if(data.status === 'success') {
             btn.innerHTML = '<i class="fas fa-check"></i>';
-            btn.classList.add('bg-success', 'text-white', 'border-success');
-            
-            // Se foi reset de senha, avisa o admin qual é a senha via Alert antes de recarregar
-            if(formData.get('acao') === 'resetar_senha') {
-                alert(data.message);
-            }
+            btn.style.backgroundColor = '#198754';
+            btn.style.color = '#fff';
+            if(formData.get('acao') === 'resetar_senha') alert(data.message);
             setTimeout(() => location.reload(), 800); 
         } else {
             alert("Erro: " + data.message);
@@ -201,14 +240,12 @@ function processarAcao(formData, btn) {
         }
     })
     .catch(error => {
-        console.error("Erro Fetch:", error);
-        alert('Erro na conexão com o servidor.');
+        console.error(error);
         btn.innerHTML = originalText;
         btn.disabled = false;
     });
 }
 
-// 1. ATIVAR USUÁRIO
 document.querySelectorAll('.btn-acao').forEach(btn => {
     btn.addEventListener('click', function() {
         const formData = new FormData();
@@ -218,7 +255,6 @@ document.querySelectorAll('.btn-acao').forEach(btn => {
     });
 });
 
-// 2. MODAL DE EDIÇÃO
 function abrirModalEditar(id, nome, email, telefone) {
     document.getElementById('editUserId').value = id;
     document.getElementById('editUserName').value = nome;
@@ -232,9 +268,7 @@ document.getElementById('formEditarUsuario').addEventListener('submit', function
     processarAcao(new FormData(this), document.getElementById('btnSalvarEdicao'));
 });
 
-// 3. MODAL DE DESATIVAÇÃO
 let idAcaoAtual = null;
-
 function confirmarDesativacao(id, nome) {
     idAcaoAtual = id;
     document.getElementById('nomeUsuarioDesativar').textContent = nome;
@@ -248,7 +282,6 @@ document.getElementById('btnConfirmarDesativacao').addEventListener('click', fun
     processarAcao(formData, this);
 });
 
-// 4. MODAL DE RESET DE SENHA
 function confirmarResetSenha(id, nome) {
     idAcaoAtual = id;
     document.getElementById('nomeUsuarioReset').textContent = nome;

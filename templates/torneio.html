@@ -21,10 +21,6 @@
     .pulp-popover .popover-header { font-family: 'Bungee', cursive; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .pulp-popover .popover-body { font-size: 0.8rem; font-weight: 600; line-height: 1.6; }
 
-    .dias-nav-container { background-color: rgba(0, 0, 0, 0.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.1); }
-    .dia-btn { border-radius: 50px !important; transition: all 0.3s ease; font-family: 'Montserrat', sans-serif !important; font-weight: bold; font-size: 0.85rem; color: #fff !important; }
-    .dia-btn.active { background-color: var(--pulp-gold) !important; color: #000 !important; }
-
     .ranking-card { background-color: #064e3b !important; border: 3px solid #022c22 !important; border-radius: 12px; box-shadow: 8px 8px 0px rgba(0,0,0,0.6); }
     .jQBracket .team { background-color: #022c22 !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; }
     .jQBracket .team.win { color: var(--pulp-gold) !important; font-weight: bold !important; }
@@ -37,21 +33,25 @@
     .ranking-card.overflow-auto::-webkit-scrollbar-thumb { background: var(--pulp-gold); border-radius: 10px; border: 2px solid #022c22; }
 </style>
 
-<div class="container mt-4 mb-5">
-    <div class="text-center mb-5">
-        <h2 class="text-uppercase" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 3rem;">
+<div class="container mt-4 mb-5 px-3 px-md-4">
+    <div class="text-center mb-4">
+        <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 2.5rem;">
             O Torneio
         </h2>
+        <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">
+            Acompanhe o mata-mata e grupos
+        </p>
     </div>
 
-    <ul class="nav pulp-nav-container" id="pills-tab" role="tablist">
+    <!-- Navegação Restaurada (Original do Torneio) -->
+    <ul class="nav nav-pills dias-nav-container mb-4 d-flex justify-content-center" id="pills-tab" role="tablist" style="gap: 10px;">
         <li class="nav-item">
-            <button class="nav-link pulp-nav-btn active" id="pills-grupos-tab" data-bs-toggle="pill" data-bs-target="#pills-grupos" type="button" role="tab">
+            <button class="nav-link dia-btn active px-4 py-2" id="pills-grupos-tab" data-bs-toggle="pill" data-bs-target="#pills-grupos" type="button" role="tab">
                 <i class="fas fa-layer-group me-2"></i> Fase de Grupos
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link pulp-nav-btn" id="pills-matamata-tab" data-bs-toggle="pill" data-bs-target="#pills-matamata" type="button" role="tab">
+            <button class="nav-link dia-btn px-4 py-2" id="pills-matamata-tab" data-bs-toggle="pill" data-bs-target="#pills-matamata" type="button" role="tab">
                 <i class="fas fa-sitemap me-2"></i> Mata-Mata
             </button>
         </li>
@@ -75,7 +75,7 @@
                                 </thead>
                                 <tbody>
                                     {% for linha in times %}
-                                    <tr class="{% if loop.index <= 2 %}linha-classificado{% endif %}">
+                                    <tr class="{% if linha.team_id in ids_classificados %}linha-classificado{% endif %}">
                                         <td class="fw-bold" style="opacity: 0.5;">{{ loop.index }}º</td>
                                         <td class="text-start">
                                             <div class="d-flex align-items-center" style="cursor: help;" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right" data-bs-html="true" data-bs-custom-class="pulp-popover" title="⭐ {{ linha.team.team_name }}" data-bs-content="<div class='text-center mb-3'><img src='{{ linha.team.team_flag_url }}' class='bandeira-popover'></div><strong>Ranking FIFA:</strong> {{ linha.team.fifa_ranking }}º<br><strong>Continente:</strong> {{ linha.team.continent }}<br><strong>Títulos:</strong> {% if linha.team.world_cups_won > 0 %}{% for i in range(linha.team.world_cups_won) %}<i class='fas fa-star' style='color: #F59E0B;'></i>{% endfor %}{% else %}<span class='text-white-50'>Nenhum</span>{% endif %}">
@@ -115,8 +115,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const todosJogos = {{ jogos_mata_mata | tojson }};
 
-    // 1. FUNÇÃO DE BLINDAGEM: Força o array a ter o tamanho matemático exato exigido pela biblioteca.
-    // Se faltar um jogo no banco, ele cria um bloco "A definir" vazio para não quebrar a árvore.
     function padRound(gamesArray, requiredLength) {
         let result = [...gamesArray];
         while(result.length < requiredLength) {
@@ -125,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return result.slice(0, requiredLength);
     }
 
-    // 2. FILTRO POR FASE (Com a blindagem de tamanho)
     const r32   = padRound(todosJogos.filter(j => j.phase === 'Segunda Rodada'), 16);
     const r16   = padRound(todosJogos.filter(j => j.phase === 'Oitavas de Final'), 8);
     const r8    = padRound(todosJogos.filter(j => j.phase === 'Quartas de Final'), 4);
@@ -133,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const final = padRound(todosJogos.filter(j => j.phase === 'Final'), 1)[0];
     const tLugar = padRound(todosJogos.filter(j => j.phase === 'Terceiro Lugar'), 1)[0];
 
-    // 3. ESTRUTURA BASE (32 Times gerados a partir da 1ª Rodada do Mata-Mata)
     const teams = r32.map(j => [
         { name: j.team_a_name, flag: j.team_a_flag },
         { name: j.team_b_name, flag: j.team_b_flag }
@@ -148,11 +144,10 @@ document.addEventListener('DOMContentLoaded', function() {
             montarScores(r16),
             montarScores(r8),
             montarScores(r4),
-            [ [final.score_a, final.score_b], [tLugar.score_a, tLugar.score_b] ] // Final e Terceiro Lugar
+            [ [final.score_a, final.score_b], [tLugar.score_a, tLugar.score_b] ]
         ]
     };
 
-    // 4. RENDERIZAÇÃO DAS BANDEIRAS
     function renderBandeiras(container, data, score, state) {
         if (!data || !data.name || data.name.includes("definir") || data.name === "None") {
             container.append('<span style="opacity: 0.4; font-size: 0.65rem; font-weight: bold;">A DEFINIR</span>');
@@ -160,25 +155,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         let html = `<div class="d-flex align-items-center p-1" style="overflow: hidden;">`;
         if (data.flag && data.flag.trim() !== "" && data.flag !== "None") {
-            // As SVGs são mantidas com corte e proporção via style inline
             html += `<img src="${data.flag}" class="me-2" style="flex-shrink: 0; width: 26px; height: 18px; object-fit: cover; border-radius: 2px;">`;
         }
         html += `<span style="white-space: nowrap; font-weight: bold; font-size: 0.85rem;">${data.name}</span></div>`;
         container.append(html);
     }
 
-    // 5. INJEÇÃO COM DELAY (Resolve o Bug do Bootstrap de largura zero)
     let drawn = false;
     const tabEl = document.querySelector('button[data-bs-target="#pills-matamata"]');
     
     function drawBracket() {
         if (!drawn) {
-            // O delay de 150ms garante que a aba terminou a animação de aparecer
-            // e o container tem espaço real para expandir o gráfico horizontalmente
             setTimeout(() => {
                 $('#bracket-mata-mata').empty().bracket({
                     init: bracketData,
-                    skipConsolationRound: false, // Habilita o jogo de 3º Lugar
+                    skipConsolationRound: false,
                     decorator: { edit: function(){}, render: renderBandeiras },
                     teamWidth: 160,
                     scoreWidth: 35,
@@ -192,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (tabEl) {
         tabEl.addEventListener('shown.bs.tab', drawBracket);
-        // Se a aba já carregar ativa, desenha imediatamente
         if (tabEl.classList.contains('active')) drawBracket();
     }
 });

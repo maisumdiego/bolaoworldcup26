@@ -4,6 +4,8 @@ __pycache__/
 *.pyo
 *.pyd
 .env
+GEMINI.md
+.gemini
 
 # Ambientes virtuais (muito importante ignorar também!)
 venv/

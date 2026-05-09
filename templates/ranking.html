@@ -43,7 +43,7 @@
             {% endfor %}
         </div>
 
-        <div class="ranking-card mx-auto" style="max-width: 950px;">
+        <div class="ranking-card mx-auto mb-4" style="max-width: 950px;">
             <div class="table-responsive">
                 <table class="table table-pulp align-middle text-center">
                     <thead>
@@ -90,7 +90,186 @@
             </div>
         </div>
 
+        <div class="d-flex justify-content-center gap-3 mb-5">
+            {% if current_user.is_authenticated and current_user.email == admin_email %}
+            <button id="btn-export-whatsapp" class="btn btn-outline-success px-4 py-2 fw-bold" style="border-width: 2px; border-radius: 10px;">
+                <i class="fab fa-whatsapp me-2"></i> EXPORTAR
+            </button>
+            {% endif %}
+            <button id="btn-share-ranking" class="btn btn-salvar-pulp px-4 py-2">
+                <i class="fas fa-share-alt me-2"></i> COMPARTILHAR
+            </button>
+        </div>
+
     {% endif %}
 
 </div>
+
+<!-- AREA DE CAPTURA (OCULTA) -->
+<div id="capture-zone-wrapper" style="position: absolute; left: -9999px; top: 0; width: 1080px; height: 1920px; overflow: hidden; pointer-events: none;">
+    <div id="capture-zone" style="width: 1080px; height: 1920px; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; position: relative; font-family: 'Montserrat', sans-serif;">
+        
+        <img src="{{ url_for('static', filename='img/bolao_logo.png') }}" 
+             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 850px; z-index: 1; opacity: 0.05; filter: brightness(0) saturate(100%) invert(71%) sepia(82%) saturate(1637%) hue-rotate(351deg) brightness(101%) contrast(94%);">
+
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.15) 0%, transparent 80%); z-index: 2;"></div>
+
+        <div style="position: relative; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 40px;">
+            
+            <div style="margin-top: 80px; text-align: center; width: 100%;">
+                <img src="{{ url_for('static', filename='img/bolao_logo.png') }}" 
+                     style="width: 320px; height: auto; filter: brightness(0) saturate(100%) invert(71%) sepia(82%) saturate(1637%) hue-rotate(351deg) brightness(101%) contrast(94%) drop-shadow(10px 10px 0px #8b0000); margin-bottom: 25px;">
+                <h1 style="font-family: 'Bungee', cursive; color: #F59E0B; font-size: 100px; text-shadow: 7px 7px 0px #8b0000; margin: 0; line-height: 0.9; letter-spacing: -2px;">RANKING GERAL</h1>
+                <p style="font-size: 36px; font-weight: 900; letter-spacing: 12px; text-transform: uppercase; margin-top: 20px; color: #fff; opacity: 0.8;">Bolão da Cabeça 2026</p>
+            </div>
+
+            <div id="capture-podium" style="display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 40px; height: 420px; width: 100%;"></div>
+
+            <div style="width: 1000px; background-color: #0f172a; border: 6px solid #F59E0B; border-radius: 40px; padding: 0; margin-top: 30px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                <table style="width: 100%; border-collapse: collapse; background-color: #0f172a;">
+                    <tbody id="capture-table-body"></tbody>
+                </table>
+            </div>
+
+            <div style="height: 60px; width: 100%;"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rankingData = JSON.parse('{{ ranking|tojson|safe }}');
+    const currentUserName = '{{ current_user.name|safe }}';
+    const btnShare = document.getElementById('btn-share-ranking');
+    const btnExportWhatsapp = document.getElementById('btn-export-whatsapp');
+    const captureZone = document.getElementById('capture-zone');
+
+    if (!btnShare) return;
+
+    btnShare.addEventListener('click', function() {
+        btnShare.disabled = true;
+        btnShare.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> PROCESSANDO...';
+
+        try {
+            // 1. Injeção de Dados (Fiel ao original perfeito)
+            const podiumArea = document.getElementById('capture-podium');
+            let podiumHtml = '';
+            [1, 0, 2].forEach(i => {
+                const user = rankingData[i];
+                if (!user) return;
+                const isFirst = (i === 0);
+                const size = isFirst ? 240 : 180;
+                const medalSize = isFirst ? '100px' : '80px';
+                const imgSrc = user.profile_pic && user.profile_pic.startsWith('http') ? user.profile_pic : '/static/img/profiles/default.png';
+                
+                podiumHtml += `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 320px; position: relative; ${isFirst ? 'transform: translateY(-20px);' : ''}">
+                        <div style="position: absolute; top: -70px; font-size: ${medalSize}; z-index: 12;">${i === 0 ? '🥇' : (i === 1 ? '🥈' : '🥉')}</div>
+                        <div style="width: ${size}px; height: ${size}px; border-radius: 50%; border: ${isFirst ? '10px' : '6px'} solid #F59E0B; overflow: hidden; margin-bottom: 20px; background: #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                            <img src="${imgSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="color: #fff; font-size: ${isFirst ? '32px' : '26px'}; font-weight: 900; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1;">${user.nome.toUpperCase()}</div>
+                        <div style="color: #F59E0B; font-size: ${isFirst ? '55px' : '42px'}; font-family: 'Bungee', cursive;">${user.pontos} PTS</div>
+                    </div>`;
+            });
+            podiumArea.innerHTML = podiumHtml;
+
+            const tableBody = document.getElementById('capture-table-body');
+            const userIndex = rankingData.findIndex(u => u.nome === currentUserName);
+            let tableRows = [];
+            for (let i = 3; i < 10; i++) {
+                if (i === 9 && userIndex >= 9) tableRows.push(Object.assign({}, rankingData[userIndex], { actualRank: userIndex + 1 }));
+                else if (rankingData[i]) tableRows.push(Object.assign({}, rankingData[i], { actualRank: i + 1 }));
+                else tableRows.push({ nome: '---', pontos: '-', profile_pic: null, actualRank: i + 1, placeholder: true });
+            }
+
+            tableBody.innerHTML = '';
+            tableRows.forEach((user, index) => {
+                const isUser = user.nome === currentUserName && !user.placeholder;
+                const originalSrc = user.profile_pic && user.profile_pic.startsWith('http') ? user.profile_pic : '/static/img/profiles/default.png';
+                const tr = document.createElement('tr');
+                tr.style.backgroundColor = isUser ? 'rgba(245, 158, 11, 0.25)' : (index % 2 === 0 ? '#161e33' : '#0f172a');
+                const ptsText = (user.placeholder || user.pontos === '-') ? user.pontos : `${user.pontos} PTS`;
+                tr.innerHTML = `
+                    <td style="padding: 15px 40px; font-size: 38px; font-family: 'Bungee', cursive; color: ${isUser ? '#F59E0B' : 'rgba(255,255,255,0.3)'}; width: 140px; text-align: left;">${user.actualRank}º</td>
+                    <td style="padding: 15px 20px; display: flex; align-items: center;">
+                        <div style="width: 75px; height: 75px; border-radius: 50%; border: 3px solid ${isUser ? '#F59E0B' : 'rgba(255,255,255,0.1)'}; overflow: hidden; margin-right: 30px; background: #0f172a;">
+                            <img src="${originalSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; opacity: ${user.placeholder ? '0.2' : '1'}">
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 28px; font-weight: 900; color: ${user.placeholder ? 'rgba(255,255,255,0.1)' : '#fff'}; line-height: 1;">${user.nome.toUpperCase()}</span>
+                            ${isUser ? '<span style="color: #F59E0B; font-size: 14px; font-weight: 900; letter-spacing: 4px; margin-top: 5px;">VOCÊ</span>' : ''}
+                        </div>
+                    </td>
+                    <td style="padding: 15px 50px; font-size: 40px; font-weight: 900; color: ${user.placeholder ? 'rgba(255,255,255,0.1)' : '#F59E0B'}; text-align: right; font-family: 'Bungee', cursive;">${ptsText}</td>`;
+                tableBody.appendChild(tr);
+            });
+
+            // 2. Gerar com motor Original
+            domtoimage.toPng(captureZone, {
+                width: 1080, height: 1920,
+                style: { transform: 'scale(1)', transformOrigin: 'top left' }
+            })
+            .then(function(dataUrl) {
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const filename = `bolao2026-ranking.png`;
+
+                if (isMobile && navigator.share) {
+                    // Mobile: Tenta Compartilhar
+                    fetch(dataUrl).then(res => res.blob()).then(blob => {
+                        const file = new File([blob], filename, { type: 'image/png' });
+                        navigator.share({
+                            files: [file],
+                            title: 'Ranking Bolão 2026',
+                            text: 'Olha meu ranking no Bolão da Cabeça!'
+                        }).catch(() => downloadImage(dataUrl, filename));
+                    });
+                } else {
+                    // Desktop: Salva Direto
+                    downloadImage(dataUrl, filename);
+                }
+                resetButton();
+            })
+            .catch(function(err) {
+                console.error(err);
+                resetButton();
+            });
+
+        } catch (err) {
+            console.error(err);
+            resetButton();
+        }
+
+        function downloadImage(url, name) {
+            const link = document.createElement('a');
+            link.download = name; link.href = url;
+            link.click();
+            document.body.appendChild(link); // Garantia para alguns navegadores
+            document.body.removeChild(link);
+        }
+
+        function resetButton() {
+            btnShare.disabled = false;
+            btnShare.innerHTML = '<i class="fas fa-share-alt me-2"></i> COMPARTILHAR';
+        }
+    });
+
+    if (btnExportWhatsapp) {
+        btnExportWhatsapp.addEventListener('click', function() {
+            const now = new Date();
+            let message = "🏆 *RANKING ATUALIZADO - BOLÃO DA CABEÇA 2026* 🏆\n\n";
+            rankingData.forEach((user, index) => {
+                let prefix = (index === 0) ? "🥇 " : (index === 1 ? "🥈 " : (index === 2 ? "🥉 " : "• "));
+                message += `${prefix}*${user.nome.toUpperCase()}* - ${user.pontos} PTS\n`;
+            });
+            message += "\n⚽ Faça seus palpites em: \nhttps://bolaocabeca.up.railway.app/";
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+        });
+    }
+});
+</script>
 {% endblock %}

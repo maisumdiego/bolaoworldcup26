@@ -21,30 +21,30 @@
     .bandeira-admin { width: 32px; height: 22px; object-fit: cover; border-radius: 2px; border: 1px solid rgba(255,255,255,0.2); }
 </style>
 
-<div class="container mt-4 mb-5">
+<div class="container mt-4 mb-5 px-3 px-md-5">
     
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
-        <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 2px 2px 0px var(--church-red);">
-            Painel de Controle
-        </h2>
+    <!-- HEADER RE-ESTRUTURADO -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+        <div class="text-center text-md-start">
+            <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 2.5rem;">
+                Painel Admin
+            </h2>
+            <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">Resultados Oficiais</p>
+        </div>
         
-        <div class="d-flex flex-column flex-sm-row gap-3 align-items-center">
-            <div class="btn-group shadow-sm" role="group">
-                <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-warning fw-bold text-dark">
-                    <i class="fas fa-trophy me-1"></i> Resultados
-                </a>
-                <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-warning fw-bold">
-                    <i class="fas fa-users me-1"></i> Usuários
-                </a>
-            </div>
+        <div class="btn-group shadow-sm mt-3 mt-md-0" role="group">
+            <a href="{{ url_for('admin.admin_resultados') }}" class="btn btn-warning fw-bold text-dark px-4">Resultados</a>
+            <a href="{{ url_for('admin.gerenciar_usuarios') }}" class="btn btn-outline-warning fw-bold px-4">Usuários</a>
+        </div>
+    </div>
 
-            <div class="form-check form-switch d-flex align-items-center">
-                <input class="form-check-input me-2" type="checkbox" id="toggleEncerrados" style="cursor: pointer; width: 40px; height: 20px;">
-                <label class="form-check-label text-warning fw-bold small text-uppercase" for="toggleEncerrados" style="cursor: pointer; padding-top: 2px;">
-                    Ocultar Encerrados
-                </label>
-            </div>
-            
+    <!-- FILTRO EM LINHA SEPARADA PARA NÃO SOBREPOR -->
+    <div class="d-flex justify-content-center justify-content-md-end mb-4">
+        <div class="form-check form-switch d-flex align-items-center bg-dark bg-opacity-25 px-3 py-2 rounded-pill border border-white border-opacity-10 shadow-sm">
+            <input class="form-check-input me-2" type="checkbox" id="toggleEncerrados" style="cursor: pointer;">
+            <label class="form-check-label text-warning fw-bold small text-uppercase mb-0" for="toggleEncerrados" style="cursor: pointer; letter-spacing: 1px; font-size: 0.7rem;">
+                Ocultar Encerrados
+            </label>
         </div>
     </div>
     
