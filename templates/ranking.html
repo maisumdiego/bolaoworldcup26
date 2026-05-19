@@ -14,75 +14,90 @@
 
     {% if ranking %}
         
-        <div class="podium-container mb-5">
+        <div class="podium-container mb-5 mt-4">
             {% for jogador in ranking[:3] %}
                 <div class="podium-card podium-{{ loop.index }} d-flex flex-column align-items-center text-center">
                     
-                    <div class="profile-img-container podium-size-{{ loop.index }} mb-1">
-                        {% set is_cloudinary = jogador.profile_pic and jogador.profile_pic.startswith('http') %}
-                        
-                        {% if is_cloudinary %}
-                            <img src="{{ jogador.profile_pic }}" class="profile-img-inner" alt="Avatar">
-                        {% else %}
-                            <i class="fas fa-user default-avatar-icon" 
-                               {% if loop.index == 2 %} style="color: #C0C0C0;" 
-                               {% elif loop.index == 3 %} style="color: #CD7F32;" 
-                               {% endif %}>
-                            </i>
-                        {% endif %}
+                    <div class="podium-avatar-wrapper mb-3">
+                        <div class="profile-img-container podium-size-{{ loop.index }}">
+                            {% set is_cloudinary = jogador.profile_pic and jogador.profile_pic.startswith('http') %}
+                            
+                            {% if is_cloudinary %}
+                                <img src="{{ jogador.profile_pic }}" class="profile-img-inner" alt="Avatar">
+                            {% else %}
+                                <i class="fas fa-user default-avatar-icon" 
+                                   {% if loop.index == 2 %} style="color: #C0C0C0;" 
+                                   {% elif loop.index == 3 %} style="color: #CD7F32;" 
+                                   {% endif %}>
+                                </i>
+                            {% endif %}
+                        </div>
+                        <div class="podium-badge">
+                            {{ loop.index }}
+                        </div>
                     </div>
 
-                    <span class="podium-medal mb-1">
-                        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
-                    </span>
-                    <div class="podium-name text-truncate px-2 w-100" style="color: #fff !important;">{{ jogador.nome }}</div>
-                    <div class="podium-points" style="color: var(--pulp-gold) !important;">{{ jogador.pontos }}</div>
-                    <small class="text-uppercase fw-bold" style="font-size: 0.7rem; color: #fff !important;">Pontos</small>
+                    <div class="podium-info">
+                        <div class="podium-rank-text">{{ loop.index }}º LUGAR</div>
+                        <div class="podium-name-new">{{ jogador.nome }}</div>
+                        <div class="podium-points-new">
+                            <span class="pts-val">{{ jogador.pontos }}</span>
+                            <span class="pts-label">PTS</span>
+                        </div>
+                    </div>
                     
                 </div>
             {% endfor %}
         </div>
 
-        <div class="ranking-card mx-auto mb-4" style="max-width: 950px;">
+        <div class="ranking-card mx-auto mb-4" style="max-width: 950px; border: 2px solid rgba(245, 158, 11, 0.3) !important; background: rgba(6, 78, 59, 0.95) !important;">
             <div class="table-responsive">
-                <table class="table table-pulp align-middle text-center">
+                <table class="table table-pulp align-middle text-center mb-0">
                     <thead>
                         <tr>
-                            <th>Pos</th>
+                            <th style="width: 80px;">Pos</th>
                             <th class="text-start">Participante</th>
-                            <th>Total</th> <th>Exato (5)</th>
-                            <th>Parcial (3)</th>
-                            <th>Tendência (2)</th>
+                            <th>Total</th> 
+                            <th class="d-none d-md-table-cell">Exato (5)</th>
+                            <th class="d-none d-md-table-cell">Parcial (3)</th>
+                            <th class="d-none d-md-table-cell">Tendência (2)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for jogador in ranking %}
                         <tr class="{% if current_user.name == jogador.nome %}user-row-highlight{% endif %}">
-                            <td><span class="pos-numero">{{ loop.index }}º</span></td>
+                            <td>
+                                <div class="pos-badge {% if loop.index <= 3 %}pos-top-3{% endif %}">
+                                    {{ loop.index }}º
+                                </div>
+                            </td>
                             <td class="text-start">
                                 <div class="d-flex align-items-center">
-                                    <div class="profile-img-container shadow-sm me-3" style="width: 38px; height: 38px; border: 2px solid var(--pulp-gold);">
+                                    <div class="profile-img-container shadow-sm me-3" style="width: 42px; height: 42px; border: 2px solid var(--pulp-gold); background: #0f172a;">
                                         {% if jogador.profile_pic and jogador.profile_pic.startswith('http') %}
                                             <img src="{{ jogador.profile_pic }}" class="profile-img-inner" alt="Avatar">
                                         {% else %}
-                                            <i class="fas fa-user default-avatar-icon" style="font-size: 1.1rem;"></i>
+                                            <i class="fas fa-user default-avatar-icon" style="font-size: 1.2rem;"></i>
                                         {% endif %}
                                     </div>
                                     
-                                    <div>
-                                        <span class="user-name-text">{{ jogador.nome }}</span>
+                                    <div class="d-flex flex-column">
+                                        <span class="user-name-text fw-bold" style="letter-spacing: 0.5px;">{{ jogador.nome }}</span>
                                         {% if current_user.name == jogador.nome %}
-                                            <span class="badge bg-danger ms-2" style="font-size: 0.6rem; border: 1px solid #fff;">VOCÊ</span>
+                                            <span class="badge-voce">VOCÊ</span>
                                         {% endif %}
                                     </div>
                                 </div>
                             </td>
-                            <td class="pontos-total" style="font-size: 1.2rem;">
-                                {{ jogador.pontos }} pts
+                            <td class="pontos-total-new">
+                                <div class="d-flex flex-column align-items-center justify-content-center">
+                                    <span>{{ jogador.pontos }}</span>
+                                    <small class="pts-label-mobile">pts</small>
+                                </div>
                             </td>
-                            <td>{{ jogador.exatos }}</td>
-                            <td>{{ jogador.parciais }}</td>
-                            <td>{{ jogador.tendencia }}</td>
+                            <td class="d-none d-md-table-cell stats-cell">{{ jogador.exatos }}</td>
+                            <td class="d-none d-md-table-cell stats-cell">{{ jogador.parciais }}</td>
+                            <td class="d-none d-md-table-cell stats-cell">{{ jogador.tendencia }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -90,15 +105,15 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-center gap-3 mb-5">
+        <div class="d-flex justify-content-center flex-wrap gap-3 mb-5">
+            <button id="btn-share-ranking" class="pulp-btn pulp-btn-gold pulp-btn-sm px-5">
+                <i class="fas fa-share-alt me-2"></i> COMPARTILHAR
+            </button>
             {% if current_user.is_authenticated and current_user.email == admin_email %}
-            <button id="btn-export-whatsapp" class="btn btn-outline-success px-4 py-2 fw-bold" style="border-width: 2px; border-radius: 10px;">
+            <button id="btn-export-whatsapp" class="pulp-btn pulp-btn-green pulp-btn-sm px-5">
                 <i class="fab fa-whatsapp me-2"></i> EXPORTAR
             </button>
             {% endif %}
-            <button id="btn-share-ranking" class="btn btn-salvar-pulp px-4 py-2">
-                <i class="fas fa-share-alt me-2"></i> COMPARTILHAR
-            </button>
         </div>
 
     {% endif %}
@@ -164,13 +179,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!user) return;
                     const isFirst = (i === 0);
                     const size = isFirst ? 240 : 180;
-                    const medalSize = isFirst ? '100px' : '80px';
+                    const medalColor = (i === 0) ? '#F59E0B' : (i === 1 ? '#cbd5e1' : '#d97706');
                     const imgSrc = user.profile_pic && user.profile_pic.startsWith('http') ? user.profile_pic : '/static/img/profiles/default.png';
                     
                     podiumHtml += `
                         <div style="display: flex; flex-direction: column; align-items: center; width: 320px; position: relative; ${isFirst ? 'transform: translateY(-20px);' : ''}">
-                            <div style="position: absolute; top: -70px; font-size: ${medalSize}; z-index: 12;">${i === 0 ? '🥇' : (i === 1 ? '🥈' : '🥉')}</div>
-                            <div style="width: ${size}px; height: ${size}px; border-radius: 50%; border: ${isFirst ? '10px' : '6px'} solid #F59E0B; overflow: hidden; margin-bottom: 20px; background: #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                            <div style="position: absolute; bottom: 80px; right: 40px; background: #0f172a; width: 70px; height: 70px; border-radius: 50%; border: 5px solid ${medalColor}; display: flex; align-items: center; justify-content: center; font-size: 35px; color: ${medalColor}; font-weight: 900; z-index: 15; box-shadow: 0 10px 20px rgba(0,0,0,0.5);">${i + 1}</div>
+                            <div style="width: ${size}px; height: ${size}px; border-radius: 50%; border: ${isFirst ? '10px' : '6px'} solid ${medalColor}; overflow: hidden; margin-bottom: 20px; background: #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
                                 <img src="${imgSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <div style="color: #fff; font-family: 'Montserrat', sans-serif; font-size: ${isFirst ? '32px' : '26px'}; font-weight: 900; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1;">${user.nome.toUpperCase()}</div>
@@ -261,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btnExportWhatsapp.addEventListener('click', function() {
             let message = "🏆 *RANKING ATUALIZADO - BOLÃO DA CABEÇA 2026* 🏆\n\n";
             rankingData.forEach((user, index) => {
-                let prefix = (index === 0) ? "🥇 " : (index === 1 ? "🥈 " : (index === 2 ? "🥉 " : "• "));
+                let prefix = `${index + 1}º `;
                 message += `${prefix}*${user.nome.toUpperCase()}* - ${user.pontos} PTS\n`;
             });
             message += "\n⚽ Faça seus palpites em: \nhttps://bolaocabeca.up.railway.app/";

@@ -36,11 +36,18 @@
     text-decoration: none !important;
     cursor: pointer;
     position: relative;
-    padding: 15px 35px; /* 30% maior */
-    font-size: 1.2rem;  /* 30% maior */
-    border-radius: 25px; /* Bordas significativamente mais arredondadas */
+    padding: 15px 35px;
+    font-size: 1.2rem;
+    border-radius: 50px; /* Estilo Pílula */
     background-color: transparent !important;
     color: var(--text-muted) !important;
+}
+
+/* Variação Compacta para o Ranking */
+.pulp-btn-sm {
+    padding: 10px 25px !important;
+    font-size: 0.9rem !important;
+    border-radius: 30px !important;
 }
 
 /* Estado Base - Similar ao Seletor de Datas (Desativado) */
@@ -55,7 +62,6 @@
     color: var(--bg-void) !important;
     background-color: var(--pulp-gold) !important;
     border-color: var(--pulp-gold) !important;
-    /* Sombra Sólida idêntica ao seletor de datas */
     box-shadow: 2px 2px 0px var(--church-red) !important;
 }
 
@@ -63,7 +69,7 @@
     color: #000 !important;
     background-color: #ffca2c !important; 
     border-color: #ffca2c !important;
-    box-shadow: 4px 4px 0px var(--church-red) !important; /* Aumenta levemente no hover */
+    box-shadow: 4px 4px 0px var(--church-red) !important;
     transform: translateY(-2px);
 }
 
@@ -77,9 +83,24 @@
 
 .pulp-btn-red:hover {
     color: #fff !important;
-    background-color: #be123c !important; /* Vermelho mais escuro no hover */
+    background-color: #be123c !important;
     border-color: #be123c !important;
     box-shadow: 4px 4px 0px #000 !important;
+    transform: translateY(-2px);
+}
+
+/* Modificador: Green (WhatsApp) */
+.pulp-btn-green {
+    color: #fff !important;
+    background-color: #059669 !important;
+    border-color: #059669 !important;
+    box-shadow: 2px 2px 0px #064e3b !important;
+}
+
+.pulp-btn-green:hover {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    box-shadow: 4px 4px 0px #064e3b !important;
     transform: translateY(-2px);
 }
 
@@ -562,106 +583,242 @@ html, body {
 
 
 /* ==========================================================================
-   RANKING: O PÓDIO DE HONRA (TOP 3)
+   RANKING: O NOVO PÓDIO DE HONRA (PULP NOIR REFINADO)
    ========================================================================== */
 .podium-container {
     display: flex;
     justify-content: center;
     align-items: flex-end; 
-    gap: 20px !important;
-    margin-bottom: 50px;
-    padding: 40px 15px 0 15px;
-    flex-wrap: wrap; /* Para não quebrar no mobile */
+    gap: 15px !important;
+    margin-bottom: 60px;
+    padding: 20px 10px;
+    flex-wrap: wrap;
 }
 
 .podium-card {
-    background-color: var(--surface-dark);
-    border: 2px solid #27272a;
-    border-radius: 8px;
-    text-align: center;
-    padding: 20px 10px !important;
-    
-    /* Aumentamos a largura para o nome respirar */
-    width: 100% !important;
-    max-width: 220px !important; 
-    
-    /* Trocamos height fixo por min-height para o nome poder quebrar linha */
-    min-height: 220px !important; 
-    height: auto !important;
-    
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Alinha o conteúdo pelo topo */
-    align-items: center;
-    transition: transform 0.3s ease;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 30px 15px !important;
+    width: 100%;
+    max-width: 240px !important;
+    min-height: 280px !important;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.podium-card:hover { transform: translateY(-5px); }
+.podium-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    border-color: rgba(245, 158, 11, 0.3);
+}
 
-/* Medalhas Individuais */
+/* Medalhas Individuais - Controle de Ordem e Cores Temáticas */
 .podium-1 { 
+    order: 2; /* 1º Lugar no centro */
     border-color: var(--pulp-gold) !important;
-    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
-    order: 2; /* O 1º fica no centro */
-    margin-bottom: 25px; /* A MÁGICA 2: Empurra apenas o 1º lugar para o alto */
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.1) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+    box-shadow: 0 0 40px rgba(245, 158, 11, 0.15), 0 20px 40px rgba(0,0,0,0.4) !important;
+    margin-bottom: 30px;
+    z-index: 10;
 }
 .podium-2 { 
     order: 1; 
     border-color: #cbd5e1 !important; /* Prata */
+    background: linear-gradient(180deg, rgba(203, 213, 225, 0.05) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+    box-shadow: 0 0 20px rgba(203, 213, 225, 0.05), 0 15px 30px rgba(0,0,0,0.3) !important;
 }
 .podium-3 { 
     order: 3; 
     border-color: #d97706 !important; /* Bronze */
+    background: linear-gradient(180deg, rgba(217, 119, 6, 0.05) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+    box-shadow: 0 0 20px rgba(217, 119, 6, 0.05), 0 15px 30px rgba(0,0,0,0.3) !important;
 }
 
-.podium-medal { font-size: 2.5rem; margin-bottom: 10px; display: block; }
-.podium-name {
-    font-family: 'Bungee', cursive;
-    font-size: 0.85rem !important; /* Reduzimos um pouco o tamanho */
-    color: #fff;
-    margin: 12px 0 5px 0 !important;
-    width: 100%;
-    
-    /* TRATAMENTO DO NOME */
-    white-space: normal !important; /* Permite que o nome pule para a linha de baixo */
-    word-wrap: break-word !important;
-    line-height: 1.2 !important;
-    text-transform: uppercase;
+.podium-avatar-wrapper {
+    position: relative;
+    display: inline-block;
 }
-.podium-points { font-family: 'Bungee', cursive; color: var(--pulp-gold); font-size: 1.5rem; line-height: 1; margin-bottom: 2px; }
+
+.podium-badge {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    background: #0f172a;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 900;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    z-index: 2;
+    border: 3px solid transparent;
+}
+
+.podium-1 .podium-badge { border-color: var(--pulp-gold); color: var(--pulp-gold); }
+.podium-2 .podium-badge { border-color: #cbd5e1; color: #cbd5e1; }
+.podium-3 .podium-badge { border-color: #d97706; color: #d97706; }
+
+.podium-size-1 { width: 130px !important; height: 130px !important; border-width: 4px !important; }
+.podium-size-2, .podium-size-3 { width: 110px !important; height: 110px !important; border-width: 3px !important; }
+
+/* Correção do Ícone Default no Pódio */
+.podium-card .default-avatar-icon {
+    font-size: 3.5rem !important; /* Aumentado drasticamente */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.podium-size-1 .default-avatar-icon { font-size: 4.5rem !important; }
+
+.podium-rank-text {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.podium-1 .podium-rank-text { color: var(--pulp-gold); opacity: 1; }
+
+.podium-name-new {
+    font-family: 'Bungee', cursive;
+    color: #fff;
+    font-size: 1.1rem;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    word-break: break-word;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+}
+
+.podium-points-new {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.podium-points-new .pts-val {
+    font-family: 'Bungee', cursive;
+    color: var(--pulp-gold);
+    font-size: 2.2rem;
+    line-height: 1;
+}
+
+.podium-points-new .pts-label {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #fff;
+    opacity: 0.5;
+    letter-spacing: 2px;
+}
 
 @media (max-width: 576px) {
-    .podium-container {
-        flex-direction: column !important; /* Força os cards a empilharem verticalmente */
-        align-items: center !important;
-        gap: 15px !important;
-        padding: 40px 10px 0 10px;
-    }
-    
-    /* Reordenando para a ordem correta na vertical */
-    .podium-1 { order: 1 !important; margin-bottom: 0 !important; } /* 1º Lugar vai pro topo */
-    .podium-2 { order: 2 !important; } /* 2º Lugar fica no meio */
-    .podium-3 { order: 3 !important; } /* 3º Lugar fica no fim */
+    .podium-container { flex-direction: column !important; align-items: center !important; gap: 10px !important; }
+    .podium-card { max-width: 100% !important; min-height: auto !important; flex-direction: row !important; text-align: left !important; padding: 20px !important; border-radius: 15px !important; }
+    .podium-1 { order: 1 !important; margin-bottom: 5px !important; }
+    .podium-2 { order: 2 !important; }
+    .podium-3 { order: 3 !important; }
+    .podium-avatar-wrapper { margin-bottom: 0 !important; margin-right: 20px; }
+    .podium-info { text-align: left !important; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .podium-points-new { align-items: flex-start; }
+    .podium-points-new .pts-val { font-size: 1.8rem; }
+    .podium-name-new { font-size: 1rem; margin-bottom: 2px; }
+    .podium-size-1, .podium-size-2, .podium-size-3 { width: 80px !important; height: 80px !important; }
+    .podium-card .default-avatar-icon { font-size: 2.5rem !important; }
+}
 
-    .podium-card {
-        width: 100% !important;
-        max-width: 280px !important; /* Deixa o card um pouco mais largo no mobile */
-        padding: 15px 5px;
+/* Tabela de Ranking Refinada */
+.pos-badge {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    font-family: 'Bungee', cursive;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.pos-top-3 {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--pulp-gold);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-voce {
+    font-size: 0.6rem;
+    font-weight: 900;
+    background: var(--church-red);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    width: fit-content;
+    margin-top: 2px;
+    box-shadow: 2px 2px 0px #000;
+}
+
+.pontos-total-new {
+    font-family: 'Bungee', cursive;
+    color: var(--pulp-gold) !important;
+    font-size: 1.3rem;
+}
+
+.pontos-total-new small {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-left: 2px;
+}
+
+.stats-cell {
+    font-family: 'Bungee', cursive;
+    font-weight: 800;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.pts-label-mobile {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-top: -4px;
+    letter-spacing: 1px;
+}
+
+@media (min-width: 576px) {
+    .pts-label-mobile {
+        margin-top: 0;
+        display: inline-block;
+        margin-left: 4px;
     }
-    
-    .podium-medal {
-        font-size: 2rem;
-    }
-    
-    .podium-points {
-        font-size: 1.2rem;
+    .pontos-total-new div {
+        flex-direction: row !important;
     }
 }
 
-.podium-size-1 { width: 100px !important; height: 100px !important; border: 3px solid var(--pulp-gold) !important; }
-.podium-size-2, .podium-size-3 { width: 100px !important; height: 100px !important; }
-.podium-size-2 { border: 2px solid #C0C0C0 !important; }
-.podium-size-3 { border: 2px solid #CD7F32 !important; }
+.pulp-btn-sm.px-5 {
+    min-width: 170px;
+}
+
+@media (max-width: 576px) {
+    .podium-card { max-width: 100% !important; min-height: auto !important; flex-direction: row !important; text-align: left !important; padding: 20px !important; }
+    .podium-avatar-wrapper { margin-bottom: 0 !important; margin-right: 20px; }
+    .podium-info { text-align: left !important; flex: 1; }
+    .podium-points-new { align-items: flex-start; }
+    .podium-1 { margin-bottom: 10px; }
+}
+
 
 /* ==========================================================================
    RANKING: VERDE PROFUNDO (SEM FUNDO BRANCO)
