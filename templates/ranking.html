@@ -122,31 +122,44 @@
 
 <!-- AREA DE CAPTURA (OCULTA) -->
 <div id="capture-zone-wrapper" style="position: absolute; left: -9999px; top: 0; width: 1080px; height: 1920px; overflow: hidden; pointer-events: none;">
-    <div id="capture-zone" style="width: 1080px; height: 1920px; background-color: #0f172a; display: flex; flex-direction: column; align-items: center; position: relative; font-family: 'Montserrat', sans-serif;">
+    <div id="capture-zone" style="width: 1080px; height: 1920px; background-color: #0f172a; display: block; position: relative; font-family: 'Montserrat', sans-serif; color: white;">
         
-        <img src="{{ url_for('static', filename='img/bolao_logo.png') }}" 
-             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 850px; z-index: 1; opacity: 0.05; filter: brightness(0) saturate(100%) invert(71%) sepia(82%) saturate(1637%) hue-rotate(351deg) brightness(101%) contrast(94%);">
+        <!-- Fundo Idêntico à Página Ranking -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #0f172a; z-index: 1;"></div>
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.15) 0%, transparent 70%); z-index: 2;"></div>
 
-        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.15) 0%, transparent 80%); z-index: 2;"></div>
-
-        <div style="position: relative; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 40px;">
+        <div style="position: relative; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 100px 40px 40px 40px;">
             
-            <div style="margin-top: 80px; text-align: center; width: 100%;">
-                <img src="{{ url_for('static', filename='img/bolao_logo.png') }}" 
-                     style="width: 320px; height: auto; filter: brightness(0) saturate(100%) invert(71%) sepia(82%) saturate(1637%) hue-rotate(351deg) brightness(101%) contrast(94%) drop-shadow(10px 10px 0px #8b0000); margin-bottom: 25px;">
-                <h1 style="font-family: 'Bungee', cursive; color: #F59E0B; font-size: 85px; text-shadow: 7px 7px 0px #8b0000; margin: 0; line-height: 0.9; letter-spacing: -2px;">RANKING GERAL</h1>
-                <p style="font-size: 32px; font-weight: 900; letter-spacing: 12px; text-transform: uppercase; margin-top: 15px; color: #fff; opacity: 0.8;">Bolão da Cabeça 2026</p>
+            <!-- CAIXA 1: Logo, Título e Subtítulo -->
+            <div style="text-align: center; margin-bottom: 40px; width: 100%;">
+                <img src="/static/img/bolao_logo.png" style="
+                    width: 260px; 
+                    height: auto; 
+                    margin-bottom: 25px;
+                    filter: brightness(0) saturate(100%) invert(71%) sepia(82%) saturate(1637%) hue-rotate(351deg) brightness(101%) contrast(94%) drop-shadow(6px 6px 0px #E11D48);
+                ">
+                <h1 style="font-family: 'Bungee', cursive; color: #F59E0B; font-size: 100px; line-height: 0.85; margin: 0; text-shadow: 8px 8px 0px #E11D48;">RANKING GERAL</h1>
+                <p style="font-size: 32px; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; margin-top: 15px; color: #fff; opacity: 0.9;">Bolão da Cabeça 2026</p>
             </div>
 
-            <div id="capture-podium" style="display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 30px; height: 400px; width: 100%;"></div>
+            <!-- CAIXA 2: Pódio (Aumentado para ocupar mais espaço vertical) -->
+            <div id="capture-podium" style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; width: 100%; height: 460px; margin-bottom: 70px;">
+                <!-- Injetado via JS -->
+            </div>
 
-            <div style="width: 1000px; background-color: #0f172a; border: 6px solid #F59E0B; border-radius: 40px; padding: 0; margin-top: 80px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-                <table style="width: 100%; border-collapse: collapse; background-color: #0f172a;">
-                    <tbody id="capture-table-body"></tbody>
+            <!-- CAIXA 3: Tabela (Deslocada para baixo) -->
+            <div style="width: 1000px; background: #064e3b; border: 6px solid rgba(245, 158, 11, 0.4); border-radius: 40px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.6); margin-bottom: 40px;">
+                <table style="width: 100%; border-collapse: collapse; background: #064e3b; border: none; margin: 0;">
+                    <tbody id="capture-table-body" style="border: none;">
+                        <!-- Injetado via JS -->
+                    </tbody>
                 </table>
             </div>
 
-            <div style="height: 60px; width: 100%;"></div>
+            <!-- RODAPÉ (Subido para ficar mais próximo da tabela) -->
+            <div style="width: 100%; text-align: center;">
+                <p id="capture-timestamp" style="font-family: 'Montserrat', sans-serif; font-weight: 700; color: #fff; opacity: 0.5; font-size: 24px; letter-spacing: 2px; padding-top: 30px; margin: 0; border-top: 2px solid rgba(255,255,255,0.1);"></p>
+            </div>
         </div>
     </div>
 </div>
@@ -160,7 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const rankingData = JSON.parse('{{ ranking|tojson|safe }}');
     const currentUserName = '{{ current_user.name|safe }}';
     const btnShare = document.getElementById('btn-share-ranking');
-    const btnExportWhatsapp = document.getElementById('btn-export-whatsapp');
     const captureZone = document.getElementById('capture-zone');
 
     if (!btnShare) return;
@@ -171,77 +183,118 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.fonts.ready.then(function() {
             try {
-                // 1. Injeção de Dados no Podium
+                // 0. Atualizar Timestamp
+                const agora = new Date();
+                const dataStr = agora.toLocaleDateString('pt-BR');
+                const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('capture-timestamp').innerText = `Gerado em: ${dataStr} às ${horaStr}`;
+
+                // 1. Injeção de Dados no Pódio (Ordem: 2º - 1º - 3º)
                 const podiumArea = document.getElementById('capture-podium');
                 let podiumHtml = '';
-                [1, 0, 2].forEach(i => {
-                    const user = rankingData[i];
-                    if (!user) return;
-                    const isFirst = (i === 0);
-                    const size = isFirst ? 240 : 180;
-                    const medalColor = (i === 0) ? '#F59E0B' : (i === 1 ? '#cbd5e1' : '#d97706');
-                    const imgSrc = user.profile_pic && user.profile_pic.startsWith('http') ? user.profile_pic : '/static/img/profiles/default.png';
+                [1, 0, 2].forEach(idx => {
+                    const user = rankingData[idx] || { nome: '---', pontos: 0, profile_pic: null };
+                    const isFirst = (idx === 0);
+                    const medalColor = (idx === 0) ? '#F59E0B' : (idx === 1 ? '#cbd5e1' : '#d97706');
+                    const isCloudinary = user.profile_pic && user.profile_pic.startsWith('http');
+                    
+                    let avatarHtml = '';
+                    if (isCloudinary) {
+                        avatarHtml = `<img src="${user.profile_pic}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    } else {
+                        avatarHtml = `
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1e293b; color: ${medalColor}; font-size: ${isFirst ? '110px' : '90px'};">
+                                <i class="fas fa-user"></i>
+                            </div>`;
+                    }
                     
                     podiumHtml += `
-                        <div style="display: flex; flex-direction: column; align-items: center; width: 320px; position: relative; ${isFirst ? 'transform: translateY(-20px);' : ''}">
-                            <div style="position: absolute; bottom: 80px; right: 40px; background: #0f172a; width: 70px; height: 70px; border-radius: 50%; border: 5px solid ${medalColor}; display: flex; align-items: center; justify-content: center; font-size: 35px; color: ${medalColor}; font-weight: 900; z-index: 15; box-shadow: 0 10px 20px rgba(0,0,0,0.5);">${i + 1}</div>
-                            <div style="width: ${size}px; height: ${size}px; border-radius: 50%; border: ${isFirst ? '10px' : '6px'} solid ${medalColor}; overflow: hidden; margin-bottom: 20px; background: #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
-                                <img src="${imgSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="display: flex; flex-direction: column; align-items: center; width: 320px; position: relative; ${isFirst ? 'z-index: 5;' : 'z-index: 2;'}">
+                            <div style="position: relative; margin-bottom: 25px;">
+                                <div style="width: ${isFirst ? '280px' : '230px'}; height: ${isFirst ? '280px' : '230px'}; border-radius: 50%; border: ${isFirst ? '12px' : '8px'} solid ${medalColor}; overflow: hidden; background: #0f172a; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+                                    ${avatarHtml}
+                                </div>
+                                <div style="position: absolute; bottom: -5px; right: -5px; background: #0f172a; width: 85px; height: 85px; border-radius: 50%; border: 5px solid ${medalColor}; display: flex; align-items: center; justify-content: center; font-family: 'Bungee', cursive; font-size: 42px; color: ${medalColor}; box-shadow: 0 8px 15px rgba(0,0,0,0.6);">${idx + 1}</div>
                             </div>
-                            <div style="color: #fff; font-family: 'Montserrat', sans-serif; font-size: ${isFirst ? '32px' : '26px'}; font-weight: 900; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1;">${user.nome.toUpperCase()}</div>
-                            <div style="color: #F59E0B; font-size: ${isFirst ? '55px' : '42px'}; font-family: 'Bungee', cursive;">${user.pontos} PTS</div>
-                        </div>`;
+                            <div style="text-align: center; width: 100%;">
+                                <div style="font-weight: 900; font-size: ${isFirst ? '40px' : '32px'}; color: white; text-transform: uppercase; margin-bottom: 5px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${user.nome}</div>
+                                <div style="font-family: 'Bungee', cursive; font-size: 55px; color: #F59E0B;">${user.pontos} PTS</div>
+                            </div>
+                        </div>
+                    `;
                 });
                 podiumArea.innerHTML = podiumHtml;
 
-                // 2. Injeção de Dados na Tabela
+                // 2. Injeção de Dados na Tabela (4º ao 10º - SEMPRE 7 POSIÇÕES)
                 const tableBody = document.getElementById('capture-table-body');
+                tableBody.innerHTML = '';
+                
                 const userIndex = rankingData.findIndex(u => u.nome === currentUserName);
-                let tableRows = [];
+                let tableUsers = [];
+                
                 for (let i = 3; i < 10; i++) {
-                    if (i === 9 && userIndex >= 9) tableRows.push(Object.assign({}, rankingData[userIndex], { actualRank: userIndex + 1 }));
-                    else if (rankingData[i]) tableRows.push(Object.assign({}, rankingData[i], { actualRank: i + 1 }));
-                    else tableRows.push({ nome: '---', pontos: '-', profile_pic: null, actualRank: i + 1, placeholder: true });
+                    if (rankingData[i]) {
+                        tableUsers.push(Object.assign({}, rankingData[i], { actualRank: i + 1 }));
+                    } else {
+                        tableUsers.push({ nome: '---', pontos: '-', profile_pic: null, actualRank: i + 1, placeholder: true });
+                    }
+                }
+                
+                if (userIndex >= 10) {
+                    tableUsers[tableUsers.length - 1] = Object.assign({}, rankingData[userIndex], { actualRank: userIndex + 1 });
                 }
 
-                tableBody.innerHTML = '';
-                tableRows.forEach((user, index) => {
+                tableUsers.forEach((user, i) => {
                     const isUser = user.nome === currentUserName && !user.placeholder;
-                    const originalSrc = user.profile_pic && user.profile_pic.startsWith('http') ? user.profile_pic : '/static/img/profiles/default.png';
-                    const tr = document.createElement('tr');
-                    tr.style.backgroundColor = isUser ? 'rgba(245, 158, 11, 0.25)' : (index % 2 === 0 ? '#161e33' : '#0f172a');
-                    const ptsText = (user.placeholder || user.pontos === '-') ? user.pontos : `${user.pontos} PTS`;
-                    tr.innerHTML = `
-                        <td style="padding: 15px 40px; font-size: 38px; font-family: 'Bungee', cursive; color: ${isUser ? '#F59E0B' : 'rgba(255,255,255,0.3)'}; width: 140px; text-align: left;">${user.actualRank}º</td>
-                        <td style="padding: 15px 20px; display: flex; align-items: center;">
-                            <div style="width: 75px; height: 75px; border-radius: 50%; border: 3px solid ${isUser ? '#F59E0B' : 'rgba(255,255,255,0.1)'}; overflow: hidden; margin-right: 30px; background: #0f172a;">
-                                <img src="${originalSrc}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; opacity: ${user.placeholder ? '0.2' : '1'}">
-                            </div>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 900; color: ${user.placeholder ? 'rgba(255,255,255,0.1)' : '#fff'}; line-height: 1;">${user.nome.toUpperCase()}</span>
-                                ${isUser ? '<span style="color: #F59E0B; font-size: 14px; font-weight: 900; letter-spacing: 4px; margin-top: 5px;">VOCÊ</span>' : ''}
-                            </div>
-                        </td>
-                        <td style="padding: 15px 50px; font-size: 40px; font-weight: 900; color: ${user.placeholder ? 'rgba(255,255,255,0.1)' : '#F59E0B'}; text-align: right; font-family: 'Bungee', cursive;">${ptsText}</td>`;
-                    tableBody.appendChild(tr);
+                    const rowBg = isUser ? '#E11D48' : (i % 2 === 0 ? '#064e3b' : '#043d2e');
+                    const isCloudinary = user.profile_pic && user.profile_pic.startsWith('http');
+                    
+                    let rowAvatar = '';
+                    if (isCloudinary) {
+                        rowAvatar = `<img src="${user.profile_pic}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    } else {
+                        rowAvatar = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #0f172a; color: ${isUser ? '#F59E0B' : 'rgba(255,255,255,0.2)'}; font-size: 32px;"><i class="fas fa-user"></i></div>`;
+                    }
+
+                    const ptsValue = (user.placeholder || user.pontos === '-') ? user.pontos : `${user.pontos} PTS`;
+
+                    tableBody.innerHTML += `
+                        <tr style="background: ${rowBg}; border: none;">
+                            <td style="padding: 10px 35px; width: 100px; border: none;">
+                                <div style="background: ${isUser ? '#F59E0B' : 'rgba(255,255,255,0.08)'}; color: ${isUser ? '#0f172a' : '#fff'}; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-family: 'Bungee', cursive; font-size: 32px;">${user.actualRank}º</div>
+                            </td>
+                            <td style="padding: 8px 0; border: none;">
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 75px; height: 75px; border-radius: 50%; border: 3px solid ${isUser ? '#F59E0B' : 'rgba(255,255,255,0.2)'}; margin-right: 25px; overflow: hidden; background: #0f172a;">
+                                        ${rowAvatar}
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div style="font-weight: 900; font-size: 32px; color: #fff; text-transform: uppercase; line-height: 1;">${user.nome}</div>
+                                        ${isUser ? '<div style="color: #F59E0B; font-size: 14px; font-weight: 900; letter-spacing: 3px; margin-top: 4px;">ESTE É VOCÊ</div>' : ''}
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 10px 45px; text-align: right; font-family: 'Bungee', cursive; font-size: 42px; color: #fff; border: none;">${ptsValue}</td>
+                        </tr>
+                    `;
                 });
 
                 // 3. Captura e Geração da Imagem
                 domtoimage.toPng(captureZone, {
                     width: 1080, height: 1920,
-                    style: { transform: 'scale(1)', transformOrigin: 'top left' }
+                    style: { transform: 'scale(1)', transformOrigin: 'top left', visibility: 'visible' }
                 })
                 .then(function(dataUrl) {
+                    const filename = `ranking-bolao2026.png`;
                     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    const filename = `bolao2026-ranking.png`;
 
                     if (isMobile && navigator.share) {
                         fetch(dataUrl).then(res => res.blob()).then(blob => {
                             const file = new File([blob], filename, { type: 'image/png' });
                             navigator.share({
                                 files: [file],
-                                title: 'Ranking Bolão 2026',
-                                text: 'Olha meu ranking no Bolão da Cabeça!'
+                                title: 'Meu Ranking - Bolão 2026',
+                                text: 'Confira minha posição no Bolão da Cabeça!'
                             }).catch(() => downloadImage(dataUrl, filename));
                         });
                     } else {
@@ -250,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     resetButton();
                 })
                 .catch(function(err) {
-                    console.error("Erro domtoimage:", err);
+                    console.error("Erro ao gerar imagem:", err);
                     resetButton();
                 });
 
@@ -272,14 +325,14 @@ document.addEventListener('DOMContentLoaded', function() {
         btnShare.innerHTML = '<i class="fas fa-share-alt me-2"></i> COMPARTILHAR';
     }
 
+    const btnExportWhatsapp = document.getElementById('btn-export-whatsapp');
     if (btnExportWhatsapp) {
         btnExportWhatsapp.addEventListener('click', function() {
-            let message = "🏆 *RANKING ATUALIZADO - BOLÃO DA CABEÇA 2026* 🏆\n\n";
-            rankingData.forEach((user, index) => {
-                let prefix = `${index + 1}º `;
-                message += `${prefix}*${user.nome.toUpperCase()}* - ${user.pontos} PTS\n`;
+            let message = "🏆 *RANKING BOLÃO 2026* 🏆\n\n";
+            rankingData.slice(0, 10).forEach((user, index) => {
+                message += `${index + 1}º *${user.nome.toUpperCase()}* - ${user.pontos} PTS\n`;
             });
-            message += "\n⚽ Faça seus palpites em: \nhttps://bolaocabeca.up.railway.app/";
+            message += "\n⚽ Participe: https://bolaocabeca.up.railway.app/";
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
         });
     }
