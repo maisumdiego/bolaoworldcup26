@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4 mb-5">
+<div class="container mt-4 mb-5 px-3 px-md-4">
     
-    <div class="text-center mb-5">
-        <h2 class="text-uppercase" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 3rem;">
+    <div class="text-center mb-4">
+        <h2 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 2.5rem;">
             Ranking Geral
         </h2>
-        <p class="text-uppercase fw-bold" style="letter-spacing: 3px; color: #fff;">
+        <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">
             Classificação dos Palpiteiros
         </p>
     </div>
@@ -328,9 +328,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnExportWhatsapp = document.getElementById('btn-export-whatsapp');
     if (btnExportWhatsapp) {
         btnExportWhatsapp.addEventListener('click', function() {
-            let message = "🏆 *RANKING BOLÃO 2026* 🏆\n\n";
+            const agora = new Date();
+            const dataStr = agora.toLocaleDateString('pt-BR');
+            const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            let message = "🏆 *Ranking Bolão da Cabeça 2026* 🏆\n";
+            message += `_Gerado em: ${dataStr} às ${horaStr}_\n\n`;
+            
             rankingData.slice(0, 10).forEach((user, index) => {
-                message += `${index + 1}º *${user.nome.toUpperCase()}* - ${user.pontos} PTS\n`;
+                const nomeLimpo = user.nome.trim();
+                message += `${index + 1}º *${nomeLimpo}* - ${user.pontos} PTS\n`;
             });
             message += "\n⚽ Participe: https://bolaocabeca.up.railway.app/";
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
