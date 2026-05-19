@@ -114,7 +114,7 @@ html, body {
 .terminal-nav {
     background-color: #0b2e1f !important; 
     border-bottom: 3px solid var(--pulp-gold) !important; 
-    padding: 8px 0 !important;
+    padding: 5px 0 !important; /* Mais fino */
     box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1); 
 }
 
@@ -127,8 +127,8 @@ html, body {
 }
 
 .navbar-logo {
-    height: 70px; 
-    width: 70px;
+    height: 50px; /* Reduzido de 70px */
+    width: 50px;  /* Reduzido de 70px */
     margin-right: 12px;
     -webkit-mask-image: url('../img/bolao_logo.svg');
     mask-image: url('../img/bolao_logo.svg');
@@ -146,13 +146,13 @@ html, body {
     display: flex;
     flex-direction: column;
     text-align: left;
-    line-height: 0.8; 
+    line-height: 1.0; /* Aumentado levemente para afastar as linhas */
     color: var(--brand-color); 
     transition: color 0.3s ease;
 }
 
-.brand-line-1 { font-size: 1rem; text-transform: uppercase; }
-.brand-line-2 { font-size: 1.5rem; text-transform: uppercase; }
+.brand-line-1 { font-size: 0.8rem; text-transform: uppercase; } /* Reduzido de 1rem */
+.brand-line-2 { font-size: 1.2rem; text-transform: uppercase; } /* Reduzido de 1.5rem */
 
 .navbar-brand:hover .navbar-logo {
     background-color: var(--pulp-gold);
@@ -162,12 +162,12 @@ html, body {
 
 .custom-nav-links .nav-link {
     font-family: 'Montserrat', sans-serif;
-    font-size: 0.95rem;
+    font-size: 0.9rem; /* Levemente menor */
     font-weight: 800;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.75) !important;
     letter-spacing: 1px;
-    margin: 0 10px;
+    margin: 0 8px;
     transition: all 0.2s ease;
 }
 
@@ -176,25 +176,35 @@ html, body {
     transform: translateY(-2px);
 }
 
-/* Estilização do Dropdown da Navbar */
+/* Estilização Padronizada do Dropdown (Pulp Noir) */
 .dropdown-menu {
+    background-color: #0b2e1f !important; /* Verde escuro oficial */
+    border: 2px solid var(--pulp-gold) !important; /* Borda dourada sólida */
     border-radius: 8px;
     padding: 8px 0;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    margin-top: 10px !important;
 }
 
 .dropdown-item {
+    color: #fff !important;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500; /* Removido o negrito para maior leveza */
+    text-transform: uppercase;
+    font-size: 0.8rem; /* Reduzido de 0.85rem */
+    padding: 8px 16px; /* Reduzido de 10px 20px */
     transition: all 0.2s ease;
-    font-size: 0.9rem;
 }
 
 .dropdown-item:hover {
-    background-color: rgba(245, 158, 11, 0.1) !important; /* Dourado sutil */
-    color: var(--pulp-gold) !important;
+    background-color: var(--pulp-gold) !important; /* Fundo dourado no hover */
+    color: #000 !important; /* Texto preto para contraste */
     transform: translateX(5px);
 }
 
 .dropdown-divider {
-    opacity: 0.1;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 5px 0;
 }
 
 /* Remove a setinha padrão do Bootstrap se preferir um visual mais clean */
