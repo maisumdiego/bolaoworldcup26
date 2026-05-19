@@ -19,6 +19,62 @@
 }
 
 /* ==========================================================================
+   SCROLLBAR PADRÃO (PULP STYLE) - GLOBAL
+   ========================================================================== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #020617; /* Void profundo */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--pulp-gold);
+    border-radius: 10px;
+    border: 3px solid #020617; /* Efeito de separação */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #ffca2c;
+}
+
+/* Compatibilidade Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--pulp-gold) #020617;
+}
+
+/* Modais e Containers de Scroll Específicos */
+.modal-body, .overflow-auto, .dias-nav, .pulp-nav-container, .table-scroll-container {
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--pulp-gold) #020617 !important;
+}
+
+.modal-body::-webkit-scrollbar, .overflow-auto::-webkit-scrollbar, 
+.dias-nav::-webkit-scrollbar, .pulp-nav-container::-webkit-scrollbar,
+.table-scroll-container::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+    display: block !important;
+}
+
+.modal-body::-webkit-scrollbar-track, .overflow-auto::-webkit-scrollbar-track,
+.dias-nav::-webkit-scrollbar-track, .pulp-nav-container::-webkit-scrollbar-track,
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #020617 !important;
+}
+
+.modal-body::-webkit-scrollbar-thumb, .overflow-auto::-webkit-scrollbar-thumb,
+.dias-nav::-webkit-scrollbar-thumb, .pulp-nav-container::-webkit-scrollbar-thumb,
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background-color: var(--pulp-gold) !important;
+    border-radius: 10px !important;
+    border: 2px solid #020617 !important;
+}
+
+/* ==========================================================================
    ARQUITETURA DE COMPONENTES PULP NOIR (BOTÕES LUMINOSOS)
    ========================================================================== */
 
@@ -45,9 +101,13 @@
 
 /* Variação Compacta para o Ranking */
 .pulp-btn-sm {
-    padding: 10px 25px !important;
-    font-size: 0.9rem !important;
+    padding: 8px 20px !important;
+    font-size: 0.8rem !important;
     border-radius: 30px !important;
+}
+
+.pulp-btn-sm.px-5 {
+    min-width: 170px;
 }
 
 /* Estado Base - Similar ao Seletor de Datas (Desativado) */
@@ -113,20 +173,16 @@
 /* ==========================================================================
    FUNDO E CORPO DA PÁGINA
    ========================================================================== */
-body {
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+    position: relative; /* Ajuda a conter os elementos do AOS */
     background-color: var(--bg-void);
     background-image: radial-gradient(circle at 50% 40%, rgba(245, 158, 11, 0.05) 0%, transparent 60%);
     color: var(--text-main);
     font-family: 'Montserrat', sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-}
-
-html, body {
-    max-width: 100vw;
-    overflow-x: hidden !important;
-    position: relative; /* Ajuda a conter os elementos do AOS */
+    line-height: 1.6;
 }
 
 /* ==========================================================================
@@ -308,24 +364,6 @@ html, body {
     overflow: visible !important;
 }
 
-.dias-nav {
-    border-bottom: none;
-    overflow-x: auto; 
-    scrollbar-width: thin; 
-    scrollbar-color: var(--pulp-gold) transparent; 
-    padding-bottom: 5px;
-}
-.dias-nav::-webkit-scrollbar {
-    height: 6px;
-}
-.dias-nav::-webkit-scrollbar-track {
-    background: transparent;
-}
-.dias-nav::-webkit-scrollbar-thumb {
-    background-color: var(--pulp-gold);
-    border-radius: 10px;
-}
-
 .dia-btn {
     display: flex;
     flex-direction: column;
@@ -395,7 +433,7 @@ html, body {
 }
 
 /* ==========================================================================
-   PLACARES (INPUTS VIBRANTES)
+   PLACAREES (INPUTS VIBRANTES)
    ========================================================================== */
 .palpite-input {
     background-color: #020617 !important; /* Fundo azul ultra-escuro para dar profundidade */
