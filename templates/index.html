@@ -15,20 +15,32 @@
 
     /* 1. MÁSCARA DA LOGO */
     .logo-wrapper {
-        display: inline-block;
+        display: block;
+        margin: 0 auto 1.5rem auto;
+        width: fit-content;
         filter: drop-shadow(4px 4px 0px var(--church-red));
-        margin-bottom: 1.5rem;
     }
 
     .logo-icon {
         display: block;
-        width: 400px;
-        height: 400px;
+        width: 450px; /* Aumentado para destaque desktop */
+        height: 450px;
         background-color: var(--pulp-gold);
         -webkit-mask: url("{{ url_for('static', filename='img/bolao_logo.svg') }}") no-repeat center;
         mask: url("{{ url_for('static', filename='img/bolao_logo.svg') }}") no-repeat center;
         -webkit-mask-size: contain;
         mask-size: contain;
+        margin: 0 auto;
+    }
+    
+    @media (max-width: 768px) {
+        .logo-icon {
+            width: 220px !important; /* Ajustado para mobile */
+            height: 220px !important;
+        }
+        .logo-wrapper {
+            filter: drop-shadow(2px 2px 0px var(--church-red));
+        }
     }
 
     .title-font {
@@ -46,6 +58,30 @@
         background: linear-gradient(135deg, var(--navy-hero) 0%, #1e1b4b 100%);
         margin-top: -1rem; /* Remove o espaço vazio (gap) criado pelo container de flash messages no base.html */
         position: relative;
+        min-height: 60vh; /* Altura mínima desktop */
+        display: flex;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .hero-banner {
+            min-height: 80vh; /* Ajuste leve na altura mínima */
+            padding: 1rem 0 6rem 0 !important; /* Conteúdo sobe drasticamente */
+            align-items: flex-start;
+        }
+        .logo-icon {
+            width: 320px !important; 
+            height: 320px !important;
+            margin-top: 0.5rem; /* Quase encostado no topo para subir tudo */
+        }
+        .logo-wrapper {
+            filter: drop-shadow(4px 4px 0px var(--church-red)); /* Sombra mais visível */
+            margin-bottom: 2.5rem !important;
+        }
+        .display-3 {
+            font-size: 2.5rem !important; /* Título mais equilibrado */
+            margin-bottom: 1.5rem !important;
+        }
     }
 
     .bg-dark-section { background-color: #0f172a; }
@@ -64,7 +100,7 @@
     .rule-card:hover {
         border-color: var(--pulp-gold);
         transform: translateY(-5px);
-        box-shadow: 10px 10px 0px rgba(139, 0, 0, 0.4);
+        box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.4);
     }
     .rule-points {
         font-family: 'Bungee', cursive;
@@ -144,12 +180,16 @@
         
         {% if not current_user.is_authenticated %}
             <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mt-4 px-4">
-                <a class="btn btn-warning btn-lg fw-bold px-sm-5 shadow text-dark" data-bs-toggle="modal" data-bs-target="#loginModal">ENTRAR</a>
-                <a class="btn btn-outline-light btn-lg fw-bold px-sm-5 shadow" data-bs-toggle="modal" data-bs-target="#registerModal">CADASTRAR</a>
+                <a class="pulp-btn pulp-btn-gold btn-lg px-sm-5" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <i class="fas fa-sign-in-alt me-2"></i> ENTRAR
+                </a>
+                <a class="pulp-btn pulp-btn-red btn-lg px-sm-5" data-bs-toggle="modal" data-bs-target="#registerModal">
+                    <i class="fas fa-user-plus me-2"></i> CADASTRAR
+                </a>
             </div>
         {% else %}
             <div class="d-grid d-sm-flex justify-content-sm-center mt-4 px-4">
-                <a href="{{ url_for('main.palpites') }}" class="btn btn-warning btn-lg fw-bold px-sm-5 shadow text-dark btn-pulp-jump" style="border: 2px solid #000; box-shadow: 4px 4px 0px #000 !important; background-color: var(--pulp-gold);">
+                <a href="{{ url_for('main.palpites') }}" class="pulp-btn pulp-btn-gold btn-lg px-sm-5">
                     <i class="fas fa-futbol me-2"></i> MEUS PALPITES
                 </a>
             </div>
@@ -222,7 +262,6 @@
                     <div class="row g-3 justify-content-center">
                         {% for team in chunk %}
                         <div class="col-6 col-lg-3">
-                            <!-- Adicionamos os data-attributes e chamamos abrirModalPais() -->
                             <div class="team-card p-4 text-center" 
                                 data-nome="{{ team.team_name }}" 
                                 data-flag="{{ team.team_flag_url }}" 
@@ -253,27 +292,26 @@
 
 <div class="modal fade" id="modalCuriosidade" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content pulp-modal" style="background-color: #f8fafc; border: 3px solid var(--pulp-gold); border-radius: 8px;">
-            <!-- CABEÇALHO LIMPO (SÓ TEXTO E SETAS) -->
-            <div class="modal-header border-bottom border-warning d-flex align-items-center" style="background-color: #0f172a; padding: 0.8rem 1rem;">
-                <button class="btn btn-link text-warning p-1 text-decoration-none" onclick="navegarPais(-1)">
-                    <i class="fas fa-chevron-left fa-lg"></i>
+        <div class="modal-content pulp-info-modal">
+            <div class="modal-header pulp-info-header d-flex align-items-center">
+                <button class="btn pulp-nav-arrow" onclick="navegarPais(-1)" title="Anterior">
+                    <i class="fas fa-chevron-left"></i>
                 </button>
                 
-                <div class="d-flex align-items-center justify-content-center flex-grow-1 mx-2 overflow-hidden">
-                    <h5 class="modal-title fw-bold text-warning mb-0 text-truncate text-center w-100" id="modalCountryName" style="font-family: 'Bungee', cursive;"></h5>
+                <div class="d-flex align-items-center justify-content-center flex-grow-1 mx-3 overflow-hidden">
+                    <h5 class="modal-title text-truncate text-center w-100" id="modalCountryName" style="font-family: 'Bungee', cursive; font-size: 1.2rem; color: var(--pulp-gold);"></h5>
                 </div>
                 
-                <button class="btn btn-link text-warning p-1 text-decoration-none" onclick="navegarPais(1)">
-                    <i class="fas fa-chevron-right fa-lg"></i>
+                <button class="btn pulp-nav-arrow" onclick="navegarPais(1)" title="Próximo">
+                    <i class="fas fa-chevron-right"></i>
                 </button>
                 
                 <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-dark" id="modalBodyContent"></div>
-            <div class="modal-footer border-0 justify-content-between pt-0 pb-3" style="background-color: #f8fafc;">
-                <small class="text-muted fw-bold"><i class="fab fa-wikipedia-w me-1"></i> Wikipedia API</small>
-                <small class="text-muted fw-bold"><i class="fas fa-database me-1"></i> REST Countries API</small>
+            <div class="modal-body pulp-info-body" id="modalBodyContent"></div>
+            <div class="modal-footer pulp-info-footer justify-content-between border-0 pt-0 pb-3" style="background-color: var(--bg-void);">
+                <small class="text-muted fw-bold"><i class="fab fa-wikipedia-w me-1"></i> Wikipedia Archive</small>
+                <small class="text-muted fw-bold"><i class="fas fa-globe me-1"></i> Intelligence Data</small>
             </div>
         </div>
     </div>
@@ -293,7 +331,6 @@
     document.addEventListener("DOMContentLoaded", function() {
         modalCuriosidade = new bootstrap.Modal(document.getElementById('modalCuriosidade'));
         
-        // Constrói a lista lendo os cards de forma segura
         const cards = document.querySelectorAll('.team-card');
         cards.forEach(card => {
             const nome = card.getAttribute('data-nome');
@@ -314,7 +351,6 @@
 
     function navegarPais(direcao) {
         indiceAtual += direcao;
-        // Navegação infinita
         if (indiceAtual < 0) indiceAtual = listaPaises.length - 1;
         if (indiceAtual >= listaPaises.length) indiceAtual = 0;
         
@@ -325,10 +361,9 @@
         const pais = listaPaises[indiceAtual];
         const nomePais = pais.nome;
         
-        // Atualiza apenas o título no cabeçalho (a bandeira pequena não existe mais)
         document.getElementById('modalCountryName').textContent = nomePais.toUpperCase();
 
-        body.innerHTML = '<div class="text-center p-5"><i class="fas fa-futbol fa-spin fa-3x text-success mb-3"></i><h5 class="fw-bold">Buscando dossiê...</h5></div>';
+        body.innerHTML = '<div class="text-center p-5"><i class="fas fa-futbol fa-spin fa-3x text-success mb-3"></i><h5 class="fw-bold" style="color: #fff;">Buscando dossiê...</h5></div>';
 
         try {
             let c = {};
@@ -349,27 +384,12 @@
                 if (!resCountries.ok) throw new Error("País não encontrado");
                 const dataCountries = await resCountries.json();
                 
-                // Filtro rígido pelo nome exato em português
                 c = dataCountries.find(p => 
                     (p.translations && p.translations.por && p.translations.por.common.toLowerCase() === termoRest.toLowerCase()) ||
                     (p.name && p.name.common.toLowerCase() === termoRest.toLowerCase())
                 ) || dataCountries[0];
             }
 
-            // Wikipedia
-            let wikiResumo = "";
-            try {
-                const resWiki = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${termoWiki}`);
-                const dataWiki = await resWiki.json();
-                if (dataWiki.extract) {
-                    wikiResumo = `<div class="mt-4 p-3 bg-white rounded border border-warning">
-                                    <h6 class="fw-bold text-uppercase mb-2 text-danger"><i class="fas fa-book-open me-2"></i>Sobre o País</h6>
-                                    <p class="small text-muted mb-0" style="text-align: justify;">${dataWiki.extract}</p>
-                                  </div>`;
-                }
-            } catch (e) {}
-
-            // Traduções
             const tradContinentes = {
                 "South America": "América do Sul", "North America": "América do Norte", "Central America": "América Central", "Caribbean": "Caribe",
                 "Northern Europe": "Europa do Norte", "Western Europe": "Europa Ocidental", "Eastern Europe": "Leste Europeu", "Southern Europe": "Europa Meridional",
@@ -404,22 +424,47 @@
                 }
             }
 
-            // Renderização Final - Bandeira gigante isolada no topo
-            body.innerHTML = `
-                <div class="px-2 py-3">
-                    <div class="text-center mb-4">
-                        <img src="${pais.flag}" alt="Bandeira de ${nomePais}" class="shadow-sm" style="width: 140px; height: auto; border-radius: 6px; border: 2px solid rgba(0,0,0,0.1);">
-                    </div>
+            let wikiResumo = "";
+            try {
+                const resWiki = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${termoWiki}`);
+                const dataWiki = await resWiki.json();
+                if (dataWiki.extract) {
+                    wikiResumo = `
+                        <div class="pulp-wiki-section">
+                            <h6 class="pulp-wiki-title"><i class="fas fa-book-open me-2"></i>Sobre o País</h6>
+                            <p class="small mb-0" style="text-align: justify; line-height: 1.6; opacity: 0.9; hyphens: auto; -webkit-hyphens: auto; -ms-hyphens: auto; word-break: break-word;">${dataWiki.extract}</p>
+                        </div>`;
+                }
+            } catch (e) {}
 
-                    <ul class="list-group list-group-flush shadow-sm">
-                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Capital:</strong> <span class="text-end">${c.capital ? c.capital[0] : 'N/A'}</span></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>População:</strong> <span class="text-end">${c.population ? c.population.toLocaleString('pt-BR') : 'N/A'}</span></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Continente:</strong> <span class="text-end">${contTraduzido}</span></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Idiomas:</strong> <span class="text-end text-break w-50">${idiomasTraduzidos}</span></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Moeda:</strong> <span class="text-end">${moedaTraduzida}</span></li>
-                    </ul>
-                    ${wikiResumo}
-                </div>`;
+            body.innerHTML = `
+                <div class="text-center">
+                    <img src="${pais.flag}" alt="Bandeira" class="pulp-country-flag-big">
+                </div>
+
+                <div class="pulp-info-card">
+                    <strong>Capital</strong>
+                    <span>${c.capital ? c.capital[0] : 'N/A'}</span>
+                </div>
+                <div class="pulp-info-card">
+                    <strong>População</strong>
+                    <span>${c.population ? c.population.toLocaleString('pt-BR') : 'N/A'}</span>
+                </div>
+                <div class="pulp-info-card">
+                    <strong>Continente</strong>
+                    <span>${contTraduzido}</span>
+                </div>
+                <div class="pulp-info-card">
+                    <strong>Idiomas</strong>
+                    <span class="text-end text-break w-50">${idiomasTraduzidos}</span>
+                </div>
+                <div class="pulp-info-card">
+                    <strong>Moeda</strong>
+                    <span>${moedaTraduzida}</span>
+                </div>
+
+                ${wikiResumo}
+            `;
         } catch (err) {
             body.innerHTML = '<div class="text-center p-5 text-danger"><i class="fas fa-exclamation-triangle fa-3x mb-3"></i><p>Nenhuma inteligência encontrada para este país no momento.</p></div>';
             console.error(err);

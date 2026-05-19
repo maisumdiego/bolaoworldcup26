@@ -18,19 +18,76 @@
     --text-muted: #a1a1aa;       
 }
 
-.btn-pulp-jump {
-    transition: all 0.2s ease !important;
+/* ==========================================================================
+   ARQUITETURA DE COMPONENTES PULP NOIR (BOTÕES LUMINOSOS)
+   ========================================================================== */
+
+/* 1. BOTÕES CORE (.pulp-btn) - Estilo Luminoso (Glow) */
+.pulp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent !important;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    position: relative;
+    padding: 15px 35px; /* 30% maior */
+    font-size: 1.2rem;  /* 30% maior */
+    border-radius: 25px; /* Bordas significativamente mais arredondadas */
+    background-color: transparent !important;
+    color: var(--text-muted) !important;
 }
 
-.btn-pulp-jump:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 6px 6px 0px #000 !important;
+/* Estado Base - Similar ao Seletor de Datas (Desativado) */
+.pulp-btn:hover {
+    color: var(--text-main) !important;
+    background-color: rgba(255,255,255,0.05) !important;
+    transform: translateY(-2px);
 }
 
-.btn-pulp-jump:active {
-    transform: translateY(0px) !important;
+/* Modificador: Gold (Ativado/Principal) */
+.pulp-btn-gold {
+    color: var(--bg-void) !important;
+    background-color: var(--pulp-gold) !important;
+    border-color: var(--pulp-gold) !important;
+    /* Sombra Sólida idêntica ao seletor de datas */
+    box-shadow: 2px 2px 0px var(--church-red) !important;
+}
+
+.pulp-btn-gold:hover {
+    color: #000 !important;
+    background-color: #ffca2c !important; 
+    border-color: #ffca2c !important;
+    box-shadow: 4px 4px 0px var(--church-red) !important; /* Aumenta levemente no hover */
+    transform: translateY(-2px);
+}
+
+/* Modificador: Red (Secundário/Cadastrar) */
+.pulp-btn-red {
+    color: #fff !important;
+    background-color: var(--church-red) !important;
+    border-color: var(--church-red) !important;
     box-shadow: 2px 2px 0px #000 !important;
 }
+
+.pulp-btn-red:hover {
+    color: #fff !important;
+    background-color: #be123c !important; /* Vermelho mais escuro no hover */
+    border-color: #be123c !important;
+    box-shadow: 4px 4px 0px #000 !important;
+    transform: translateY(-2px);
+}
+
+.pulp-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0px 0px 0px transparent !important;
+}
+
 
 /* ==========================================================================
    FUNDO E CORPO DA PÁGINA
@@ -932,4 +989,145 @@ body.modal-open {
 .pulp-input::file-selector-button:hover {
     background-color: var(--pulp-gold);
     color: #000;
+}
+@media (max-width: 768px) { .navbar-logo { height: 60px !important; width: 60px !important; } .logo-icon { width: 320px !important; height: 320px !important; } }
+
+/* ==========================================================================
+   MODAL DE INFORMAÇÕES DO PAÍS (PULP NOIR REFINADO)
+   ========================================================================== */
+.pulp-info-modal {
+    background-color: var(--bg-void) !important;
+    border: 3px solid var(--pulp-gold) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 6px 6px 0px rgba(0, 0, 0, 0.5) !important;
+}
+
+.pulp-info-header {
+    background-color: #022c22 !important;
+    border-bottom: 2px solid var(--pulp-gold) !important;
+    padding: 1rem !important;
+}
+
+.pulp-nav-arrow {
+    width: 36px;
+    height: 36px;
+    border-radius: 50% !important;
+    border: 2px solid var(--pulp-gold) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pulp-gold) !important;
+    transition: all 0.2s ease !important;
+    background: transparent !important;
+}
+
+.pulp-info-body {
+    background-color: var(--bg-void) !important;
+    color: var(--text-main) !important;
+    padding: 1.5rem !important;
+}
+
+.pulp-info-card {
+    background-color: var(--surface-dark) !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+    border-radius: 8px !important;
+    margin-bottom: 0.8rem !important;
+    padding: 12px 15px !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pulp-info-card strong {
+    color: var(--pulp-gold);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.pulp-wiki-section {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border-left: 4px solid var(--church-red) !important;
+    padding: 1rem !important;
+    margin-top: 1.5rem !important;
+    border-radius: 4px;
+}
+
+.pulp-wiki-title {
+    color: var(--church-red) !important;
+    font-family: 'Bungee', cursive;
+    font-size: 0.8rem !important;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Restauração do Modal de Inteligência (Raio-X) */
+.pulp-info-modal {
+    background-color: var(--bg-void) !important;
+    border: 3px solid var(--pulp-gold) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 50px rgba(0,0,0,0.9), 6px 6px 0px rgba(0,0,0,0.5) !important;
+}
+
+.pulp-info-header {
+    background-color: #022c22 !important;
+    border-bottom: 2px solid var(--pulp-gold) !important;
+    padding: 1.2rem !important;
+}
+
+.pulp-info-body {
+    background-color: var(--bg-void) !important;
+    padding: 2rem !important;
+    color: #fff !important;
+}
+
+.pulp-info-card {
+    background-color: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(245, 158, 11, 0.1) !important;
+    border-radius: 8px !important;
+    margin-bottom: 0.8rem !important;
+    padding: 15px 20px !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.pulp-info-card:hover {
+    background-color: rgba(245, 158, 11, 0.05) !important;
+    border-color: var(--pulp-gold) !important;
+}
+
+.pulp-info-card strong {
+    color: var(--pulp-gold);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+}
+
+.pulp-wiki-section {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border-left: 4px solid var(--church-red) !important;
+    padding: 1.2rem !important;
+    margin-top: 2rem !important;
+    border-radius: 4px;
+}
+
+.pulp-wiki-title {
+    color: var(--church-red) !important;
+    font-family: 'Bungee', cursive;
+    font-size: 0.9rem !important;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem !important;
+}
+
+.pulp-country-flag-big {
+    width: 160px;
+    height: auto;
+    border-radius: 8px;
+    border: 3px solid rgba(255,255,255,0.1);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+    margin-bottom: 2rem;
 }

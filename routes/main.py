@@ -171,7 +171,15 @@ def ranking():
             'profile_pic': user.profile_pic 
         })
     
-    ranking_data.sort(key=lambda x: (x['pontos'], x['exatos'], x['parciais'], x['tendencia']), reverse=True)
+    # Ordenação: Pontos -> Exatos -> Parciais -> Tendência -> Nome (Alfabético)
+    ranking_data.sort(key=lambda x: (
+        -int(x['pontos']), 
+        -int(x['exatos']), 
+        -int(x['parciais']), 
+        -int(x['tendencia']), 
+        x['nome'].lower()
+    ))
+    
     return render_template('ranking.html', ranking=ranking_data)
 
 # =====================================================================
