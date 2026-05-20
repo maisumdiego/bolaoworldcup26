@@ -4,6 +4,9 @@
 
 {% block content %}
 <style>
+    /* Sobrescreve o degradê global para um fundo mais limpo nesta página */
+    body { background-image: none !important; }
+
     /* Estilos do Popover Pulp Noir */
     .pulp-popover { --bs-popover-bg: #022c22; --bs-popover-border-color: var(--pulp-gold); --bs-popover-header-bg: #064e3b; --bs-popover-header-color: var(--pulp-gold); --bs-popover-body-color: #fff; box-shadow: 6px 6px 0px rgba(0,0,0,0.6); border: 2px solid var(--pulp-gold); }
     .pulp-popover .popover-header { font-family: 'Bungee', cursive; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
