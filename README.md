@@ -1,81 +1,78 @@
 # ⚽ Bolão da Cabeça 2026
 
-![GitHub version](https://img.shields.io/badge/version-1.0.0--v1-gold)
-![Python](https://img.shields.io/badge/Python-3.9+-blue)
-![Flask](https://img.shields.io/badge/Flask-2.x-green)
+![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-F59E0B?style=for-the-badge)
+![Stack](https://img.shields.io/badge/Stack-Python_|_Flask_|_PostgreSQL-064E3B?style=for-the-badge)
+![UI](https://img.shields.io/badge/UI-Pulp_Noir_Style-E11D48?style=for-the-badge)
 
-O **Bolão da Cabeça 2026** é uma plataforma completa de palpites para a Copa do Mundo, desenvolvida para proporcionar uma experiência competitiva e imersiva entre amigos. Com uma interface inspirada na estética *Pulp Noir* (Navy, Gold & Red), o sistema oferece desde a gestão de palpites até a automatização de chaveamentos de mata-mata.
-
----
-
-## 🚀 Funcionalidades Principais
-
-- **Gestão de Palpites**: Sistema de palpites dinâmico com filtros por data, grupo e fase da competição.
-- **Ranking em Tempo Real**: Classificação automática dos participantes baseada em critérios de desempate técnicos (Pontos > Exatos > Parciais).
-- **Mata-Mata Automatizado**: O sistema detecta o encerramento da fase de grupos e injeta automaticamente as seleções classificadas nas oitavas de final.
-- **Raio-X da Copa**: Painel interativo que consome as APIs *REST Countries* e *Wikipedia* para fornecer dados históricos e geográficos sobre cada seleção.
-- **Painel Administrativo**: Gestão completa de usuários (aprovação/revogação de acesso) e inserção de resultados oficiais.
-- **Segurança**: Autenticação robusta com `Flask-Login` e criptografia de senhas com `Werkzeug`.
+O **Bolão da Cabeça 2026** é uma plataforma de apostas esportivas premium dedicada à Copa do Mundo de 2026. Com uma estética inspirada no movimento *Pulp Noir*, o projeto oferece uma experiência visual cinematográfica aliada a uma lógica competitiva rigorosa para determinar quem é o verdadeiro mestre dos palpites.
 
 ---
 
-## 🛠️ Stack Tecnológica
+## 🎨 A Experiência "Pulp Noir"
 
-- **Backend**: Python 3.9+ & Flask
-- **Banco de Dados**: PostgreSQL (Arquitetura Dimensional: `dim_` e `fact_`)
-- **Frontend**: Jinja2, Bootstrap 5, FontAwesome & AOS (Animate on Scroll)
-- **Bibliotecas Chave**:
-  - `SQLAlchemy`: ORM para mapeamento de dados.
-  - `Pandas`: Utilizado nos scripts de ingestão de dados (`seed.py`).
-  - `jQuery Bracket`: Renderização visual do chaveamento final.
+Diferente de bolões convencionais, este projeto foca na imersão visual:
+- **Identidade Visual:** Paleta de cores baseada em *Verde Noir*, *Ouro Pulp* e *Vermelho Igreja*.
+- **Tipografia Brutalista:** Uso de fontes *Bungee* para títulos arcade e *Montserrat* para leitura limpa.
+- **Componentes Dinâmicos:** Cards com sombras sólidas, pódios metálicos e interfaces sem degradês desnecessários para um visual sólido e impactante.
+
+## ⚙️ Funcionalidades Principais
+
+- **Mesa de Palpites:** Visualize os palpites de outros participantes em tempo real (após o limite de aposta).
+- **Ranking Inteligente:** Sistema de pontuação com critérios de desempate técnicos (Exatos > Parciais > Tendência).
+- **Raio-X da Copa:** Dossiês completos sobre cada seleção participante via integração com APIs externas.
+- **Exportação Premium:** Geração de imagens automáticas otimizadas para Instagram/WhatsApp Stories com o estado atual do ranking e pódio.
+- **Painel Administrativo:** Controle total de jogos, resultados, chaveamento automatizado de mata-mata e aprovação dinâmica de usuários.
+
+## 📊 Sistema de Pontuação
+
+A competitividade é garantida por um motor de pontuação preciso:
+
+| Acerto | Descrição | Pontos |
+| :--- | :--- | :---: |
+| **Na Mosca** | Placar exato do jogo | **5** |
+| **Parcial** | Vencedor + Gols de um dos times | **3** |
+| **Tendência** | Apenas o vencedor ou empate | **2** |
+
+## 🚀 Tecnologias
+
+- **Backend:** Python / Flask
+- **Banco de Dados:** PostgreSQL (Produção) / SQLite (Dev)
+- **Frontend:** Jinja2 / CSS3 Custom / JavaScript Vanilla
+- **Cloud:** Cloudinary (Gestão de Mídia)
+- **Deploy:** Estrutura preparada para ambientes como Railway/Render
 
 ---
 
-## 📈 Sistema de Pontuação (Como pontuar)
+## 🛠️ Instalação e Desenvolvimento
 
-O motor de cálculo do ranking segue regras rigorosas para premiar o conhecimento futebolístico:
-
-- **+5 Pontos (Na Mosca)**: Acerto exato do placar.
-- **+3 Pontos (Vencedor e Gols)**: Acerto do vencedor/empate e dos gols de um dos times.
-- **+2 Pontos (Tendência)**: Acerto apenas do vencedor ou empate (tendência do jogo).
-
----
-
-## ⚙️ Instalação e Configuração
-
-### Pré-requisitos
-
-- Python instalado
-- Banco de Dados PostgreSQL
-
-### Passo a Passo
-
-1. **Clone o repositório**:
-
+1. **Clone o repositório:**
    ```bash
-   git clone [https://github.com/maisumdiego/bolaoworldcup26.git](https://github.com/maisumdiego/bolaoworldcup26.git)
+   git clone https://github.com/seu-usuario/world-cup-2026.git
    ```
-2. **Instale as dependências**:
 
-   ```
+2. **Configure o ambiente virtual:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # ou venv\Scripts\activate no Windows
    pip install -r requirements.txt
    ```
-3. **Configure as Variáveis de Ambiente (.env)** :
 
-   ```
-   DATABASE_URL=seu_link_postgresql
+3. **Variáveis de Ambiente:**
+   Crie um arquivo `.env` na raiz do projeto com:
+   ```env
+   DATABASE_URL=seu_db_url
    SECRET_KEY=sua_chave_secreta
-   EMAIL_ADMIN=seu_email@exemplo.com
-   TZ=America/Sao_Paulo
+   EMAIL_ADMIN=seu_email_admin
+   CLOUDINARY_CLOUD_NAME=seu_cloud_name
+   CLOUDINARY_API_KEY=sua_api_key
+   CLOUDINARY_API_SECRET=seu_api_secret
    ```
-4. **Inicialize o Banco e os Dados**:
 
-   * Execute o script `bd.sql` no seu banco.
-   * Popule as seleções e jogos: `python seed.py`.
-   * Acesse a rota `/admin/init_grupos` (logado como admin) para gerar a classificação inicial.
+4. **Inicie a aplicação:**
+   ```bash
+   python app.py
+   ```
 
 ---
 
-## 👤 Autor
-
-Desenvolvido por **Diego Gonçalves Ferreira** – Analista de Dados focado em soluções escaláveis e visualização de dados.
+*“A glória aguarda os melhores palpites.”* 🏆
