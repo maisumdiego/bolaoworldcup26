@@ -202,22 +202,27 @@
     }
 
     .spy-history-item {
-        padding: 8px 12px; /* Aumentei um pouco o horizontal para não grudar, mas deixei confortável */
+        padding: 10px 15px; /* Padding equilibrado e confortável */
         border-bottom: 1px solid rgba(255,255,255,0.05);
         font-size: 0.8rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
         transition: background 0.2s;
+        width: 100%; /* Garante ocupação total */
     }
 
-    .spy-history-item:hover { background-color: rgba(245, 158, 11, 0.05); }
+    .spy-history-item:hover { background-color: rgba(245, 158, 11, 0.1); }
     .spy-history-item:last-child { border-bottom: none; }
+
+    .spy-list {
+        width: 100%;
+    }
 
     .spy-matchup {
         display: flex;
         align-items: center;
-        gap: 6px; /* Reduzi o gap entre bandeiras e o VS para juntar mais o bloco da esquerda */
+        gap: 8px;
         flex: 1;
         min-width: 0;
     }
@@ -348,10 +353,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .catch(err => {
                         const container = document.getElementById(contentId);
-                        if (container) container.innerHTML = '<div class="p-3 text-danger">Erro ao carregar.</div>';
+                        if (container) container.innerHTML = '<div class="p-4 text-danger text-center">Erro ao carregar.</div>';
                     });
 
-                return `<div id="${contentId}" class="p-4 text-center"><i class="fas fa-circle-notch fa-spin fa-2x text-warning"></i></div>`;
+                // Wrapper limpo, padding apenas no spinner de loading
+                return `<div id="${contentId}"><div class="p-4 text-center"><i class="fas fa-circle-notch fa-spin fa-2x text-warning"></i></div></div>`;
             }
         });
 
