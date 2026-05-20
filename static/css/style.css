@@ -872,6 +872,21 @@ html, body {
     margin-top: 20px;
 }
 
+/* NOVO: Container Rolável para o Ranking (Limite de ~12 linhas) */
+.ranking-table-scroll {
+    max-height: 750px; 
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--pulp-gold) #020617;
+}
+
+.ranking-table-scroll thead th {
+    position: sticky;
+    top: -1px;
+    z-index: 10;
+    box-shadow: inset 0 -2px 0 #ffffff; /* Mantém a linha divisória branca */
+}
+
 /* Reset de Tabela do Bootstrap */
 .table-pulp td, .table-pulp th {
     padding: 6px 4px !important; /* Bem compacta */
