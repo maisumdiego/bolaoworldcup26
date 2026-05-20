@@ -1195,7 +1195,16 @@ body.modal-open {
     background-color: var(--pulp-gold);
     color: #000;
 }
-@media (max-width: 768px) { .navbar-logo { height: 60px !important; width: 60px !important; } .logo-icon { width: 320px !important; height: 320px !important; } }
+@media (max-width: 768px) { 
+    .navbar-logo { height: 60px !important; width: 60px !important; } 
+    .logo-icon { width: 320px !important; height: 320px !important; } 
+    
+    .pulp-btn-hero {
+        padding: 10px 25px !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 0.5px !important;
+    }
+}
 
 /* ==========================================================================
    MODAL DE INFORMAÇÕES DO PAÍS (PULP NOIR REFINADO)
