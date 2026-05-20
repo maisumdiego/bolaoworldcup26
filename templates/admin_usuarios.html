@@ -42,6 +42,24 @@
         border-radius: 4px;
         border: 1px solid rgba(255,255,255,0.1);
     }
+
+    /* Interruptor Customizado Pulp Noir */
+    .custom-switch {
+        cursor: pointer;
+        width: 3rem !important;
+        height: 1.5rem !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .custom-switch:checked {
+        background-color: var(--pulp-gold) !important;
+        border-color: var(--pulp-gold) !important;
+    }
+
+    .custom-switch:focus {
+        box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25) !important;
+    }
 </style>
 
 <div class="container mt-4 mb-5 px-3 px-md-4">
@@ -53,6 +71,16 @@
                 Controle de Acesso
             </h2>
             <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">Aprovação e Gestão de Participantes</p>
+        </div>
+
+        <!-- NOVO: Interruptor de Aprovação Automática -->
+        <div class="d-flex align-items-center bg-dark bg-opacity-50 p-3 rounded-pill border border-warning border-opacity-25 shadow-sm">
+            <div class="form-check form-switch me-2 mb-0">
+                <input class="form-check-input custom-switch" type="checkbox" role="switch" id="toggleAutoApprove" {% if auto_approve %}checked{% endif %}>
+            </div>
+            <label class="form-check-label fw-bold small text-uppercase" for="toggleAutoApprove" style="color: var(--pulp-gold); letter-spacing: 1px;">
+                Aprovação Automática: <span id="autoApproveStatus" class="ms-1">{{ 'ON' if auto_approve else 'OFF' }}</span>
+            </label>
         </div>
         
         <div class="btn-group shadow-sm" role="group">
@@ -219,6 +247,39 @@
 
 {% block scripts %}
 <script>
+// Lógica do Interruptor de Aprovação Automática
+document.getElementById('toggleAutoApprove').addEventListener('change', function() {
+    const isChecked = this.checked;
+    const statusLabel = document.getElementById('autoApproveStatus');
+    const formData = new FormData();
+    formData.append('status', isChecked ? 'true' : 'false');
+
+    statusLabel.textContent = isChecked ? 'ATIVANDO...' : 'DESATIVANDO...';
+    statusLabel.style.color = isChecked ? '#198754' : '#dc3545';
+
+    fetch('{{ url_for("admin.toggle_auto_approve") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            statusLabel.textContent = isChecked ? 'ON' : 'OFF';
+            statusLabel.style.color = isChecked ? '#198754' : '#fff';
+        } else {
+            alert('Erro: ' + data.message);
+            this.checked = !isChecked;
+            statusLabel.textContent = !isChecked ? 'ON' : 'OFF';
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro na conexão com o servidor.');
+        this.checked = !isChecked;
+        statusLabel.textContent = !isChecked ? 'ON' : 'OFF';
+    });
+});
+
 function processarAcao(formData, btn) {
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
