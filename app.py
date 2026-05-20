@@ -52,6 +52,19 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(auth_bp)
 
+# INICIALIZAÇÃO AUTOMÁTICA (CRIAÇÃO DE TABELAS E CONFIGS)
+with app.app_context():
+    from models import Config
+    db.create_all()
+    # Garante que a configuração de aprovação automática exista
+    if not Config.query.filter_by(key='AUTO_APPROVE').first():
+        db.session.add(Config(
+            key='AUTO_APPROVE', 
+            value='true', 
+            description='Aprovação automática de novos usuários'
+        ))
+        db.session.commit()
+
 @app.context_processor
 def inject_admin():
     return dict(admin_email=getenv('EMAIL_ADMIN'))
