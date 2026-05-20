@@ -18,7 +18,11 @@ load_dotenv()
 app = Flask(__name__)
 
 # CONFIGURAÇÕES GERAIS
-app.config['SQLALCHEMY_DATABASE_URI'] = getenv('DATABASE_URL')
+db_url = getenv('DATABASE_URL')
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(hours=1)
