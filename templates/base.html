@@ -51,7 +51,7 @@
                     <a class="nav-link dropdown-toggle btn-admin-nav" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-cog"></i> Admin
                     </a>
-                    <ul class="dropdown-menu shadow" aria-labelledby="adminDropdown">
+                    <ul class="dropdown-menu shadow mt-2" aria-labelledby="adminDropdown">
                         <li><a class="dropdown-item" href="{{ url_for('admin.admin_resultados') }}">Resultados</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('admin.gerenciar_usuarios') }}">Usuários</a></li>
                     </ul>
@@ -61,7 +61,7 @@
             
             <div class="d-flex align-items-center mt-3 mt-lg-0 me-lg-4">
                 {% if current_user.is_authenticated %}
-                    <div class="nav-item dropdown">
+                    <div class="dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center text-light fw-bold p-0" 
                         href="#" 
                         id="userProfileDropdown" 
@@ -80,7 +80,7 @@
                             <span>{{ current_user.name.split()[0] }}</span>
                         </a>
                         
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2 custom-dropdown" aria-labelledby="userProfileDropdown">
+                        <ul class="dropdown-menu dropdown-menu-lg-end shadow-lg mt-2 custom-dropdown" aria-labelledby="userProfileDropdown">
                             <li>
                                 <a class="dropdown-item text-white py-2" href="{{ url_for('main.perfil') }}">
                                     <i class="fas fa-user-circle me-2 text-warning"></i>Meu Perfil

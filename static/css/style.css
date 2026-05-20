@@ -260,7 +260,6 @@ html, body {
     border-radius: 8px;
     padding: 8px 0;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    margin-top: 10px !important;
 }
 
 .dropdown-item {
