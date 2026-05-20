@@ -469,7 +469,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 tableUsers.forEach((user, i) => {
                     const isUser = user.nome === currentUserName && !user.placeholder;
-                    const rowBg = isUser ? '#E11D48' : (i % 2 === 0 ? '#064e3b' : '#043d2e');
+                    const rowBg = isUser ? '#0f172a' : (i % 2 === 0 ? '#064e3b' : '#043d2e');
                     const isCloudinary = user.profile_pic && user.profile_pic.startsWith('http');
                     
                     let rowAvatar = '';
