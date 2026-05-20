@@ -17,7 +17,7 @@ from models import db, User
 load_dotenv()
 app = Flask(__name__)
 
-# CONFIGURAÇÕES GERAIS
+# CONFIGURAÇÕES GERAIS - Last Deploy Trigger: 2026-05-20
 db_url = getenv('DATABASE_URL')
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
