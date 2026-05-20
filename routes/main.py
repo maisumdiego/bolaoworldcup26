@@ -243,6 +243,42 @@ def get_palpites_jogo(jogo_id):
         
     return jsonify({"status": "success", "visibilidade_liberada": visibilidade_liberada, "palpites": list(ultimos_palpites.values())})
 
+@main_bp.route('/get_historico_usuario/<string:nome_usuario>')
+@login_required
+def get_historico_usuario(nome_usuario):
+    user = User.query.filter_by(name=nome_usuario).first_or_404()
+    jogos_encerrados = Game.query.filter_by(status='encerrado').order_by(Game.datetime_game.desc()).all()
+    
+    palpites_raw = Prediction.query.filter_by(user_id=user.id).order_by(Prediction.created_at.desc()).all()
+    palpites_finais = {}
+    for p in palpites_raw:
+        if p.game_id not in palpites_finais:
+            palpites_finais[p.game_id] = p
+            
+    historico = []
+    for jogo in jogos_encerrados:
+        p = palpites_finais.get(jogo.id)
+        if p:
+            pontos, tipo = calcular_pontos_palpite(
+                p.result_a, p.result_b, 
+                jogo.team_a_result, jogo.team_b_result
+            )
+            historico.append({
+                'time_a': jogo.team_a.ab if jogo.team_a else jogo.placeholder_a,
+                'time_b': jogo.team_b.ab if jogo.team_b else jogo.placeholder_b,
+                'placar_palpite': f"{p.result_a}x{p.result_b}",
+                'placar_real': f"{jogo.team_a_result}x{jogo.team_b_result}",
+                'pontos': pontos,
+                'tipo': tipo
+            })
+            
+    return jsonify({
+        "status": "success", 
+        "nome": user.name, 
+        "profile_pic": user.profile_pic,
+        "historico": historico
+    })
+
 @main_bp.route('/perfil')
 @login_required
 def perfil():

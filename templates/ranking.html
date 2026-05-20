@@ -82,7 +82,7 @@
                                     </div>
                                     
                                     <div class="d-flex flex-column">
-                                        <span class="user-name-text fw-bold" style="letter-spacing: 0.5px;">{{ jogador.nome }}</span>
+                                        <span class="user-name-text fw-bold user-spy-link" style="letter-spacing: 0.5px; cursor: help;" data-nome="{{ jogador.nome }}">{{ jogador.nome }}</span>
                                         {% if current_user.name == jogador.nome %}
                                             <span class="badge-voce">VOCÊ</span>
                                         {% endif %}
@@ -167,9 +167,124 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+    /* Estilização do Popover para o tema Pulp Noir */
+    .pulp-spy-popover {
+        --bs-popover-bg: #022c22;
+        --bs-popover-border-color: var(--pulp-gold);
+        --bs-popover-header-bg: #064e3b;
+        --bs-popover-header-color: var(--pulp-gold);
+        --bs-popover-body-color: #fff;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.7);
+        max-width: 320px !important;
+    }
+
+    .pulp-spy-popover .popover-header {
+        font-family: 'Bungee', cursive;
+        font-size: 0.9rem;
+        border-bottom: 2px solid var(--pulp-gold);
+        padding: 10px 15px;
+    }
+
+    .pulp-spy-popover .popover-body {
+        padding: 0 !important;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+
+    .spy-history-item {
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-size: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .spy-history-item:nth-child(even) { background-color: rgba(255,255,255,0.02); }
+
+    .spy-teams { font-weight: 700; color: #fff; flex: 1; }
+    .spy-placar { font-family: 'Bungee', cursive; color: var(--pulp-gold); margin: 0 10px; font-size: 0.9rem; }
+    .spy-points { 
+        width: 35px; height: 35px; border-radius: 6px; 
+        display: flex; align-items: center; justify-content: center; 
+        font-family: 'Bungee', cursive; font-size: 0.85rem;
+    }
+    .pts-5 { background: rgba(25, 135, 84, 0.2); color: #198754; border: 1px solid #198754; }
+    .pts-3 { background: rgba(13, 202, 240, 0.2); color: #0dcaf0; border: 1px solid #0dcaf0; }
+    .pts-2 { background: rgba(225, 29, 72, 0.2); color: #e11d48; border: 1px solid #e11d48; }
+    .pts-0 { background: rgba(255, 255, 255, 0.05); color: #666; border: 1px solid #444; }
+
+    .user-spy-link:hover {
+        color: var(--pulp-gold) !important;
+        text-decoration: underline !important;
+    }
+</style>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // --- LÓGICA DO SPY POPOVER ---
+    const spyLinks = document.querySelectorAll('.user-spy-link');
+    
+    spyLinks.forEach(link => {
+        const nomeUsuario = link.getAttribute('data-nome');
+        
+        new bootstrap.Popover(link, {
+            html: true,
+            trigger: 'click', // Click é melhor para mobile e desktop (evita hover indesejado)
+            placement: 'top',
+            customClass: 'pulp-spy-popover',
+            title: `<i class="fas fa-user-secret me-2"></i> ESPIÃO: ${nomeUsuario.toUpperCase()}`,
+            content: function() {
+                const contentId = `spy-content-${nomeUsuario.replace(/\s+/g, '-')}`;
+                
+                // Busca o histórico via AJAX
+                fetch(`/get_historico_usuario/${encodeURIComponent(nomeUsuario)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const container = document.getElementById(contentId);
+                        if (!container) return;
+                        
+                        if (data.status === 'success' && data.historico.length > 0) {
+                            let html = '<div class="spy-list">';
+                            data.historico.forEach(h => {
+                                const ptsClass = `pts-${h.pontos}`;
+                                html += `
+                                    <div class="spy-history-item">
+                                        <div class="spy-teams text-truncate" title="${h.time_a} x ${h.time_b}">
+                                            ${h.time_a} x ${h.time_b}
+                                        </div>
+                                        <div class="spy-placar">${h.placar_palpite}</div>
+                                        <div class="spy-points ${ptsClass}">${h.pontos}</div>
+                                    </div>
+                                `;
+                            });
+                            html += '</div>';
+                            container.innerHTML = html;
+                        } else {
+                            container.innerHTML = '<div class="p-4 text-center text-white-50"><i class="fas fa-ghost fa-2x mb-2 d-block"></i>Nenhum palpite encerrado encontrado.</div>';
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        const container = document.getElementById(contentId);
+                        if (container) container.innerHTML = '<div class="p-3 text-danger">Erro ao carregar dados.</div>';
+                    });
+
+                return `<div id="${contentId}" class="p-3 text-center"><i class="fas fa-circle-notch fa-spin fa-2x text-warning"></i></div>`;
+            }
+        });
+    });
+
+    // Fecha popovers ao clicar fora
+    document.addEventListener('click', function (e) {
+        if (!e.target.classList.contains('user-spy-link')) {
+            spyLinks.forEach(l => bootstrap.Popover.getInstance(l).hide());
+        }
+    });
+
+    // --- LÓGICA DE COMPARTILHAMENTO (EXISTENTE) ---
     const rankingData = JSON.parse('{{ ranking|tojson|safe }}');
     const currentUserName = '{{ current_user.name|safe }}';
     const btnShare = document.getElementById('btn-share-ranking');
