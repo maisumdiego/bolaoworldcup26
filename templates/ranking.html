@@ -184,7 +184,7 @@
 
     .pulp-spy-popover .popover-header {
         font-family: 'Montserrat', sans-serif;
-        font-weight: 500; /* Removido o negrito pesado (era 800) */
+        font-weight: 700; /* Restaurado o negrito para melhor leitura com caixa baixa */
         font-size: 0.85rem;
         /* text-transform: uppercase; -- Removido conforme solicitado */
         letter-spacing: 1px;
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
             trigger: 'manual', // Controle manual para garantir que apenas um abra
             placement: 'top',
             customClass: 'pulp-spy-popover',
-            title: `HISTÓRICO: ${nomeUsuario.toUpperCase()}`,
+            title: `Histórico: ${nomeUsuario}`,
             content: function() {
                 const contentId = `spy-content-${nomeUsuario.replace(/\s+/g, '-')}`;
                 
@@ -555,14 +555,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const dataStr = agora.toLocaleDateString('pt-BR');
             const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             
-            let message = "🏆 *Ranking Bolão da Cabeça 2026* 🏆\n";
-            message += `_Gerado em: ${dataStr} às ${horaStr}_\n\n`;
+            let message = "🏆 *RANKING - BOLÃO DA CABEÇA 2026* 🏆\n";
+            message += "--------------------------------------------\n";
+            
+            // Determina o tamanho máximo do nome para alinhamento (limitado a 15 chars para evitar quebras)
+            const maxNameLen = 15;
             
             rankingData.slice(0, 10).forEach((user, index) => {
-                const nomeLimpo = user.nome.trim();
-                message += `${index + 1}º *${nomeLimpo}* - ${user.pontos} PTS\n`;
+                const pos = (index + 1).toString().padStart(2, '0');
+                let nome = user.nome.trim();
+                
+                // Trunca se for muito longo, ou preenche com pontos se for curto
+                if (nome.length > maxNameLen) {
+                    nome = nome.substring(0, maxNameLen - 3) + "...";
+                }
+                const dots = ".".repeat(maxNameLen - nome.length + 2);
+                
+                message += `*${pos}º*  ${nome} ${dots} *${user.pontos} pts*\n`;
             });
-            message += "\n⚽ Participe: https://bolaocabeca.up.railway.app/";
+            
+            message += "--------------------------------------------\n";
+            message += `_Atualizado em: ${dataStr} às ${horaStr}_\n`;
+            message += "⚽ https://bolaocabeca.up.railway.app/";
+            
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
         });
     }

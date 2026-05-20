@@ -266,6 +266,8 @@ def get_historico_usuario(nome_usuario):
             historico.append({
                 'time_a': jogo.team_a.ab if jogo.team_a else jogo.placeholder_a,
                 'time_b': jogo.team_b.ab if jogo.team_b else jogo.placeholder_b,
+                'flag_a': jogo.team_a.team_flag_url if jogo.team_a else None,
+                'flag_b': jogo.team_b.team_flag_url if jogo.team_b else None,
                 'placar_palpite': f"{p.result_a}x{p.result_b}",
                 'placar_real': f"{jogo.team_a_result}x{jogo.team_b_result}",
                 'pontos': pontos,
