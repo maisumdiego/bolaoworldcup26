@@ -168,78 +168,149 @@
 
 {% block scripts %}
 <style>
-    /* Estilização do Popover para o tema Pulp Noir */
+    /* Estilização do Popover para o tema Pulp Noir Refinado */
     .pulp-spy-popover {
         --bs-popover-bg: #022c22;
         --bs-popover-border-color: var(--pulp-gold);
         --bs-popover-header-bg: #064e3b;
-        --bs-popover-header-color: var(--pulp-gold);
+        --bs-popover-header-color: #fff;
         --bs-popover-body-color: #fff;
-        box-shadow: 4px 4px 15px rgba(0,0,0,0.7);
-        max-width: 320px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8), 4px 4px 0px rgba(0,0,0,0.5);
+        max-width: 350px !important;
+        border: 2px solid var(--pulp-gold) !important;
+        border-radius: 12px !important;
     }
 
     .pulp-spy-popover .popover-header {
-        font-family: 'Bungee', cursive;
-        font-size: 0.9rem;
-        border-bottom: 2px solid var(--pulp-gold);
-        padding: 10px 15px;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 800;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+        padding: 12px 15px;
+        color: var(--pulp-gold) !important;
     }
 
     .pulp-spy-popover .popover-body {
         padding: 0 !important;
-        max-height: 250px;
+        max-height: 280px;
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--pulp-gold) #020617;
     }
 
     .spy-history-item {
-        padding: 8px 12px;
+        padding: 10px 8px; /* Reduzi o padding lateral de 15px para 8px para ganhar espaço */
         border-bottom: 1px solid rgba(255,255,255,0.05);
         font-size: 0.8rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        transition: background 0.2s;
     }
 
-    .spy-history-item:nth-child(even) { background-color: rgba(255,255,255,0.02); }
+    .spy-history-item:hover { background-color: rgba(245, 158, 11, 0.05); }
+    .spy-history-item:last-child { border-bottom: none; }
 
-    .spy-teams { font-weight: 700; color: #fff; flex: 1; }
-    .spy-placar { font-family: 'Bungee', cursive; color: var(--pulp-gold); margin: 0 10px; font-size: 0.9rem; }
-    .spy-points { 
-        width: 35px; height: 35px; border-radius: 6px; 
-        display: flex; align-items: center; justify-content: center; 
-        font-family: 'Bungee', cursive; font-size: 0.85rem;
+    .spy-matchup {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 0;
     }
-    .pts-5 { background: rgba(25, 135, 84, 0.2); color: #198754; border: 1px solid #198754; }
-    .pts-3 { background: rgba(13, 202, 240, 0.2); color: #0dcaf0; border: 1px solid #0dcaf0; }
-    .pts-2 { background: rgba(225, 29, 72, 0.2); color: #e11d48; border: 1px solid #e11d48; }
-    .pts-0 { background: rgba(255, 255, 255, 0.05); color: #666; border: 1px solid #444; }
 
+    .spy-flag {
+        width: 24px;
+        height: 16px;
+        object-fit: cover;
+        border-radius: 2px;
+        border: 1px solid rgba(255,255,255,0.1);
+        flex-shrink: 0;
+    }
+
+    .spy-vs {
+        font-size: 0.65rem;
+        opacity: 0.4;
+        font-weight: 800;
+        margin: 0 2px;
+    }
+
+    .spy-placar-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 12px;
+        min-width: 50px;
+    }
+
+    .spy-placar-label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        opacity: 0.5;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .spy-placar-val {
+        font-family: 'Bungee', cursive;
+        color: var(--pulp-gold);
+        font-size: 0.95rem;
+        line-height: 1;
+    }
+
+    .spy-points-badge { 
+        width: 32px;
+        height: 32px;
+        border-radius: 8px; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Bungee', cursive;
+        flex-shrink: 0;
+        box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+    }
+    
+    .spy-pts-val { font-size: 0.85rem; line-height: 1; }
+    .spy-pts-lbl { font-size: 0.45rem; font-weight: 900; margin-top: -2px; }
+
+    .pts-5 { background: #15803d; color: #fff; border: 1px solid #16a34a; }
+    .pts-3 { background: #0369a1; color: #fff; border: 1px solid #0ea5e9; }
+    .pts-2 { background: #be123c; color: #fff; border: 1px solid #e11d48; }
+    .pts-0 { background: #3f3f46; color: rgba(255,255,255,0.4); border: 1px solid #52525b; }
+
+    .user-spy-link {
+        transition: all 0.2s;
+        border-bottom: 1px dashed transparent;
+    }
+    
     .user-spy-link:hover {
         color: var(--pulp-gold) !important;
-        text-decoration: underline !important;
+        border-bottom-color: var(--pulp-gold);
     }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // --- LÓGICA DO SPY POPOVER ---
+    // --- LÓGICA DO SPY POPOVER REFINADA ---
     const spyLinks = document.querySelectorAll('.user-spy-link');
+    let activePopover = null;
     
     spyLinks.forEach(link => {
         const nomeUsuario = link.getAttribute('data-nome');
         
-        new bootstrap.Popover(link, {
+        const popover = new bootstrap.Popover(link, {
             html: true,
-            trigger: 'click', // Click é melhor para mobile e desktop (evita hover indesejado)
+            trigger: 'manual', // Controle manual para garantir que apenas um abra
             placement: 'top',
             customClass: 'pulp-spy-popover',
-            title: `<i class="fas fa-user-secret me-2"></i> ESPIÃO: ${nomeUsuario.toUpperCase()}`,
+            title: `HISTÓRICO: ${nomeUsuario.toUpperCase()}`,
             content: function() {
                 const contentId = `spy-content-${nomeUsuario.replace(/\s+/g, '-')}`;
                 
-                // Busca o histórico via AJAX
                 fetch(`/get_historico_usuario/${encodeURIComponent(nomeUsuario)}`)
                     .then(res => res.json())
                     .then(data => {
@@ -252,35 +323,64 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const ptsClass = `pts-${h.pontos}`;
                                 html += `
                                     <div class="spy-history-item">
-                                        <div class="spy-teams text-truncate" title="${h.time_a} x ${h.time_b}">
-                                            ${h.time_a} x ${h.time_b}
+                                        <div class="spy-matchup">
+                                            <img src="${h.flag_a}" class="spy-flag" title="${h.time_a}">
+                                            <span class="spy-vs">VS</span>
+                                            <img src="${h.flag_b}" class="spy-flag" title="${h.time_b}">
                                         </div>
-                                        <div class="spy-placar">${h.placar_palpite}</div>
-                                        <div class="spy-points ${ptsClass}">${h.pontos}</div>
+                                        <div class="spy-placar-container">
+                                            <span class="spy-placar-label">Palpite</span>
+                                            <span class="spy-placar-val">${h.placar_palpite}</span>
+                                        </div>
+                                        <div class="spy-points-badge ${ptsClass}">
+                                            <span class="spy-pts-val">${h.pontos}</span>
+                                            <span class="spy-pts-lbl">PTS</span>
+                                        </div>
                                     </div>
                                 `;
                             });
                             html += '</div>';
                             container.innerHTML = html;
                         } else {
-                            container.innerHTML = '<div class="p-4 text-center text-white-50"><i class="fas fa-ghost fa-2x mb-2 d-block"></i>Nenhum palpite encerrado encontrado.</div>';
+                            container.innerHTML = '<div class="p-4 text-center text-white-50"><i class="fas fa-ghost fa-2x mb-2 d-block"></i>Nenhum palpite encerrado.</div>';
                         }
                     })
                     .catch(err => {
-                        console.error(err);
                         const container = document.getElementById(contentId);
-                        if (container) container.innerHTML = '<div class="p-3 text-danger">Erro ao carregar dados.</div>';
+                        if (container) container.innerHTML = '<div class="p-3 text-danger">Erro ao carregar.</div>';
                     });
 
-                return `<div id="${contentId}" class="p-3 text-center"><i class="fas fa-circle-notch fa-spin fa-2x text-warning"></i></div>`;
+                return `<div id="${contentId}" class="p-4 text-center"><i class="fas fa-circle-notch fa-spin fa-2x text-warning"></i></div>`;
             }
+        });
+
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Se clicar no mesmo que já está aberto, fecha ele
+            if (activePopover === popover) {
+                popover.hide();
+                activePopover = null;
+                return;
+            }
+
+            // Fecha o anterior se existir
+            if (activePopover) {
+                activePopover.hide();
+            }
+
+            // Abre o novo
+            popover.show();
+            activePopover = popover;
         });
     });
 
-    // Fecha popovers ao clicar fora
+    // Fecha ao clicar fora
     document.addEventListener('click', function (e) {
-        if (!e.target.classList.contains('user-spy-link')) {
-            spyLinks.forEach(l => bootstrap.Popover.getInstance(l).hide());
+        if (activePopover && !e.target.closest('.popover') && !e.target.classList.contains('user-spy-link')) {
+            activePopover.hide();
+            activePopover = null;
         }
     });
 
