@@ -1,5 +1,6 @@
 # Deploy Trigger: 2026-05-20
 from flask import Flask
+from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 from flask_login import LoginManager
 from routes.admin import admin_bp
@@ -17,6 +18,9 @@ from models import db, User
 
 load_dotenv()
 app = Flask(__name__)
+
+# Configuração para Proxy (Railway)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 # CONFIGURAÇÕES GERAIS - Last Deploy Trigger: 2026-05-20
 db_url = getenv('DATABASE_URL')
