@@ -7,7 +7,7 @@ CREATE TABLE dim_users (
     password_hash VARCHAR(200) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_approved BOOLEAN DEFAULT FALSE,
-    profile_pic. VARCHAR(120) DEFAULT 'default.png'
+    profile_pic VARCHAR(120) DEFAULT 'default.png'
 );
 
 -- 2. Tabela de Seleções/Times (dim_teams)

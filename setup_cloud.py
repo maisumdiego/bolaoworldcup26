@@ -31,10 +31,14 @@ def run_setup():
                 print("Passo 1/2: Estrutura e colunas OK. Pulando criação.")
 
             # NOVA MIGRAÇÃO: Aumentar limite do telefone
-            print("Checando limite da coluna phone em dim_users...")
-            db.session.execute(text("ALTER TABLE dim_users ALTER COLUMN phone TYPE VARCHAR(20);"))
-            db.session.commit()
-            print("Limite da coluna phone atualizado para 20.")
+            print("Executando migração: ALTER COLUMN phone TYPE VARCHAR(20) em dim_users...")
+            try:
+                db.session.execute(text("ALTER TABLE dim_users ALTER COLUMN phone TYPE VARCHAR(20);"))
+                db.session.commit()
+                print("Limite da coluna phone atualizado para 20 com sucesso.")
+            except Exception as e_alt:
+                db.session.rollback()
+                print(f"Nota: Coluna phone já pode estar atualizada ou erro ao alterar: {e_alt}")
 
         except Exception as e:
             db.session.rollback()
