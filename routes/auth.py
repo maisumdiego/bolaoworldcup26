@@ -15,12 +15,29 @@ def register():
         email = request.form.get('email')
         phone = request.form.get('phone')
         password = request.form.get('password')
+        foto = request.files.get('foto')
 
         user_exists = User.query.filter_by(email=email).first()
         if user_exists:
             flash(f"O email {email} já está cadastrado!", "warning")
             return redirect(url_for('auth.register'))
         
+        # Upload para Cloudinary se houver foto
+        profile_url = 'default.png'
+        if foto and foto.filename != '':
+            user_email_id = email.replace('@', '_at_').replace('.', '_')
+            try:
+                upload_result = upload(
+                    foto, 
+                    folder="bolao_profiles/", 
+                    public_id=user_email_id,
+                    overwrite=True,
+                    resource_type="image"
+                )
+                profile_url = upload_result['secure_url']
+            except Exception as e:
+                print(f"Erro no Cloudinary (Registro): {e}")
+
         # Busca a configuração dinâmica no Banco de Dados
         auto_approve_config = Config.query.filter_by(key='AUTO_APPROVE').first()
         if auto_approve_config:
@@ -35,7 +52,8 @@ def register():
             email=email, 
             phone=phone, 
             password_hash=hashed_password,
-            is_approved=auto_approve
+            is_approved=auto_approve,
+            profile_pic=profile_url
         )
         db.session.add(new_user)
         db.session.commit()
