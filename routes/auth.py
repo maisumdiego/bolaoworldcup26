@@ -25,8 +25,10 @@ def register():
         # Upload para Cloudinary se houver foto
         profile_url = 'default.png'
         if foto and foto.filename != '':
+            # Limpa o e-mail para usar como ID seguro (idêntico ao atualizar_perfil)
             user_email_id = email.replace('@', '_at_').replace('.', '_')
             try:
+                print(f"Tentando upload Cloudinary para: {user_email_id}...")
                 upload_result = upload(
                     foto, 
                     folder="bolao_profiles/", 
@@ -35,8 +37,9 @@ def register():
                     resource_type="image"
                 )
                 profile_url = upload_result['secure_url']
+                print(f"Upload bem-sucedido! URL: {profile_url}")
             except Exception as e:
-                print(f"Erro no Cloudinary (Registro): {e}")
+                print(f"CRITICAL - Erro no Cloudinary (Registro): {str(e)}")
 
         # Busca a configuração dinâmica no Banco de Dados
         auto_approve_config = Config.query.filter_by(key='AUTO_APPROVE').first()
