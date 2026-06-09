@@ -68,7 +68,7 @@ def register():
             
         return redirect(url_for('main.index'))
         
-    return render_template('register.html')
+    return redirect(url_for('main.index'))
 
 # =====================================================================
 

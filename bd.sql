@@ -60,4 +60,13 @@ CREATE TABLE fact_predictions (
     result_a INTEGER NOT NULL,
     result_b INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    );
+
+    -- 6. Tabela de Configurações (dim_configs)
+    CREATE TABLE dim_configs (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR(50) UNIQUE NOT NULL,
+    value VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
