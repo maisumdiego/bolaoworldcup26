@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(70), nullable=False)
     email = db.Column(db.String(70), unique=True, nullable=False)
-    phone = db.Column(db.String(12))
+    phone = db.Column(db.String(20))
     password_hash = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_approved = db.Column(db.Boolean, default=False)

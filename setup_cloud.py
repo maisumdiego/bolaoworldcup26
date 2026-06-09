@@ -30,6 +30,12 @@ def run_setup():
             else:
                 print("Passo 1/2: Estrutura e colunas OK. Pulando criação.")
 
+            # NOVA MIGRAÇÃO: Aumentar limite do telefone
+            print("Checando limite da coluna phone em dim_users...")
+            db.session.execute(text("ALTER TABLE dim_users ALTER COLUMN phone TYPE VARCHAR(20);"))
+            db.session.commit()
+            print("Limite da coluna phone atualizado para 20.")
+
         except Exception as e:
             db.session.rollback()
             print(f"Erro na etapa de estrutura/migração: {e}")
