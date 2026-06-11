@@ -183,6 +183,23 @@ def ranking():
         x['nome'].lower()
     ))
     
+    # Atribuição de Colocação (Rank) com lógica de blocos
+    if ranking_data:
+        pos_atual = 1
+        for i in range(len(ranking_data)):
+            if i > 0:
+                # Se as estatísticas de pontuação forem idênticas ao anterior, mantém o mesmo rank
+                anterior = ranking_data[i-1]
+                atual = ranking_data[i]
+                if (atual['pontos'] == anterior['pontos'] and 
+                    atual['exatos'] == anterior['exatos'] and 
+                    atual['parciais'] == anterior['parciais'] and 
+                    atual['tendencia'] == anterior['tendencia']):
+                    pass # pos_atual continua a mesma
+                else:
+                    pos_atual += 1
+            ranking_data[i]['rank'] = pos_atual
+    
     return render_template('ranking.html', ranking=ranking_data)
 
 # =====================================================================
