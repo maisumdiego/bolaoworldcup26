@@ -128,6 +128,7 @@
         <div class="row g-4" id="games-grid">
             {% for jogo in jogos %}
             {% set limite_palpite = jogo.datetime_game - timedelta(minutes=10) %}
+            {# Compara com 'agora' injetado pela rota (horário de Brasília) #}
             {% set pode_palpitar = agora < limite_palpite and jogo.status != 'encerrado' %}
             {% set palpite_a = palpites_usuario[jogo.id]['a'] if jogo.id in palpites_usuario else '' %}
             {% set palpite_b = palpites_usuario[jogo.id]['b'] if jogo.id in palpites_usuario else '' %}
@@ -237,6 +238,13 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body"><div id="lista-palpites-outros"></div></div>
+            {% if current_user.email == admin_email %}
+            <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                <button type="button" class="btn btn-success w-100 fw-bold" id="btnExportarWhatsapp" style="display: none;">
+                    <i class="fab fa-whatsapp me-2"></i> Exportar para WhatsApp
+                </button>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

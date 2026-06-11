@@ -1,5 +1,13 @@
 from collections import defaultdict
 from models import db, Game, GroupStanding
+import pytz
+from datetime import datetime
+
+# CONFIGURAÇÃO DE TIMEZONE
+TZ_SP = pytz.timezone('America/Sao_Paulo')
+
+def get_now():
+    return datetime.now(TZ_SP).replace(tzinfo=None)
 
 def atualizar_classificacao_grupos():
     standings = GroupStanding.query.all()

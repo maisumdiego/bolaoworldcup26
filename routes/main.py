@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from collections import defaultdict
 from models import db, Game, Prediction, User, GroupStanding, Team
-from utils import calcular_pontos_palpite
+from utils import calcular_pontos_palpite, get_now
 
 main_bp = Blueprint('main', __name__)
 
@@ -18,7 +18,7 @@ def index():
     palpites_usuario = {}
     
     if current_user.is_authenticated:
-        agora = datetime.now()
+        agora = get_now()
         proximos_jogos = Game.query.filter(
             Game.datetime_game > agora, 
             Game.status != 'encerrado'
@@ -39,10 +39,13 @@ def index():
 
 # =====================================================================
 
+from sqlalchemy.orm import joinedload
+
 @main_bp.route('/palpites')
 @login_required
 def palpites():
-    jogos = Game.query.order_by(Game.datetime_game).all()
+    # Usando joinedload para garantir que os times sejam carregados
+    jogos = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).order_by(Game.datetime_game).all()
     
     datas_existentes = set()
     grupos_existentes = set()
@@ -78,7 +81,7 @@ def palpites():
     grupos_ordenados = sorted(list(grupos_existentes))
     fases_ordenadas = [f for f in ordem_fases if f in fases_existentes]
     
-    hoje = datetime.now().strftime('%Y-%m-%d')
+    hoje = get_now().strftime('%Y-%m-%d')
     dia_ativo = hoje if hoje in datas_ordenadas else (datas_ordenadas[0] if datas_ordenadas else None)
     grupo_ativo = grupos_ordenados[0] if grupos_ordenados else None
     fase_ativa = fases_ordenadas[0] if fases_ordenadas else None
@@ -101,7 +104,7 @@ def palpites():
                            dia_ativo=dia_ativo,
                            grupo_ativo=grupo_ativo,
                            fase_ativa=fase_ativa,
-                           agora=datetime.now(),
+                           agora=get_now(),
                            timedelta=timedelta,
                            palpites_usuario=palpites_usuario)
 
@@ -220,7 +223,7 @@ def torneio():
 @login_required
 def get_palpites_jogo(jogo_id):
     jogo = Game.query.get_or_404(jogo_id)
-    agora = datetime.now()
+    agora = get_now()
     visibilidade_liberada = (jogo.status == 'encerrado') or (agora >= (jogo.datetime_game - timedelta(minutes=10)))
     palpites_all = Prediction.query.filter_by(game_id=jogo_id).order_by(Prediction.created_at.desc()).all()
     
@@ -241,7 +244,16 @@ def get_palpites_jogo(jogo_id):
             else:
                 ultimos_palpites[p.user_id] = {"nome": nome_usuario, "liberado": False}
         
-    return jsonify({"status": "success", "visibilidade_liberada": visibilidade_liberada, "palpites": list(ultimos_palpites.values())})
+    return jsonify({
+        "status": "success", 
+        "visibilidade_liberada": visibilidade_liberada, 
+        "time_a": jogo.team_a.team_name if jogo.team_a else jogo.placeholder_a,
+        "time_b": jogo.team_b.team_name if jogo.team_b else jogo.placeholder_b,
+        "iso_a": jogo.team_a.team_flag_url.split('/')[-1].split('.')[0] if jogo.team_a and jogo.team_a.team_flag_url else None,
+        "iso_b": jogo.team_b.team_flag_url.split('/')[-1].split('.')[0] if jogo.team_b and jogo.team_b.team_flag_url else None,
+        "data_hora": jogo.datetime_game.strftime('%d/%m - %H:%M'),
+        "palpites": list(ultimos_palpites.values())
+    })
 
 @main_bp.route('/get_historico_usuario/<string:nome_usuario>')
 @login_required

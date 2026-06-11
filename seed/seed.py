@@ -9,20 +9,27 @@ def ingestao_times(src):
         try:
             df_times = pd.read_csv(src)
             for index, row in df_times.iterrows():
-                time = Team(
-                    id=int(row['id']) if 'id' in row else None,
-                    team_name=row['team_name'],
-                    ab=row['ab'],
-                    continent=row['continent'],
-                    group_team=row['group_team'],
-                    team_flag_url=row['team_flag_url'],
-                    fifa_ranking=int(row['fifa_ranking']) if pd.notna(row['fifa_ranking']) else None,
-                    world_cups_won=int(row['worlds_cups_won']) if pd.notna(row['worlds_cups_won']) else 0
-                )
-                db.session.merge(time)
+                # Verifica se o time já existe pela sigla ou nome
+                time_existente = Team.query.filter_by(ab=row['ab']).first()
+                
+                if time_existente:
+                    time = time_existente
+                else:
+                    time = Team()
+                
+                time.team_name = row['team_name']
+                time.ab = row['ab']
+                time.continent = row['continent']
+                time.group_team = row['group_team']
+                time.team_flag_url = row['team_flag_url']
+                time.fifa_ranking = int(row['fifa_ranking']) if pd.notna(row['fifa_ranking']) else None
+                time.world_cups_won = int(row['world_cups_won']) if pd.notna(row['world_cups_won']) else 0
+                
+                if not time_existente:
+                    db.session.add(time)
             
             db.session.commit()
-            print(f"Sucesso: {len(df_times)} seleções processados.")
+            print(f"Sucesso: {len(df_times)} seleções processadas.")
         except Exception as e:
             db.session.rollback()
             print(f"Erro nos times: {e}")
@@ -89,7 +96,7 @@ with app.app_context():
             times_db[i].team_flag_url = row['team_flag_url']
             times_db[i].continent = row['continent']
             times_db[i].fifa_ranking = int(row['fifa_ranking']) if pd.notna(row['fifa_ranking']) else None
-            times_db[i].world_cups_won = int(row['worlds_cups_won']) if pd.notna(row['worlds_cups_won']) else 0
+            times_db[i].world_cups_won = int(row['world_cups_won']) if pd.notna(row['world_cups_won']) else 0
 
     db.session.commit()
     print("✅ Seleções atualizadas com sucesso!")

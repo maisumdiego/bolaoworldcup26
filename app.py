@@ -10,8 +10,9 @@ from datetime import timedelta
 import cloudinary
 import cloudinary.uploader
 from os import getenv
-from utils import calcular_pontos_palpite
-
+from utils import calcular_pontos_palpite, get_now
+import pytz
+from datetime import datetime
 
 # IMPORTAÇÃO DOS NOSSOS MODELOS
 from models import db, User
@@ -80,7 +81,7 @@ def inject_admin():
 
 @app.context_processor
 def inject_utils():
-    return dict(calcular_pontos_palpite=calcular_pontos_palpite)
+    return dict(calcular_pontos_palpite=calcular_pontos_palpite, get_now=get_now)
 
 
 if __name__ == '__main__':

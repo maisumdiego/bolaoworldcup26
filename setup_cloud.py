@@ -82,6 +82,27 @@ def run_setup():
                 df_games.to_sql('dim_games', con=db.engine, if_exists='append', index=False)
                 print(f"{len(df_games)} jogos inseridos com sucesso!")
 
+            # 5. Checa e insere a Classificação Inicial
+            print("5/5 - Verificando Classificação de Grupos (fact_group_standings)...")
+            qtd_standings = db.session.execute(text("SELECT COUNT(*) FROM fact_group_standings")).scalar()
+            
+            if qtd_standings > 0:
+                print(f"A tabela já possui {qtd_standings} registros de classificação. Pulando.")
+            else:
+                from models import GroupStanding, Team
+                times = Team.query.all()
+                for time in times:
+                    if time.group_team:
+                        standing = GroupStanding(
+                            team_id=time.id,
+                            group_name=time.group_team,
+                            matches_played=0, wins=0, draws=0, losses=0,
+                            goals_for=0, goals_against=0, goal_difference=0, points=0
+                        )
+                        db.session.add(standing)
+                db.session.commit()
+                print("Classificação inicial criada para todas as seleções.")
+
             print("\n✨ PROCESSO CONCLUÍDO! Banco atualizado e populado.")
 
         except Exception as e:

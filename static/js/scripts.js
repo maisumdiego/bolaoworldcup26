@@ -1,8 +1,20 @@
+function getEmojiFlag(iso) {
+    if (!iso) return "";
+    // Trata códigos especiais do flagcdn (ex: gb-eng -> GB)
+    if (iso.includes('-')) iso = iso.split('-')[0];
+    const codePoints = iso.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+}
+
 function abrirModalPalpites(jogoId) {
     const modalElement = document.getElementById('modalPalpites');
     const listaContainer = document.getElementById('lista-palpites-outros');
+    const btnExportar = document.getElementById('btnExportarWhatsapp');
 
     if (!modalElement || !listaContainer) return;
+
+    // Reset do botão de exportação
+    if (btnExportar) btnExportar.style.display = 'none';
 
     // Loading com cor de destaque
     listaContainer.innerHTML = '<div class="text-center p-3"><div class="spinner-border text-warning"></div></div>';
@@ -50,7 +62,30 @@ function abrirModalPalpites(jogoId) {
                 <div class="alert mt-3 mb-0 text-center" style="background-color: rgba(0,0,0,0.2); color: #fff; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1);">
                     <i class="fas fa-info-circle me-2"></i>Placares revelados 10 min antes do jogo.
                 </div>`;
+            } else if (btnExportar) {
+                // Se visibilidade liberada e botão existe (admin), mostra ele
+                btnExportar.style.display = 'block';
+                btnExportar.onclick = function() {
+                    const flagA = getEmojiFlag(data.iso_a);
+                    const flagB = getEmojiFlag(data.iso_b);
+
+                    let mensagem = `⚽ *Bolão da Cabeça - Mesa de Palpites*\n\n`;
+                    mensagem += `*${data.time_a}* ${flagA} x *${data.time_b}* ${flagB} \n`;
+                    mensagem += `_(${data.data_hora})_\n\n`;
+
+                    data.palpites.forEach(p => {
+                        mensagem += `${p.nome}: ${p.result_a} x ${p.result_b}\n`;
+                    });
+
+                    mensagem += `--------------------------------------------\n`;
+                    mensagem += `🔒 Os palpites deste jogo já estão fechados.`;
+
+                    // Usando o mesmo endpoint e estilo de separador que funciona no ranking
+                    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+                    window.open(url, '_blank');
+                };
             }
+
 
             listaContainer.innerHTML = html;
         })
