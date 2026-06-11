@@ -252,7 +252,7 @@ def get_palpites_jogo(jogo_id):
         "iso_a": jogo.team_a.team_flag_url.split('/')[-1].split('.')[0] if jogo.team_a and jogo.team_a.team_flag_url else None,
         "iso_b": jogo.team_b.team_flag_url.split('/')[-1].split('.')[0] if jogo.team_b and jogo.team_b.team_flag_url else None,
         "data_hora": jogo.datetime_game.strftime('%d/%m - %H:%M'),
-        "palpites": list(ultimos_palpites.values())
+        "palpites": sorted(list(ultimos_palpites.values()), key=lambda x: x['nome'].lower())
     })
 
 @main_bp.route('/get_historico_usuario/<string:nome_usuario>')
