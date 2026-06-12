@@ -188,12 +188,16 @@
                 </a>
             </div>
         {% else %}
-            <div class="d-grid d-sm-flex justify-content-sm-center mt-4 px-4 gap-3">
-                <a href="{{ url_for('main.palpites') }}" class="pulp-btn pulp-btn-gold btn-lg px-sm-5">
+            <div class="d-flex flex-column align-items-center mt-4 px-4">
+                <a href="{{ url_for('main.palpites') }}" class="pulp-btn pulp-btn-gold btn-lg px-sm-5 mb-3">
                     <i class="fas fa-futbol me-2"></i> MEUS PALPITES
                 </a>
-                <a href="#" class="pulp-btn pulp-btn-red btn-lg px-sm-5" data-bs-toggle="modal" data-bs-target="#modalVideoPromo">
-                    <i class="fas fa-play me-2"></i> CONHEÇA A CABEÇA
+                <a href="#" class="text-white-50 text-decoration-none fw-bold small text-uppercase" 
+                   style="letter-spacing: 2px; transition: all 0.2s ease; cursor: pointer;"
+                   onmouseover="this.style.color='var(--pulp-gold)'; this.style.opacity='1'"
+                   onmouseout="this.style.color='rgba(255,255,255,0.5)'; this.style.opacity='0.5'"
+                   data-bs-toggle="modal" data-bs-target="#modalVideoPromo">
+                    <i class="fas fa-play-circle me-1"></i> Conheça a Cabeça
                 </a>
             </div>
         {% endif %}
