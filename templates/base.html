@@ -219,17 +219,17 @@ function previewImageModal(input) {
     }
 }
 </script>
-<!-- MODAL DE VÍDEO PROMO (PULP STYLE) -->
+<!-- MODAL DE VÍDEO PROMO (PULP STYLE REFINADO) -->
 <div class="modal fade" id="modalVideoPromo" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content pulp-modal" style="background-color: #0f172a !important; border: 3px solid var(--pulp-gold) !important; box-shadow: 0 0 50px rgba(0,0,0,0.9), 10px 10px 0px rgba(0,0,0,0.5) !important;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title" style="font-family: 'Bungee', cursive; color: var(--pulp-gold);">CONHEÇA A CABEÇA</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content pulp-modal" style="background-color: #000 !important; border: 3px solid var(--pulp-gold) !important; box-shadow: 0 0 60px rgba(0,0,0,0.9), 12px 12px 0px rgba(0,0,0,0.5) !important; border-radius: 0 !important;">
+            <div class="modal-header border-0 p-3 d-flex align-items-center justify-content-between" style="background-color: #020617;">
+                <h5 class="modal-title mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); letter-spacing: 2px; font-size: 1.2rem;">CONHEÇA A CABEÇA</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1) grayscale(100%) brightness(200%);"></button>
             </div>
             <div class="modal-body p-0">
                 <div class="ratio ratio-16x9">
-                    <video id="videoPromo" controls class="w-100 h-100" style="background-color: #000;">
+                    <video id="videoPromo" controls controlsList="nodownload" oncontextmenu="return false;" preload="auto" class="w-100 h-100">
                         <source src="https://res.cloudinary.com/dg2eolu1e/video/upload/v1781299628/Ipac_short_c6zcm6.mp4" type="video/mp4">
                         Seu navegador não suporta vídeos.
                     </video>
