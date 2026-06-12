@@ -229,8 +229,10 @@ function previewImageModal(input) {
             </div>
             <div class="modal-body p-0">
                 <div class="ratio ratio-16x9">
-                    <!-- O src será preenchido pelo JS para evitar carregamento desnecessário -->
-                    <iframe id="iframeVideoPromo" src="" title="Bolão da Cabeça 2026" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    <video id="videoPromo" controls class="w-100 h-100" style="background-color: #000;">
+                        <source src="https://res.cloudinary.com/dg2eolu1e/video/upload/v1781299628/Ipac_short_c6zcm6.mp4" type="video/mp4">
+                        Seu navegador não suporta vídeos.
+                    </video>
                 </div>
             </div>
         </div>
@@ -240,16 +242,16 @@ function previewImageModal(input) {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const modalVideo = document.getElementById('modalVideoPromo');
-    const iframe = document.getElementById('iframeVideoPromo');
-    const videoUrl = "https://www.youtube.com/embed/t3q-M1zBsxc?autoplay=1"; // Link atualizado
+    const video = document.getElementById('videoPromo');
 
-    if (modalVideo && iframe) {
+    if (modalVideo && video) {
         modalVideo.addEventListener('show.bs.modal', function () {
-            iframe.src = videoUrl;
+            video.currentTime = 0; // Reinicia o vídeo
+            video.play();
         });
 
         modalVideo.addEventListener('hidden.bs.modal', function () {
-            iframe.src = "";
+            video.pause();
         });
     }
 });
