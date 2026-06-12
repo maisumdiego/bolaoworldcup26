@@ -612,6 +612,19 @@ html, body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
+.td-nome-espiao {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 576px) {
+    .td-nome-espiao {
+        max-width: 110px; /* Ajuste fino para mobile */
+    }
+}
+
 .placar-espiao {
     font-family: 'Bungee', cursive;
     color: var(--pulp-gold) !important;

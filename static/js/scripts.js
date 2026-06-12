@@ -33,7 +33,7 @@ function abrirModalPalpites(jogoId) {
             let html = '<table class="table-espios w-100"><tbody>';
             
             data.palpites.forEach(p => {
-                html += `<tr><td class="fw-bold py-2">${p.nome}</td>`;
+                html += `<tr><td class="fw-bold py-2 td-nome-espiao">${p.nome}</td>`;
                 
                 if (p.liberado) {
                     let badgeClass = 'bg-secondary';
