@@ -188,9 +188,12 @@
                 </a>
             </div>
         {% else %}
-            <div class="d-grid d-sm-flex justify-content-sm-center mt-4 px-4">
+            <div class="d-grid d-sm-flex justify-content-sm-center mt-4 px-4 gap-3">
                 <a href="{{ url_for('main.palpites') }}" class="pulp-btn pulp-btn-gold btn-lg px-sm-5">
                     <i class="fas fa-futbol me-2"></i> MEUS PALPITES
+                </a>
+                <a href="#" class="pulp-btn pulp-btn-red btn-lg px-sm-5" data-bs-toggle="modal" data-bs-target="#modalVideoPromo">
+                    <i class="fas fa-play me-2"></i> CONHEÇA A CABEÇA
                 </a>
             </div>
         {% endif %}
