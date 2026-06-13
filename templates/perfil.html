@@ -205,7 +205,13 @@
                 <form action="{{ url_for('auth.atualizar_perfil') }}" method="POST" enctype="multipart/form-data">
                     <div class="row g-4">
                         <div class="col-md-6"><label class="form-label text-white-50 small fw-bold">NOME</label><input type="text" name="name" class="form-control dash-input" value="{{ current_user.name }}"></div>
-                        <div class="col-md-6"><label class="form-label text-white-50 small fw-bold">FOTO</label><input type="file" name="foto" class="form-control dash-input"></div>
+                        <div class="col-md-6">
+                            <label class="form-label text-white-50 small fw-bold">FOTO</label>
+                            <input type="file" name="foto" id="fotoInput" class="form-control dash-input" accept="image/*" onchange="previewImage(event)">
+                            <div id="previewWrapper" class="preview-container">
+                                <img id="imagePreview" src="#" alt="Preview" class="preview-img">
+                            </div>
+                        </div>
                         <div class="col-md-12">
                             <label class="form-label text-white-50 small fw-bold">ALTERAR SENHA</label>
                             <div class="input-group">
