@@ -67,13 +67,42 @@
     .confronto-flex { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: nowrap; }
     .bandeira-mini { width: 32px; height: 22px; object-fit: cover; border-radius: 3px; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
     
+    .pulp-title-exclusive {
+        font-family: 'Bungee', cursive !important; 
+        color: var(--pulp-gold) !important; 
+        text-shadow: 3px 3px 0px var(--church-red) !important; 
+        font-size: 2.5rem !important;
+        line-height: 1.1 !important;
+        margin-bottom: 0 !important;
+        display: block !important;
+    }
+
+    .pulp-subtitle-exclusive {
+        text-transform: uppercase !important;
+        font-weight: 800 !important;
+        margin-bottom: 0 !important;
+        letter-spacing: 2px !important;
+        color: #fff !important;
+        font-size: 0.85rem !important;
+    }
+
+    @media (max-width: 576px) {
+        .pulp-title-exclusive { 
+            font-size: 1.8rem !important; 
+            text-shadow: 2px 2px 0px var(--church-red) !important; 
+        }
+        .pulp-subtitle-exclusive { font-size: 0.7rem !important; }
+        .dash-size { width: 80px !important; height: 80px !important; }
+    }
+
     .dash-input::placeholder { color: #6b7280 !important; }
 </style>
 
 <div class="container mt-4 mb-5 px-3 px-md-4">
-    <div class="row mb-4 align-items-center">
-        <div class="col-auto">
-            <div class="profile-img-container dash-size shadow-lg" style="border-width: 4px;">
+    <!-- Header Reformulado -->
+    <div class="d-flex align-items-center mb-4 gap-3 gap-md-4">
+        <div class="flex-shrink-0">
+            <div class="profile-img-container dash-size shadow-lg">
                 {% if current_user.profile_pic and current_user.profile_pic.startswith('http') %}
                     <img src="{{ current_user.profile_pic }}" class="profile-img-inner" alt="Avatar Perfil">
                 {% else %}
@@ -81,11 +110,11 @@
                 {% endif %}
             </div>
         </div>
-        <div class="col text-center text-md-start">
-            <h1 class="text-uppercase mb-0" style="font-family: 'Bungee', cursive; color: var(--pulp-gold); text-shadow: 3px 3px 0px var(--church-red); font-size: 2.5rem;">
+        <div class="flex-grow-1 min-width-0">
+            <h1 class="text-uppercase pulp-title-exclusive text-truncate">
                 {{ current_user.name }}
             </h1>
-            <p class="text-uppercase fw-bold mb-0" style="letter-spacing: 3px; color: #fff;">Meu Dashboard</p>
+            <p class="text-uppercase pulp-subtitle-exclusive">Meu Dashboard</p>
         </div>
     </div>
 
@@ -295,6 +324,16 @@
         const icon = document.getElementById('toggleIcon');
         if (p.type === 'password') { p.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); }
         else { p.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
+    }
+
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function(){
+            const output = document.getElementById('imagePreview');
+            output.src = reader.result;
+            document.getElementById('previewWrapper').style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
     }
 </script>
 {% endblock %}
