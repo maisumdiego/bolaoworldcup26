@@ -140,6 +140,14 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // 5. AUTO-CENTRALIZAR DIA SELECIONADO (PALPITES)
+    const activeBtn = document.querySelector('.dia-btn.active');
+    if (activeBtn) {
+        setTimeout(() => {
+            activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }, 100);
+    }
+
 });
 
 document.addEventListener('DOMContentLoaded', function() {
