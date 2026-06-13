@@ -1100,23 +1100,42 @@ html, body {
     border-radius: 50px !important;
     padding: 8px !important;
     
-    /* Regras vitais para o Mobile */
     display: flex !important;
-    flex-wrap: nowrap !important; /* Impede os botões de pularem para a linha de baixo */
-    overflow-x: auto !important;  /* Habilita o scroll horizontal */
-    -webkit-overflow-scrolling: touch !important; /* Scroll suave no iOS */
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     
-    width: 100% !important; /* Limita ao tamanho da tela */
+    width: 100% !important;
     max-width: 100% !important;
     
-    justify-content: flex-start !important; /* Começa sempre da esquerda */
+    justify-content: flex-start !important;
     gap: 10px !important;
     list-style: none !important;
     margin-bottom: 2rem !important;
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5) !important;
-    
-    /* Esconde a barra de rolagem visual mas mantém a funcionalidade */
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5) !important;
     scrollbar-width: none; 
+}
+
+@media (max-width: 576px) {
+    .pulp-nav-container {
+        flex-direction: column !important;
+        border-radius: 12px !important;
+        padding: 10px !important;
+        flex-wrap: wrap !important;
+        overflow-x: hidden !important;
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .pulp-nav-container .nav-item {
+        width: 100% !important;
+    }
+
+    .pulp-nav-btn {
+        width: 100% !important;
+        min-width: unset !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+    }
 }
 
 .pulp-nav-container::-webkit-scrollbar { 
