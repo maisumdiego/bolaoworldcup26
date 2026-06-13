@@ -95,6 +95,25 @@
         .dash-size { width: 80px !important; height: 80px !important; }
     }
 
+    /* Preview Style - Estilo Modal de Cadastro */
+    .preview-container {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 3px solid var(--pulp-gold);
+        overflow: hidden;
+        background-color: rgba(0,0,0,0.3);
+        display: none; /* Escondido por padrão para evitar ícone quebrado */
+        margin: 15px auto 0 auto; /* Centralizado no container */
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .preview-img { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; /* Garante que não fique esticada */
+        display: block;
+    }
+
     .dash-input::placeholder { color: #6b7280 !important; }
 </style>
 
@@ -333,13 +352,18 @@
     }
 
     function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function(){
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            const wrapper = document.getElementById('previewWrapper');
             const output = document.getElementById('imagePreview');
-            output.src = reader.result;
-            document.getElementById('previewWrapper').style.display = 'block';
-        };
-        reader.readAsDataURL(event.target.files[0]);
+            
+            reader.onload = function(){
+                output.src = reader.result;
+                wrapper.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
     }
 </script>
 {% endblock %}
