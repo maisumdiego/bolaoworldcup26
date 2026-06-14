@@ -154,10 +154,55 @@
 
     <div class="tab-content">
         <div class="tab-pane fade show active" id="stats-pane">
+            <!-- Novas Métricas (Padrão Pulp - Compacto) -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="pulp-dash-card text-center py-2 h-100 d-flex flex-column">
+                        <div style="min-height: 0.8rem;" class="d-flex align-items-start justify-content-center">
+                            <small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.55rem; letter-spacing: 1px; line-height: 1;">RANK GLOBAL</small>
+                        </div>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+                            <h3 class="fw-bold text-warning mb-0" style="font-family: 'Bungee', cursive; text-shadow: 2px 2px 0px var(--church-red); font-size: 1.3rem;">{{ user_rank }}º</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="pulp-dash-card text-center py-2 h-100 d-flex flex-column">
+                        <div style="min-height: 0.8rem;" class="d-flex align-items-start justify-content-center">
+                            <small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.55rem; letter-spacing: 1px; line-height: 1;">APROVEITAMENTO</small>
+                        </div>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+                            <h3 class="fw-bold text-white mb-0" style="font-size: 1.3rem;">{{ aproveitamento }}%</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="pulp-dash-card text-center py-2 h-100 d-flex flex-column">
+                        <div style="min-height: 0.8rem;" class="d-flex align-items-start justify-content-center">
+                            <small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.55rem; letter-spacing: 1px; line-height: 1;">MÉDIA PTS/JOGO</small>
+                        </div>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+                            <h3 class="fw-bold text-white mb-0" style="font-size: 1.3rem;">{{ media_pontos }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="pulp-dash-card text-center py-2 h-100 d-flex flex-column">
+                        <div style="min-height: 0.8rem;" class="d-flex align-items-start justify-content-center">
+                            <small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.55rem; letter-spacing: 1px; line-height: 1;">TÍTULO</small>
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center gap-1">
+                            <i class="fas {{ badge }} text-info" style="font-size: 1rem; filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.5));"></i>
+                            <h5 class="fw-bold text-info mb-0 text-uppercase" style="font-family: 'Bungee', cursive; font-size: 0.75rem; line-height: 1.1; text-shadow: 1px 1px 0px rgba(0,0,0,0.5);">{{ titulo }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row g-4 mb-4">
                 <div class="col-lg-4">
                     <div class="d-flex flex-column gap-3 h-100">
-                        <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Jogos encerrados</small><h2 class="fw-bold text-white mb-0">{{ total_jogos }}</h2></div>
+                        <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Jogos encerrados</small><h2 class="fw-bold text-white mb-0">{{ n_jogos_encerrados }}<span class="text-white-50" style="font-size: 0.6em;">/{{ total_jogos }}</span></h2></div>
                         <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Palpites</small><h2 class="fw-bold text-white mb-0">{{ num_palpites }}</h2></div>
                         <div class="pulp-dash-card text-center flex-grow-1 py-3"><small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Trocas de palpite</small><h2 class="fw-bold text-white mb-0">{{ num_trocas }}</h2></div>
                     </div>

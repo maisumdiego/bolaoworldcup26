@@ -374,7 +374,45 @@ def perfil():
         u_sum += user_evolucao[l]; m_sum += media_evolucao[l]
         user_acc.append(u_sum); media_acc.append(round(m_sum, 1))
 
+    # --- NOVAS MÉTRICAS PARA TESTE ---
+    ranking_users = []
+    for user in todos_usuarios:
+        u_pts, u_ex, u_pa, u_te = 0, 0, 0, 0
+        for jogo in jogos_encerrados:
+            p_obj = mapa_geral[jogo.id].get(user.id)
+            if p_obj:
+                pts, tipo = calcular_pontos_palpite(p_obj.result_a, p_obj.result_b, jogo.team_a_result, jogo.team_b_result)
+                u_pts += pts
+                if tipo == 'exato': u_ex += 1
+                elif tipo == 'parcial': u_pa += 1
+                elif tipo == 'tendencia': u_te += 1
+        ranking_users.append({'id': user.id, 'pts': u_pts, 'ex': u_ex, 'pa': u_pa, 'te': u_te, 'n': user.name})
+    
+    ranking_users.sort(key=lambda x: (-x['pts'], -x['ex'], -x['pa'], -x['te'], x['n'].lower()))
+    user_rank = next((i + 1 for i, u in enumerate(ranking_users) if u['id'] == current_user.id), 0)
+
+    n_palpites_encerrados = len(historico)
+    aproveitamento = (stats['total_pontos'] / (n_palpites_encerrados * 5) * 100) if n_palpites_encerrados > 0 else 0
+    media_pontos = stats['total_pontos'] / n_palpites_encerrados if n_palpites_encerrados > 0 else 0
+    
+    titulo = "Novato"
+    badge = "fa-seedling"
+    if n_palpites_encerrados >= 3:
+        if stats['exatos'] >= stats['parciais'] and stats['exatos'] >= stats['tendencia']: 
+            titulo = "Sniper de Placares"
+            badge = "fa-crosshairs"
+        elif stats['parciais'] >= stats['exatos'] and stats['parciais'] >= stats['tendencia']: 
+            titulo = "Analista Preciso"
+            badge = "fa-chart-pie"
+        else: 
+            titulo = "Estrategista de Resultados"
+            badge = "fa-chess"
+
     return render_template('perfil.html', stats=stats, num_trocas=num_trocas, 
-                           num_palpites=len(palpites_finais_user), total_jogos=len(jogos_encerrados),
+                           num_palpites=len(palpites_finais_user), 
+                           n_jogos_encerrados=len(jogos_encerrados),
+                           total_jogos=Game.query.count(),
                            chart_labels=labels, user_data=user_acc, media_data=media_acc, 
-                           historico=historico)
+                           historico=historico,
+                           user_rank=user_rank, aproveitamento=round(aproveitamento, 1),
+                           media_pontos=round(media_pontos, 1), titulo=titulo, badge=badge)
