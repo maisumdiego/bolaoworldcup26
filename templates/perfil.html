@@ -115,6 +115,34 @@
     }
 
     .dash-input::placeholder { color: #6b7280 !important; }
+
+    /* Estilos para Comparação de Gráfico */
+    .participant-scroll-list {
+        max-height: 280px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+    .participant-scroll-list::-webkit-scrollbar { width: 4px; }
+    .participant-scroll-list::-webkit-scrollbar-thumb { background: var(--pulp-gold); border-radius: 10px; }
+    .participant-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+    .participant-item:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); }
+    .participant-item.active {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: var(--pulp-gold);
+    }
+    .avatar-mini-comparison {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        flex-shrink: 0;
+    }
 </style>
 
 <div class="container mt-4 mb-5 px-3 px-md-4">
@@ -218,8 +246,32 @@
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="pulp-dash-card">
-                        <div class="chart-title">Evolução no Torneio (Sua vs Média Geral)</div>
-                        <div style="height: 300px;"><canvas id="evolucaoChart"></canvas></div>
+                        <div class="chart-title mb-3">Evolução no Torneio (Sua vs Média Geral)</div>
+                        <div class="row g-4">
+                            <div class="col-lg-9">
+                                <div style="height: 320px;"><canvas id="evolucaoChart"></canvas></div>
+                            </div>
+                            <div class="col-lg-3 border-start border-white border-opacity-10 ps-lg-4">
+                                <div class="text-white-50 small fw-bold mb-3 text-uppercase" style="font-size: 0.6rem; letter-spacing: 1px;">Comparar Participantes</div>
+                                <div class="participant-scroll-list">
+                                    {% for user in ranking_users %}
+                                        {% if user.id != current_user.id %}
+                                        <div class="participant-item d-flex align-items-center gap-2 mb-2 p-2 rounded" style="cursor: pointer;" onclick="toggleUserDataset({{ user.id }}, '{{ user.n }}', this)">
+                                            <div class="avatar-mini-comparison">
+                                                {% set found_pic = false %}
+                                                {% if user.profile_pic %}
+                                                    <img src="{{ user.profile_pic }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="d-flex align-items-center justify-content-center bg-secondary h-100"><i class="fas fa-user" style="font-size: 0.6rem;"></i></div>
+                                                {% endif %}
+                                            </div>
+                                            <span class="small text-truncate text-white-50" style="font-size: 0.7rem;">{{ user.n }}</span>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -333,6 +385,66 @@
     rows.forEach(row => tbody.appendChild(row));
 }
 
+    let evolucaoChartInstance;
+    let allParticipantsData = null;
+
+    async function loadAllParticipantsData() {
+        try {
+            const response = await fetch('/api/evolucao_participantes');
+            const data = await response.json();
+            if (data.status === 'success') {
+                allParticipantsData = data.usuarios;
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados de participantes:', error);
+        }
+    }
+
+    function getRandomColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        let color = '#';
+        for (let i = 0; i < 3; i++) {
+            const value = (hash >> (i * 8)) & 0xFF;
+            color += ('00' + value.toString(16)).substr(-2);
+        }
+        return color;
+    }
+
+    function toggleUserDataset(userId, userName, element) {
+        if (!allParticipantsData || !evolucaoChartInstance) return;
+
+        const datasetIndex = evolucaoChartInstance.data.datasets.findIndex(ds => ds.userId === userId);
+
+        if (datasetIndex > -1) {
+            evolucaoChartInstance.data.datasets.splice(datasetIndex, 1);
+            element.classList.remove('active');
+            element.querySelector('span').classList.add('text-white-50');
+            element.querySelector('span').classList.remove('text-white', 'fw-bold');
+        } else {
+            const userData = allParticipantsData[userId];
+            if (userData) {
+                const color = getRandomColor(userName + userId);
+                evolucaoChartInstance.data.datasets.push({
+                    userId: userId,
+                    label: userName,
+                    data: userData,
+                    borderColor: color,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    fill: false
+                });
+                element.classList.add('active');
+                element.querySelector('span').classList.remove('text-white-50');
+                element.querySelector('span').classList.add('text-white', 'fw-bold');
+            }
+        }
+        evolucaoChartInstance.update();
+    }
+
     const totalHits = {{ stats.exatos + stats.parciais + stats.tendencia + 0.0001 }};
     new Chart(document.getElementById('roscaChart'), {
         type: 'doughnut',
@@ -349,29 +461,51 @@
         }
     });
 
-    new Chart(document.getElementById('evolucaoChart'), {
+    const ctxEvolucao = document.getElementById('evolucaoChart').getContext('2d');
+    evolucaoChartInstance = new Chart(ctxEvolucao, {
         type: 'line',
         data: {
             labels: {{ chart_labels|tojson|safe }},
             datasets: [
-                { label: 'Meus Pontos', data: {{ user_data|tojson|safe }}, borderColor: '#f59e0b', tension: 0.4 },
-                { label: 'Média Geral', data: {{ media_data|tojson|safe }}, borderColor: '#38bdf8', borderDash: [5, 5], tension: 0.4 }
+                { 
+                    userId: 'main_user',
+                    label: 'Meus Pontos', 
+                    data: {{ user_data|tojson|safe }}, 
+                    borderColor: '#f59e0b', 
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    fill: true,
+                    tension: 0.4 
+                },
+                { 
+                    userId: 'media_geral',
+                    label: 'Média Geral', 
+                    data: {{ media_data|tojson|safe }}, 
+                    borderColor: '#38bdf8', 
+                    borderDash: [5, 5], 
+                    tension: 0.4,
+                    fill: false
+                }
             ]
         },
         options: {
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
             plugins: {
                 legend: { 
                     labels: { color: '#fff' } 
                 },
                 datalabels: {
+                    display: (context) => context.dataset.userId === 'main_user',
                     color: '#ffffff',
                     anchor: 'end',
                     align: 'top',
                     offset: 6,
                     font: {
                         weight: 'bold',
-                        size: 12
+                        size: 11
                     },
                     formatter: (value) => value
                 }
@@ -388,6 +522,8 @@
             }
         }
     });
+
+    loadAllParticipantsData();
 
     function togglePass() {
         const p = document.getElementById('passInput');
