@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
 from collections import defaultdict
 from datetime import datetime, timedelta
-from collections import defaultdict
 from models import db, Game, Prediction, User, GroupStanding, Team
 from utils import calcular_pontos_palpite, get_now
 
@@ -310,6 +309,52 @@ def get_historico_usuario(nome_usuario):
         "historico": historico
     })
 
+@main_bp.route('/api/evolucao_participantes')
+@login_required
+def api_evolucao_participantes():
+    jogos_encerrados = Game.query.filter_by(status='encerrado').order_by(Game.datetime_game).all()
+    todos_usuarios = User.query.filter_by(is_approved=True).all()
+    
+    ids_jogos = [j.id for j in jogos_encerrados]
+    todos_palpites = Prediction.query.filter(Prediction.game_id.in_(ids_jogos)).order_by(Prediction.created_at.desc()).all()
+    
+    mapa_geral = defaultdict(dict)
+    for p in todos_palpites:
+        if p.user_id not in mapa_geral[p.game_id]:
+            mapa_geral[p.game_id][p.user_id] = p
+
+    evolucao_all = {}
+    labels_raw = [j.datetime_game.strftime('%d/%m') for j in jogos_encerrados]
+    labels = []
+    seen = set()
+    for l in labels_raw:
+        if l not in seen:
+            labels.append(l)
+            seen.add(l)
+
+    for user in todos_usuarios:
+        user_points = defaultdict(int)
+        for jogo in jogos_encerrados:
+            dia = jogo.datetime_game.strftime('%d/%m')
+            p_obj = mapa_geral[jogo.id].get(user.id)
+            if p_obj:
+                pts, _ = calcular_pontos_palpite(p_obj.result_a, p_obj.result_b, jogo.team_a_result, jogo.team_b_result)
+                user_points[dia] += pts
+        
+        acc = 0
+        ponto_acumulado = []
+        for l in labels:
+            acc += user_points[l]
+            ponto_acumulado.append(acc)
+        
+        evolucao_all[user.id] = ponto_acumulado
+        
+    return jsonify({
+        "status": "success",
+        "labels": labels,
+        "usuarios": evolucao_all
+    })
+
 @main_bp.route('/perfil')
 @login_required
 def perfil():
@@ -415,4 +460,5 @@ def perfil():
                            chart_labels=labels, user_data=user_acc, media_data=media_acc, 
                            historico=historico,
                            user_rank=user_rank, aproveitamento=round(aproveitamento, 1),
-                           media_pontos=round(media_pontos, 1), titulo=titulo, badge=badge)
+                           media_pontos=round(media_pontos, 1), titulo=titulo, badge=badge,
+                           ranking_users=ranking_users)
