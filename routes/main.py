@@ -220,7 +220,7 @@ def torneio():
     for g in grupos_dict: grupos_dict[g].sort(key=lambda x: (x.points, x.goal_difference, x.goals_for), reverse=True)
     grupos_ordenados = dict(sorted(grupos_dict.items()))
 
-    jogos_mata_mata_obj = Game.query.filter(Game.phase != 'Grupos').order_by(Game.id).all()
+    jogos_mata_mata_obj = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter(Game.phase != 'Grupos').order_by(Game.id).all()
     
     ids_classificados = set()
     for j in jogos_mata_mata_obj:
@@ -284,7 +284,7 @@ def get_palpites_jogo(jogo_id):
 @login_required
 def get_historico_usuario(nome_usuario):
     user = User.query.filter_by(name=nome_usuario).first_or_404()
-    jogos_encerrados = Game.query.filter_by(status='encerrado').order_by(Game.datetime_game.desc()).all()
+    jogos_encerrados = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter_by(status='encerrado').order_by(Game.datetime_game.desc()).all()
     
     palpites_raw = Prediction.query.filter_by(user_id=user.id).order_by(Prediction.created_at.desc()).all()
     palpites_finais = {}
@@ -321,7 +321,7 @@ def get_historico_usuario(nome_usuario):
 @main_bp.route('/api/evolucao_participantes')
 @login_required
 def api_evolucao_participantes():
-    jogos_encerrados = Game.query.filter_by(status='encerrado').order_by(Game.datetime_game).all()
+    jogos_encerrados = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter_by(status='encerrado').order_by(Game.datetime_game).all()
     todos_usuarios = User.query.filter_by(is_approved=True).all()
     
     ids_jogos = [j.id for j in jogos_encerrados]
@@ -367,7 +367,7 @@ def api_evolucao_participantes():
 @main_bp.route('/perfil')
 @login_required
 def perfil():
-    jogos_encerrados = Game.query.filter_by(status='encerrado').order_by(Game.datetime_game).all()
+    jogos_encerrados = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter_by(status='encerrado').order_by(Game.datetime_game).all()
     todos_usuarios = User.query.filter_by(is_approved=True).all()
     n_usuarios = len(todos_usuarios) if todos_usuarios else 1
 
