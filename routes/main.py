@@ -142,10 +142,19 @@ def ranking():
     jogos_encerrados = Game.query.filter_by(status='encerrado').all()
     ranking_data = []
 
+    # Correção N+1: Buscar todos os palpites dos usuários aprovados de uma única vez
+    ids_usuarios = [u.id for u in usuarios]
+    todos_palpites_raw = Prediction.query.filter(Prediction.user_id.in_(ids_usuarios)).order_by(Prediction.created_at.desc()).all()
+    
+    palpites_por_usuario = defaultdict(list)
+    for p in todos_palpites_raw:
+        palpites_por_usuario[p.user_id].append(p)
+
     for user in usuarios:
         pontos_totais = acertos_exatos = acertos_parciais = acertos_tendencia = 0
         
-        palpites_raw = Prediction.query.filter_by(user_id=user.id).order_by(Prediction.created_at.desc()).all()
+        # Agora busca na memória (dicionário) ao invés de bater no banco a cada loop
+        palpites_raw = palpites_por_usuario[user.id]
 
         palpites_finais = {}
         for p in palpites_raw:
