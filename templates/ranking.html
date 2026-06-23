@@ -569,7 +569,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const maxNameLen = 14;
         
-        message += "```\n"; // Inicia bloco monospace no WhatsApp
         rankingData.forEach((user) => {
             const pos = user.rank.toString().padStart(2, '0');
             let nome = user.nome.trim();
@@ -578,15 +577,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 nome = nome.substring(0, maxNameLen - 1) + "…";
             }
             
-            let nomeStr = nome;
-            if (nomeStr.length < maxNameLen) {
-                nomeStr += " ";
-            }
-            nomeStr = nomeStr.padEnd(maxNameLen, '.');
+            // Calculamos a quantidade de pontinhos baseada no que falta para preencher o limite
+            const dotsCount = Math.max(2, maxNameLen - nome.length + 2);
+            const dots = ".".repeat(dotsCount);
             
             const pontosStr = user.pontos.toString();
             
-            let linha = `${pos}º ${nomeStr} ${pontosStr} pts`;
+            let linha = `*${pos}º*  ${nome} ${dots} *${pontosStr} pts*`;
             
             if (comDestaque && user.pontos_ultimo !== undefined) {
                 const sinal = user.pontos_ultimo > 0 ? "+" : " ";
@@ -595,7 +592,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             message += linha + "\n";
         });
-        message += "```\n";
         
         message += "--------------------------------------------\n";
         message += `_Atualizado em: ${dataStr} às ${horaStr}_\n`;
