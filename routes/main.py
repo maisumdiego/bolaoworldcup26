@@ -139,8 +139,27 @@ def salvar_palpite():
 @login_required
 def ranking():
     usuarios = User.query.filter_by(is_approved=True).all()
-    jogos_encerrados = Game.query.filter_by(status='encerrado').all()
+    jogos_encerrados = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter_by(status='encerrado').order_by(Game.datetime_game.desc()).all()
     ranking_data = []
+
+    ultimo_jogo = jogos_encerrados[0] if jogos_encerrados else None
+    ultimo_jogo_str = ""
+    if ultimo_jogo:
+        def url_to_emoji(url):
+            if not url: return ""
+            code = url.split('/')[-1].split('.')[0].upper()
+            if len(code) == 2:
+                return chr(ord(code[0]) + 127397) + chr(ord(code[1]) + 127397)
+            return ""
+
+        t_a = ultimo_jogo.team_a.ab if ultimo_jogo.team_a else ultimo_jogo.placeholder_a
+        t_b = ultimo_jogo.team_b.ab if ultimo_jogo.team_b else ultimo_jogo.placeholder_b
+        emj_a = url_to_emoji(ultimo_jogo.team_a.team_flag_url) if getattr(ultimo_jogo, 'team_a', None) else ""
+        emj_b = url_to_emoji(ultimo_jogo.team_b.team_flag_url) if getattr(ultimo_jogo, 'team_b', None) else ""
+        
+        r_a = ultimo_jogo.team_a_result
+        r_b = ultimo_jogo.team_b_result
+        ultimo_jogo_str = f"{emj_a} {t_a} {r_a} x {r_b} {t_b} {emj_b}".strip()
 
     # Correção N+1: Buscar todos os palpites dos usuários aprovados de uma única vez
     ids_usuarios = [u.id for u in usuarios]
@@ -152,6 +171,7 @@ def ranking():
 
     for user in usuarios:
         pontos_totais = acertos_exatos = acertos_parciais = acertos_tendencia = 0
+        pontos_ultimo_jogo = 0
         
         # Agora busca na memória (dicionário) ao invés de bater no banco a cada loop
         palpites_raw = palpites_por_usuario[user.id]
@@ -173,13 +193,17 @@ def ranking():
                 elif tipo == 'parcial': acertos_parciais += 1
                 elif tipo == 'tendencia': acertos_tendencia += 1
                 
+                if ultimo_jogo and jogo.id == ultimo_jogo.id:
+                    pontos_ultimo_jogo = pontos
+                
         ranking_data.append({
             'nome': user.name, 
             'pontos': pontos_totais, 
             'exatos': acertos_exatos,
             'parciais': acertos_parciais, 
             'tendencia': acertos_tendencia,
-            'profile_pic': user.profile_pic 
+            'profile_pic': user.profile_pic,
+            'pontos_ultimo': pontos_ultimo_jogo
         })
     
     # Ordenação: Pontos -> Exatos -> Parciais -> Tendência -> Nome (Alfabético)
@@ -208,7 +232,7 @@ def ranking():
                     pos_atual += 1
             ranking_data[i]['rank'] = pos_atual
     
-    return render_template('ranking.html', ranking=ranking_data)
+    return render_template('ranking.html', ranking=ranking_data, ultimo_jogo_str=ultimo_jogo_str)
 
 # =====================================================================
 

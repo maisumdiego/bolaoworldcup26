@@ -105,13 +105,16 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-center flex-wrap gap-3 mb-5">
-            <button id="btn-share-ranking" class="pulp-btn pulp-btn-gold pulp-btn-sm px-5">
+        <div class="d-flex flex-column align-items-center gap-3 mb-5 mx-auto" style="max-width: 350px;">
+            <button id="btn-share-ranking" class="pulp-btn pulp-btn-gold pulp-btn-sm w-100">
                 <i class="fas fa-share-alt me-2"></i> COMPARTILHAR
             </button>
             {% if current_user.is_authenticated and current_user.email == admin_email %}
-            <button id="btn-export-whatsapp" class="pulp-btn pulp-btn-green pulp-btn-sm px-5">
-                <i class="fab fa-whatsapp me-2"></i> EXPORTAR
+            <button id="btn-export-whatsapp" class="pulp-btn pulp-btn-green pulp-btn-sm w-100">
+                <i class="fab fa-whatsapp me-2"></i> EXPORTAR (GERAL)
+            </button>
+            <button id="btn-export-whatsapp-highlight" class="pulp-btn pulp-btn-green pulp-btn-sm w-100">
+                <i class="fab fa-whatsapp me-2"></i> EXPORTAR (+ DESTAQUE DA RODADA)
             </button>
             {% endif %}
         </div>
@@ -549,38 +552,54 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const btnExportWhatsapp = document.getElementById('btn-export-whatsapp');
-    if (btnExportWhatsapp) {
-        btnExportWhatsapp.addEventListener('click', function() {
-            const agora = new Date();
-            const dataStr = agora.toLocaleDateString('pt-BR');
-            const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const btnExportHighlight = document.getElementById('btn-export-whatsapp-highlight');
+    const ultimoJogoStr = '{{ ultimo_jogo_str|safe }}';
+
+    function exportarRanking(comDestaque) {
+        const agora = new Date();
+        const dataStr = agora.toLocaleDateString('pt-BR');
+        const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        
+        let message = "*BOLÃO DA CABEÇA 2026*\n";
+        message += "🏆 *RANKING* 🏆\n";
+        if (comDestaque && ultimoJogoStr) {
+            message += `_Placar final: ${ultimoJogoStr}_\n`;
+        }
+        message += "--------------------------------------------\n";
+        
+        const maxNameLen = 15;
+        
+        rankingData.forEach((user) => {
+            const pos = user.rank.toString().padStart(2, '0');
+            let nome = user.nome.trim();
             
-            let message = "*BOLÃO DA CABEÇA 2026*\n";
-            message += "🏆 *RANKING* 🏆\n";
-            message += "--------------------------------------------\n";
+            if (nome.length > maxNameLen) {
+                nome = nome.substring(0, maxNameLen - 3) + "...";
+            }
+            const dots = ".".repeat(maxNameLen - nome.length + 2);
             
-            // Determina o tamanho máximo do nome para alinhamento (limitado a 15 chars para evitar quebras)
-            const maxNameLen = 15;
+            let linha = `*${pos}º*  ${nome} ${dots} *${user.pontos} pts*`;
             
-            rankingData.forEach((user, index) => {
-                const pos = user.rank.toString().padStart(2, '0');
-                let nome = user.nome.trim();
-                
-                // Trunca se for muito longo, ou preenche com pontos se for curto
-                if (nome.length > maxNameLen) {
-                    nome = nome.substring(0, maxNameLen - 3) + "...";
-                }
-                const dots = ".".repeat(maxNameLen - nome.length + 2);
-                
-                message += `*${pos}º*  ${nome} ${dots} *${user.pontos} pts*\n`;
-            });
-            
-            message += "--------------------------------------------\n";
-            message += `_Atualizado em: ${dataStr} às ${horaStr}_\n`;
-            message += "⚽ https://bolaocabeca.up.railway.app/";
-            
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+            if (comDestaque && user.pontos_ultimo !== undefined) {
+                const sinal = user.pontos_ultimo > 0 ? "+" : "";
+                linha += ` (${sinal}${user.pontos_ultimo})`;
+            }
+            message += linha + "\n";
         });
+        
+        message += "--------------------------------------------\n";
+        message += `_Atualizado em: ${dataStr} às ${horaStr}_\n`;
+        message += "⚽ https://bolaocabeca.up.railway.app/";
+        
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    if (btnExportWhatsapp) {
+        btnExportWhatsapp.addEventListener('click', () => exportarRanking(false));
+    }
+    
+    if (btnExportHighlight) {
+        btnExportHighlight.addEventListener('click', () => exportarRanking(true));
     }
 });
 </script>
