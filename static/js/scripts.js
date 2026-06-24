@@ -24,13 +24,33 @@ function abrirModalPalpites(jogoId) {
     fetch('/get_palpites_jogo/' + jogoId)
         .then(response => response.json())
         .then(data => {
+            let html = '';
+
+            // Header de Placares (Principal e Simultâneo)
+            if (data.placar_a !== null && data.placar_a !== undefined) {
+                html += `<div class="d-flex justify-content-center align-items-center mb-3 p-2 rounded flex-wrap" style="background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);">`;
+                html += `  <div class="text-center mx-2 my-1">`;
+                html += `    <div style="font-size: 0.8rem; color: #aaa;">Jogo Selecionado</div>`;
+                html += `    <div class="fw-bold text-white">${data.time_a} ${getEmojiFlag(data.iso_a)} ${data.placar_a} x ${data.placar_b} ${getEmojiFlag(data.iso_b)} ${data.time_b}</div>`;
+                html += `  </div>`;
+                
+                if (data.jogo_simultaneo && data.jogo_simultaneo.placar_a !== null && data.jogo_simultaneo.placar_a !== undefined) {
+                    html += `  <div class="d-none d-md-block mx-3 border-start border-secondary h-100" style="min-height: 40px;"></div>`;
+                    html += `  <div class="text-center mx-2 my-1">`;
+                    html += `    <div style="font-size: 0.8rem; color: #aaa;">Jogo Simultâneo</div>`;
+                    html += `    <div class="fw-bold text-white">${data.jogo_simultaneo.time_a} ${getEmojiFlag(data.jogo_simultaneo.iso_a)} ${data.jogo_simultaneo.placar_a} x ${data.jogo_simultaneo.placar_b} ${getEmojiFlag(data.jogo_simultaneo.iso_b)} ${data.jogo_simultaneo.time_b}</div>`;
+                    html += `  </div>`;
+                }
+                html += `</div>`;
+            }
+
             if (!data.palpites || data.palpites.length === 0) {
-                // Corrigido: Usando text-white para melhor legibilidade no fundo verde escuro
-                listaContainer.innerHTML = '<p class="text-center text-white opacity-75 p-3">Ninguém palpitou ainda. Seja o primeiro!</p>';
+                html += '<p class="text-center text-white opacity-75 p-3">Ninguém palpitou ainda. Seja o primeiro!</p>';
+                listaContainer.innerHTML = html;
                 return;
             }
 
-            let html = '<table class="table-espios w-100"><tbody>';
+            html += '<table class="table-espios w-100"><tbody>';
             
             data.palpites.forEach(p => {
                 html += `<tr><td class="fw-bold py-2 td-nome-espiao">${p.nome}</td>`;
@@ -70,7 +90,14 @@ function abrirModalPalpites(jogoId) {
                     const flagB = getEmojiFlag(data.iso_b);
 
                     let mensagem = `⚽ *Bolão da Cabeça - Mesa de Palpites*\n\n`;
-                    mensagem += `*${data.time_a}* ${flagA} x *${data.time_b}* ${flagB} \n`;
+                    mensagem += `*${data.time_a}* ${flagA} ${data.placar_a !== null ? data.placar_a : ''} x ${data.placar_b !== null ? data.placar_b : ''} *${data.time_b}* ${flagB} \n`;
+                    
+                    if (data.jogo_simultaneo && data.jogo_simultaneo.placar_a !== null) {
+                        const flagSimA = getEmojiFlag(data.jogo_simultaneo.iso_a);
+                        const flagSimB = getEmojiFlag(data.jogo_simultaneo.iso_b);
+                        mensagem += `*${data.jogo_simultaneo.time_a}* ${flagSimA} ${data.jogo_simultaneo.placar_a} x ${data.jogo_simultaneo.placar_b} *${data.jogo_simultaneo.time_b}* ${flagSimB} \n`;
+                    }
+                    
                     mensagem += `_(${data.data_hora})_\n\n`;
 
                     data.palpites.forEach(p => {

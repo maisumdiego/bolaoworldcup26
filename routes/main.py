@@ -120,7 +120,7 @@ def salvar_palpite():
     if not jogo: return jsonify({"status": "error", "message": "Jogo não encontrado."}), 404
     if jogo.status == 'encerrado': return jsonify({"status": "error", "message": "Este jogo já foi encerrado."}), 403
     
-    agora = datetime.now()
+    agora = get_now()
     limite_palpite = jogo.datetime_game - timedelta(minutes=10)
 
     if agora >= limite_palpite: return jsonify({"status": "error", "message": "Tempo esgotado para este jogo."}), 403
@@ -139,7 +139,11 @@ def salvar_palpite():
 @login_required
 def ranking():
     usuarios = User.query.filter_by(is_approved=True).all()
-    jogos_encerrados = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter_by(status='encerrado').order_by(Game.datetime_game.desc()).all()
+    agora = get_now()
+    jogos_encerrados = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter(
+        Game.status == 'encerrado',
+        Game.datetime_game <= agora
+    ).order_by(Game.datetime_game.desc(), Game.id.desc()).all()
     ranking_data = []
 
     ultimo_jogo = jogos_encerrados[0] if jogos_encerrados else None
@@ -160,6 +164,22 @@ def ranking():
         r_a = ultimo_jogo.team_a_result
         r_b = ultimo_jogo.team_b_result
         ultimo_jogo_str = f"{emj_a} {t_a} {r_a} x {r_b} {t_b} {emj_b}".strip()
+        
+        # Check for simultaneous game
+        jogo_simultaneo = Game.query.filter(
+            Game.id != ultimo_jogo.id,
+            Game.datetime_game == ultimo_jogo.datetime_game,
+            Game.status == 'encerrado'
+        ).first()
+        
+        if jogo_simultaneo:
+            t_a_s = jogo_simultaneo.team_a.ab if getattr(jogo_simultaneo, 'team_a', None) else jogo_simultaneo.placeholder_a
+            t_b_s = jogo_simultaneo.team_b.ab if getattr(jogo_simultaneo, 'team_b', None) else jogo_simultaneo.placeholder_b
+            emj_a_s = url_to_emoji(jogo_simultaneo.team_a.team_flag_url) if getattr(jogo_simultaneo, 'team_a', None) else ""
+            emj_b_s = url_to_emoji(jogo_simultaneo.team_b.team_flag_url) if getattr(jogo_simultaneo, 'team_b', None) else ""
+            r_a_s = jogo_simultaneo.team_a_result
+            r_b_s = jogo_simultaneo.team_b_result
+            ultimo_jogo_str = f"_\\n_{ultimo_jogo_str}_\\n_{emj_a_s} {t_a_s} {r_a_s} x {r_b_s} {t_b_s} {emj_b_s}".strip()
 
     # Correção N+1: Buscar todos os palpites dos usuários aprovados de uma única vez
     ids_usuarios = [u.id for u in usuarios]
@@ -293,6 +313,25 @@ def get_palpites_jogo(jogo_id):
             else:
                 ultimos_palpites[p.user_id] = {"nome": nome_usuario, "liberado": False}
         
+    jogo_simultaneo_data = None
+    if jogo.phase == 'Grupos' and jogo.team_a and jogo.team_a.group_team:
+        jogo_simultaneo = Game.query.join(Team, Game.team_a_id == Team.id).filter(
+            Game.phase == 'Grupos',
+            Game.datetime_game == jogo.datetime_game,
+            Game.id != jogo.id,
+            Team.group_team == jogo.team_a.group_team
+        ).first()
+        
+        if jogo_simultaneo:
+            jogo_simultaneo_data = {
+                "time_a": jogo_simultaneo.team_a.team_name if jogo_simultaneo.team_a else jogo_simultaneo.placeholder_a,
+                "time_b": jogo_simultaneo.team_b.team_name if jogo_simultaneo.team_b else jogo_simultaneo.placeholder_b,
+                "iso_a": jogo_simultaneo.team_a.team_flag_url.split('/')[-1].split('.')[0] if jogo_simultaneo.team_a and jogo_simultaneo.team_a.team_flag_url else None,
+                "iso_b": jogo_simultaneo.team_b.team_flag_url.split('/')[-1].split('.')[0] if jogo_simultaneo.team_b and jogo_simultaneo.team_b.team_flag_url else None,
+                "placar_a": jogo_simultaneo.team_a_result,
+                "placar_b": jogo_simultaneo.team_b_result
+            }
+
     return jsonify({
         "status": "success", 
         "visibilidade_liberada": visibilidade_liberada, 
@@ -300,6 +339,9 @@ def get_palpites_jogo(jogo_id):
         "time_b": jogo.team_b.team_name if jogo.team_b else jogo.placeholder_b,
         "iso_a": jogo.team_a.team_flag_url.split('/')[-1].split('.')[0] if jogo.team_a and jogo.team_a.team_flag_url else None,
         "iso_b": jogo.team_b.team_flag_url.split('/')[-1].split('.')[0] if jogo.team_b and jogo.team_b.team_flag_url else None,
+        "placar_a": jogo.team_a_result,
+        "placar_b": jogo.team_b_result,
+        "jogo_simultaneo": jogo_simultaneo_data,
         "data_hora": jogo.datetime_game.strftime('%d/%m - %H:%M'),
         "palpites": sorted(list(ultimos_palpites.values()), key=lambda x: x['nome'].lower())
     })
@@ -308,7 +350,11 @@ def get_palpites_jogo(jogo_id):
 @login_required
 def get_historico_usuario(nome_usuario):
     user = User.query.filter_by(name=nome_usuario).first_or_404()
-    jogos_encerrados = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter_by(status='encerrado').order_by(Game.datetime_game.desc()).all()
+    agora = get_now()
+    jogos_encerrados = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter(
+        Game.status == 'encerrado',
+        Game.datetime_game <= agora
+    ).order_by(Game.datetime_game.desc(), Game.id.desc()).all()
     
     palpites_raw = Prediction.query.filter_by(user_id=user.id).order_by(Prediction.created_at.desc()).all()
     palpites_finais = {}
