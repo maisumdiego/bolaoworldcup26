@@ -148,6 +148,8 @@ def ranking():
 
     ultimo_jogo = jogos_encerrados[0] if jogos_encerrados else None
     ultimo_jogo_str = ""
+    jogo_simultaneo = None
+    
     if ultimo_jogo:
         def url_to_emoji(url):
             if not url: return ""
@@ -214,7 +216,9 @@ def ranking():
                 elif tipo == 'tendencia': acertos_tendencia += 1
                 
                 if ultimo_jogo and jogo.id == ultimo_jogo.id:
-                    pontos_ultimo_jogo = pontos
+                    pontos_ultimo_jogo += pontos
+                elif jogo_simultaneo and jogo.id == jogo_simultaneo.id:
+                    pontos_ultimo_jogo += pontos
                 
         ranking_data.append({
             'nome': user.name, 
