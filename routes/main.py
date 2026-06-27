@@ -50,7 +50,7 @@ def palpites():
     grupos_existentes = set()
     fases_existentes = set()
     
-    ordem_fases = ['Grupos', 'Segunda Rodada', 'Oitavas de Final', 'Quartas de Final', 'Semifinais', 'Terceiro Lugar', 'Final']
+    ordem_fases = ['Grupos', '16 Avos de Final', 'Oitavas de Final', 'Quartas de Final', 'Semifinais', 'Terceiro Lugar', 'Final']
 
     for jogo in jogos:
         dia_str = jogo.datetime_game.strftime('%Y-%m-%d')

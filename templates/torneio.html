@@ -115,20 +115,28 @@
 document.addEventListener('DOMContentLoaded', function() {
     const todosJogos = {{ jogos_mata_mata | tojson }};
 
-    function padRound(gamesArray, requiredLength) {
-        let result = [...gamesArray];
-        while(result.length < requiredLength) {
-            result.push({ score_a: null, score_b: null, team_a_name: 'A definir', team_b_name: 'A definir', team_a_flag: null, team_b_flag: null });
-        }
-        return result.slice(0, requiredLength);
-    }
+    const getGamesByOrder = (gamesArray, orderArray) => {
+        return orderArray.map(id => {
+            const game = gamesArray.find(g => g.id === id);
+            return game ? game : { score_a: null, score_b: null, team_a_name: 'A definir', team_b_name: 'A definir', team_a_flag: null, team_b_flag: null };
+        });
+    };
 
-    const r32   = padRound(todosJogos.filter(j => j.phase === 'Segunda Rodada'), 16);
-    const r16   = padRound(todosJogos.filter(j => j.phase === 'Oitavas de Final'), 8);
-    const r8    = padRound(todosJogos.filter(j => j.phase === 'Quartas de Final'), 4);
-    const r4    = padRound(todosJogos.filter(j => j.phase === 'Semifinais'), 2);
-    const final = padRound(todosJogos.filter(j => j.phase === 'Final'), 1)[0];
-    const tLugar = padRound(todosJogos.filter(j => j.phase === 'Terceiro Lugar'), 1)[0];
+    const r32_order = [74, 77, 73, 75, 83, 84, 81, 82, 76, 78, 79, 80, 86, 88, 85, 87];
+    const r16_order = [89, 90, 93, 94, 91, 92, 95, 96];
+    const r8_order  = [97, 98, 99, 100];
+    const r4_order  = [101, 102];
+
+    const r32   = getGamesByOrder(todosJogos, r32_order);
+    const r16   = getGamesByOrder(todosJogos, r16_order);
+    const r8    = getGamesByOrder(todosJogos, r8_order);
+    const r4    = getGamesByOrder(todosJogos, r4_order);
+    
+    let final = todosJogos.find(j => j.phase === 'Final');
+    if (!final) final = { score_a: null, score_b: null, team_a_name: 'A definir', team_b_name: 'A definir', team_a_flag: null, team_b_flag: null };
+    
+    let tLugar = todosJogos.find(j => j.phase === 'Terceiro Lugar');
+    if (!tLugar) tLugar = { score_a: null, score_b: null, team_a_name: 'A definir', team_b_name: 'A definir', team_a_flag: null, team_b_flag: null };
 
     const teams = r32.map(j => [
         { name: j.team_a_name, flag: j.team_a_flag },
