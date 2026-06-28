@@ -224,9 +224,10 @@
                 <tbody>
                     {% for jogo in jogos_pendentes %}
                     <tr>
-                        <form class="form-pendente">
+                        <td class="fw-bold opacity-50">
                             <input type="hidden" name="game_id" value="{{ jogo.id }}">
-                            <td class="fw-bold opacity-50">#{{ jogo.id }}</td>
+                            #{{ jogo.id }}
+                        </td>
                             <td>
                                 <span class="badge bg-dark bg-opacity-50 text-warning border border-warning border-opacity-25 px-3 py-2 text-uppercase" style="font-size: 0.65rem;">
                                     {{ jogo.phase }}
@@ -268,7 +269,6 @@
                                     Injetar Time
                                 </button>
                             </td>
-                        </form>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -325,8 +325,18 @@ function enviarResultado(btn) {
 
 document.querySelectorAll('.btn-salvar-pendente').forEach(btn => {
     btn.addEventListener('click', function() {
-        const form = this.closest('form');
-        const formData = new FormData(form);
+        const row = this.closest('tr');
+        const formData = new FormData();
+        
+        const gameId = row.querySelector('input[name="game_id"]');
+        if (gameId) formData.append('game_id', gameId.value);
+        
+        const teamA = row.querySelector('select[name="team_a_id"]');
+        if (teamA && teamA.value) formData.append('team_a_id', teamA.value);
+        
+        const teamB = row.querySelector('select[name="team_b_id"]');
+        if (teamB && teamB.value) formData.append('team_b_id', teamB.value);
+
         const originalText = this.innerHTML;
         
         this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
