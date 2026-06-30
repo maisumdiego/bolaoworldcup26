@@ -143,7 +143,16 @@ document.addEventListener('DOMContentLoaded', function() {
         { name: j.team_b_name, flag: j.team_b_flag }
     ]);
 
-    const montarScores = (fase) => fase.map(j => [j.score_a, j.score_b]);
+    const montarScores = (fase) => fase.map(j => {
+        if (j.score_a === null || j.score_b === null) return [null, null];
+        let sa = j.score_a;
+        let sb = j.score_b;
+        if (sa === sb && j.penalties_winner_id) {
+            if (j.penalties_winner_id === j.team_a_id) sa = sa + 0.01;
+            else if (j.penalties_winner_id === j.team_b_id) sb = sb + 0.01;
+        }
+        return [sa, sb];
+    });
 
     const bracketData = {
         teams: teams,
@@ -184,6 +193,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     matchMargin: 45,
                     roundMargin: 55
                 });
+                
+                // Cleanup decimal scores and add penalty indicator
+                setTimeout(() => {
+                    $('.jQBracket .score').each(function() {
+                        let text = $(this).text();
+                        if (text.includes('.01')) {
+                            $(this).text(text.replace('.01', ''));
+                            // Optional: add a tiny visual hint that it was on penalties
+                            if ($(this).parent().find('.penalty-hint').length === 0) {
+                                $(this).parent().css('position', 'relative').append('<span class="penalty-hint" style="color:var(--pulp-gold); font-size:0.5rem; position:absolute; right: -12px; top: 0; font-family: monospace;">(P)</span>');
+                            }
+                        }
+                    });
+                }, 50);
+
                 drawn = true;
             }, 150);
         }

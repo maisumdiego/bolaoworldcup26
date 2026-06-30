@@ -34,7 +34,8 @@ CREATE TABLE dim_games (
     phase VARCHAR(50) NOT NULL,
     status VARCHAR(20) DEFAULT 'agendado',
     placeholder_a VARCHAR(50), 
-    placeholder_b VARCHAR(50) 
+    placeholder_b VARCHAR(50),
+    penalties_winner_id INTEGER REFERENCES dim_teams(id)
 );
 
 -- 4. Tabela de Classificação da Fase de Grupos (fact_group_standings)

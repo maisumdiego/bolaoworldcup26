@@ -45,13 +45,20 @@ def salvar_resultado():
     game_id = request.form.get('game_id')
     res_a = request.form.get('result_a')
     res_b = request.form.get('result_b')
+    penalties_winner_id = request.form.get('penalties_winner_id')
 
     jogo = Game.query.get(game_id)
     if jogo:
         try:
             jogo.team_a_result = int(res_a)
             jogo.team_b_result = int(res_b)
-            jogo.status = 'encerrado' 
+            jogo.status = 'encerrado'
+            
+            if penalties_winner_id and jogo.team_a_result == jogo.team_b_result and jogo.phase != 'Grupos':
+                jogo.penalties_winner_id = int(penalties_winner_id)
+            else:
+                jogo.penalties_winner_id = None
+                
             db.session.commit()
             
             if jogo.phase == 'Grupos':

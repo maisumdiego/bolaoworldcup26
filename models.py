@@ -45,6 +45,7 @@ class Game(db.Model):
     status = db.Column(db.String(15), default='agendado')
     placeholder_a = db.Column(db.String(50))
     placeholder_b = db.Column(db.String(50))
+    penalties_winner_id = db.Column(db.Integer, db.ForeignKey('dim_teams.id'), nullable=True)
     team_a = db.relationship('Team', foreign_keys=[team_a_id])
     team_b = db.relationship('Team', foreign_keys=[team_b_id])
 

@@ -108,8 +108,12 @@ def avancar_mata_mata(jogo_atual):
     elif jogo_atual.team_b_result > jogo_atual.team_a_result:
         vencedor_id = jogo_atual.team_b_id
     else:
-        print(f"🛑 Empate no jogo {jogo_atual.id}! Ninguém avança automático.")
-        return 
+        if hasattr(jogo_atual, 'penalties_winner_id') and jogo_atual.penalties_winner_id:
+            vencedor_id = jogo_atual.penalties_winner_id
+            print(f"🥅 Empate no jogo {jogo_atual.id}! Vencedor nos pênaltis: {vencedor_id}")
+        else:
+            print(f"🛑 Empate no jogo {jogo_atual.id}! Ninguém avança automático sem decisão por pênaltis.")
+            return 
 
     if not vencedor_id:
         return

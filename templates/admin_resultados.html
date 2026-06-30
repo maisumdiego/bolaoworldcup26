@@ -171,13 +171,31 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <form class="form-admin-resultado d-flex justify-content-center align-items-center gap-2">
-                                            <input type="hidden" name="game_id" value="{{ jogo.id }}">
-                                            <input type="number" name="result_a" class="form-control form-control-sm text-center fw-bold admin-input" 
-                                                style="width: 50px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required min="0">
-                                            <span class="text-white-50 fw-bold">X</span>
-                                            <input type="number" name="result_b" class="form-control form-control-sm text-center fw-bold admin-input" 
-                                                style="width: 50px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required min="0">
+                                        <form class="form-admin-resultado d-flex flex-column justify-content-center align-items-center gap-2">
+                                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                                <input type="hidden" name="game_id" value="{{ jogo.id }}">
+                                                <input type="number" name="result_a" id="res_a_{{ jogo.id }}" class="form-control form-control-sm text-center fw-bold admin-input" 
+                                                    style="width: 50px" value="{{ jogo.team_a_result if jogo.team_a_result is not none else '' }}" required min="0" oninput="checkPenalties('{{ jogo.id }}', '{{ fase }}')">
+                                                <span class="text-white-50 fw-bold">X</span>
+                                                <input type="number" name="result_b" id="res_b_{{ jogo.id }}" class="form-control form-control-sm text-center fw-bold admin-input" 
+                                                    style="width: 50px" value="{{ jogo.team_b_result if jogo.team_b_result is not none else '' }}" required min="0" oninput="checkPenalties('{{ jogo.id }}', '{{ fase }}')">
+                                            </div>
+                                            {% if fase != 'Grupos' %}
+                                            <div class="penalties-container w-100 mt-1" id="penalties-{{ jogo.id }}" style="display: {% if jogo.team_a_result is not none and jogo.team_a_result == jogo.team_b_result %}block{% else %}none{% endif %};">
+                                                <span class="small text-warning fw-bold d-block mb-1 text-center" style="font-size: 0.65rem;">Vencedor (Pênaltis):</span>
+                                                <div class="btn-group w-100" role="group">
+                                                    <button type="button" class="btn btn-sm {% if jogo.penalties_winner_id and jogo.penalties_winner_id == jogo.team_a_id %}btn-warning text-dark{% else %}btn-outline-warning{% endif %} btn-pulp-penalties" 
+                                                            onclick="selectPenaltyWinner(this, '{{ jogo.id }}', '{{ jogo.team_a_id }}')">
+                                                        {{ jogo.team_a.ab if jogo.team_a else 'A' }}
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm {% if jogo.penalties_winner_id and jogo.penalties_winner_id == jogo.team_b_id %}btn-warning text-dark{% else %}btn-outline-warning{% endif %} btn-pulp-penalties" 
+                                                            onclick="selectPenaltyWinner(this, '{{ jogo.id }}', '{{ jogo.team_b_id }}')">
+                                                        {{ jogo.team_b.ab if jogo.team_b else 'B' }}
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" name="penalties_winner_id" id="input-penalty-{{ jogo.id }}" value="{{ jogo.penalties_winner_id or '' }}">
+                                            </div>
+                                            {% endif %}
                                         </form>
                                     </td>
                                     <td class="text-start">
@@ -282,6 +300,47 @@
 
 {% block scripts %}
 <script>
+function selectPenaltyWinner(btn, gameId, teamId) {
+    const container = document.getElementById('penalties-' + gameId);
+    const buttons = container.querySelectorAll('.btn-pulp-penalties');
+    
+    // Reset all buttons
+    buttons.forEach(b => {
+        b.classList.remove('btn-warning', 'text-dark');
+        b.classList.add('btn-outline-warning');
+    });
+    
+    // Set active class on clicked button
+    btn.classList.remove('btn-outline-warning');
+    btn.classList.add('btn-warning', 'text-dark');
+    
+    // Update hidden input
+    document.getElementById('input-penalty-' + gameId).value = teamId;
+}
+
+function checkPenalties(gameId, fase) {
+    if (fase === 'Grupos') return;
+    
+    const resA = document.getElementById('res_a_' + gameId).value;
+    const resB = document.getElementById('res_b_' + gameId).value;
+    const penaltyContainer = document.getElementById('penalties-' + gameId);
+    
+    if (resA !== '' && resB !== '' && resA === resB) {
+        penaltyContainer.style.display = 'block';
+    } else {
+        penaltyContainer.style.display = 'none';
+        // Clear selection if it's no longer a draw
+        const inputPenalty = document.getElementById('input-penalty-' + gameId);
+        if(inputPenalty) inputPenalty.value = '';
+        
+        const buttons = penaltyContainer.querySelectorAll('.btn-pulp-penalties');
+        buttons.forEach(b => {
+            b.classList.remove('btn-warning', 'text-dark');
+            b.classList.add('btn-outline-warning');
+        });
+    }
+}
+
 function enviarResultado(btn) {
     const row = btn.closest('tr');
     const form = row.querySelector('.form-admin-resultado');
@@ -289,6 +348,19 @@ function enviarResultado(btn) {
     
     const originalText = btn.innerHTML;
     const originalClasses = btn.className;
+    
+    // Check if it's a draw in knockout stage and no penalty winner is selected
+    const penaltyInput = form.querySelector('input[name="penalties_winner_id"]');
+    const resA = form.querySelector('input[name="result_a"]').value;
+    const resB = form.querySelector('input[name="result_b"]').value;
+    const hasPenaltyContainer = form.querySelector('.penalties-container');
+    
+    if (hasPenaltyContainer && resA !== '' && resB !== '' && resA === resB) {
+        if (!penaltyInput || penaltyInput.value === '') {
+            alert('Você deve selecionar o vencedor nos pênaltis para jogos de mata-mata empatados.');
+            return;
+        }
+    }
     
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';

@@ -281,8 +281,11 @@ def torneio():
         'team_b_name': j.team_b.ab if j.team_b else j.placeholder_b,
         'team_a_flag': j.team_a.team_flag_url if j.team_a else None,
         'team_b_flag': j.team_b.team_flag_url if j.team_b else None,
+        'team_a_id': j.team_a_id,
+        'team_b_id': j.team_b_id,
         'score_a': j.team_a_result if j.status == 'encerrado' else None,
-        'score_b': j.team_b_result if j.status == 'encerrado' else None
+        'score_b': j.team_b_result if j.status == 'encerrado' else None,
+        'penalties_winner_id': getattr(j, 'penalties_winner_id', None)
     } for j in jogos_mata_mata_obj]
         
     return render_template('torneio.html', 
