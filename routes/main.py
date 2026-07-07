@@ -28,7 +28,7 @@ def index():
             palpites_raw = Prediction.query.filter(
                 Prediction.user_id == current_user.id, 
                 Prediction.game_id.in_(ids_jogos)
-            ).all()
+            ).order_by(Prediction.created_at.asc()).all()
             palpites_usuario = {p.game_id: True for p in palpites_raw}
 
     return render_template('index.html', 
@@ -91,7 +91,7 @@ def palpites():
         data_obj = datetime.strptime(d, '%Y-%m-%d')
         dias_semana[d] = nomes_dias[data_obj.weekday()]
 
-    palpites_raw = Prediction.query.filter_by(user_id=current_user.id).all()
+    palpites_raw = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.created_at.asc()).all()
     palpites_usuario = {p.game_id: {'a': p.result_a, 'b': p.result_b} for p in palpites_raw}
 
     return render_template('palpites.html', 
