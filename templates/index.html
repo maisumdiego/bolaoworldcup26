@@ -385,14 +385,27 @@
                 c = excecoesRest[nomePais];
             } else {
                 let termoRest = nomePais === 'Coréia do Sul' ? 'Coreia do Sul' : nomePais;
-                const resCountries = await fetch(`https://restcountries.com/v3.1/translation/${termoRest}`);
-                if (!resCountries.ok) throw new Error("País não encontrado");
-                const dataCountries = await resCountries.json();
                 
-                c = dataCountries.find(p => 
-                    (p.translations && p.translations.por && p.translations.por.common.toLowerCase() === termoRest.toLowerCase()) ||
-                    (p.name && p.name.common.toLowerCase() === termoRest.toLowerCase())
-                ) || dataCountries[0];
+                if (!window.allCountriesData) {
+                    const resCountries = await fetch(`https://studies.cs.helsinki.fi/restcountries/api/all`);
+                    if (!resCountries.ok) throw new Error("Erro ao buscar países da API");
+                    window.allCountriesData = await resCountries.json();
+                }
+
+                const searchTarget = termoRest.toLowerCase();
+                c = window.allCountriesData.find(p => 
+                    (p.translations && p.translations.por && p.translations.por.common.toLowerCase() === searchTarget) ||
+                    (p.name && p.name.common.toLowerCase() === searchTarget)
+                );
+                
+                if (!c) {
+                    c = window.allCountriesData.find(p => 
+                        (p.translations && p.translations.por && p.translations.por.common.toLowerCase().includes(searchTarget)) ||
+                        (p.name && p.name.common.toLowerCase().includes(searchTarget))
+                    );
+                }
+                
+                if (!c) throw new Error("País não encontrado: " + termoRest);
             }
 
             const tradContinentes = {
