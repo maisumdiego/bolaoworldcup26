@@ -18,7 +18,8 @@ def index():
     
     if current_user.is_authenticated:
         agora = get_now()
-        proximos_jogos = Game.query.filter(
+        from sqlalchemy.orm import joinedload
+        proximos_jogos = Game.query.options(joinedload(Game.team_a), joinedload(Game.team_b)).filter(
             Game.datetime_game > agora, 
             Game.status != 'encerrado'
         ).order_by(Game.datetime_game.asc()).limit(4).all()
@@ -80,8 +81,14 @@ def palpites():
     grupos_ordenados = sorted(list(grupos_existentes))
     fases_ordenadas = [f for f in ordem_fases if f in fases_existentes]
     
-    hoje = get_now().strftime('%Y-%m-%d')
-    dia_ativo = hoje if hoje in datas_ordenadas else (datas_ordenadas[0] if datas_ordenadas else None)
+    hoje_obj = get_now().date()
+    hoje = hoje_obj.strftime('%Y-%m-%d')
+    
+    if hoje in datas_ordenadas:
+        dia_ativo = hoje
+    else:
+        futuros = [d for d in datas_ordenadas if datetime.strptime(d, '%Y-%m-%d').date() > hoje_obj]
+        dia_ativo = futuros[0] if futuros else (datas_ordenadas[0] if datas_ordenadas else None)
     grupo_ativo = grupos_ordenados[0] if grupos_ordenados else None
     fase_ativa = fases_ordenadas[0] if fases_ordenadas else None
 

@@ -212,9 +212,19 @@
                 <div class="team-card p-4 text-center">
                     <small class="text-warning d-block mb-3 fw-bold">{{ jogo.datetime_game.strftime('%d/%m %H:%M') }}</small>
                     <div class="d-flex justify-content-center align-items-center mb-4 gap-2">
-                        {% if jogo.team_a %}<img src="{{ jogo.team_a.team_flag_url }}" style="width: 45px; height: 30px; border-radius: 3px;">{% endif %}
-                        <span class="fw-bold text-white mx-1">X</span>
-                        {% if jogo.team_b %}<img src="{{ jogo.team_b.team_flag_url }}" style="width: 45px; height: 30px; border-radius: 3px;">{% endif %}
+                        {% if jogo.team_a %}
+                            <span class="text-white fw-bold">{{ jogo.team_a.ab }}</span>
+                            <img src="{{ jogo.team_a.team_flag_url }}" style="width: 45px; height: 30px; border-radius: 3px; object-fit: cover;">
+                        {% else %}
+                            <span class="text-white-50 fw-bold">{{ jogo.placeholder_a }}</span>
+                        {% endif %}
+                        <span class="fw-bold text-warning mx-2">X</span>
+                        {% if jogo.team_b %}
+                            <img src="{{ jogo.team_b.team_flag_url }}" style="width: 45px; height: 30px; border-radius: 3px; object-fit: cover;">
+                            <span class="text-white fw-bold">{{ jogo.team_b.ab }}</span>
+                        {% else %}
+                            <span class="text-white-50 fw-bold">{{ jogo.placeholder_b }}</span>
+                        {% endif %}
                     </div>
                     <a href="{{ url_for('main.palpites') }}" class="btn btn-sm btn-{{ 'success' if jogo.id in palpites_usuario else 'outline-warning' }} w-100 fw-bold">
                         {{ 'PALPITE FEITO' if jogo.id in palpites_usuario else 'DAR PALPITE' }}
@@ -256,7 +266,7 @@
     </div>
 </section>
 
-<section class="section-home bg-slate-section">
+<section class="section-home bg-slate-section" style="padding-bottom: 7rem !important;">
     <div class="container" data-aos="fade-left">
         <h3 class="title-font text-center mb-5" style="font-size: 1.8rem;">Raio-X da Copa</h3>
         
