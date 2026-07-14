@@ -102,14 +102,21 @@ def automatizar_chaveamento():
 
 def avancar_mata_mata(jogo_atual):
     vencedor_id = None
+    perdedor_id = None
     
     if jogo_atual.team_a_result > jogo_atual.team_b_result:
         vencedor_id = jogo_atual.team_a_id
+        perdedor_id = jogo_atual.team_b_id
     elif jogo_atual.team_b_result > jogo_atual.team_a_result:
         vencedor_id = jogo_atual.team_b_id
+        perdedor_id = jogo_atual.team_a_id
     else:
         if hasattr(jogo_atual, 'penalties_winner_id') and jogo_atual.penalties_winner_id:
             vencedor_id = jogo_atual.penalties_winner_id
+            if vencedor_id == jogo_atual.team_a_id:
+                perdedor_id = jogo_atual.team_b_id
+            else:
+                perdedor_id = jogo_atual.team_a_id
             print(f"🥅 Empate no jogo {jogo_atual.id}! Vencedor nos pênaltis: {vencedor_id}")
         else:
             print(f"🛑 Empate no jogo {jogo_atual.id}! Ninguém avança automático sem decisão por pênaltis.")
@@ -120,6 +127,7 @@ def avancar_mata_mata(jogo_atual):
 
     # O formato que criamos. Ex: 'W73'
     proximo_placeholder = f"W{jogo_atual.id}"
+    proximo_placeholder_perdedor = f"L{jogo_atual.id}"
     
     print(f"🔎 DEBUG: O jogo atual é o ID {jogo_atual.id}.")
     print(f"🔎 DEBUG: Procurando o próximo jogo que tenha o placeholder exato: '{proximo_placeholder}'")
@@ -138,6 +146,20 @@ def avancar_mata_mata(jogo_atual):
         db.session.commit()
     else:
         print(f"❌ DEBUG: Não achei NENHUM jogo com o texto '{proximo_placeholder}'.")
+
+    if perdedor_id:
+        proximo_jogo_perdedor = Game.query.filter(
+            (Game.placeholder_a == proximo_placeholder_perdedor) | 
+            (Game.placeholder_b == proximo_placeholder_perdedor)
+        ).first()
+
+        if proximo_jogo_perdedor:
+            print(f"✅ DEBUG: Achei jogo de perdedor (3º Lugar)! É o ID {proximo_jogo_perdedor.id}. Injetando o time {perdedor_id}.")
+            if proximo_jogo_perdedor.placeholder_a == proximo_placeholder_perdedor:
+                proximo_jogo_perdedor.team_a_id = perdedor_id
+            else:
+                proximo_jogo_perdedor.team_b_id = perdedor_id
+            db.session.commit()
 
 def calcular_pontos_palpite(p_a, p_b, r_a, r_b):
     if p_a is None or p_b is None or r_a is None or r_b is None:
